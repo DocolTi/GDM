@@ -1,0 +1,69 @@
+/*📌--min-card-width é a variável que define a largura mínima dos cartões, e o valor padrão é 165px.📌*/
+:root {
+    --min-card-width: 195px; /* Valor padrão */
+}
+
+.modal1 {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+.close-button {
+    background-color: brown;
+    color: #aaa;
+    float: right;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.excel-like-table th, .excel-like-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Estilo semelhante ao Excel para lista */
+#listaView {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#listaView li {
+    display: table-row;
+}
+
+#listaView li:nth-child(1) {
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+#listaView li div {
+    display: table-cell;
+    padding: 8px;
+    border: 1px solid #dddddd;
+    text-align: left;
+}
+
+.card-container .card1 {
+    border: 1px solid #dddddd;
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: #fff;
+}
+
+/* Adicione mais estilos conforme necessário */

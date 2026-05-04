@@ -1,0 +1,131 @@
+/*📌📌📌________________________________________________________________________________________________📌📌📌*/ 
+/*📌--min-card-width é a variável que define a largura mínima dos cartões, e o valor padrão é 165px.📌*/
+:root {
+  --min-card-width: 320px; /* Valor padrão */
+}
+
+/*📌📌📌_______________________________________________ card _________________________________________________📌📌📌*/
+.card-content button{
+  text-shadow: var(--paleta0); /* Sombra no texto para melhorar a leitura */
+  height: 30px;
+  width: 100px;
+  margin-top: 5px;
+  background-color: var(--paleta30);
+  color: var(--paleta31);
+  border: 1px solid var(--paleta31);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.card-content button:hover {
+  background-color: var(--paleta33);
+  color: var(--paleta32);
+  border: 1px solid var(--paleta32);
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  flex-wrap: wrap;
+  padding: 2px;
+}
+
+.card-content {
+  width: 300px;
+  background-color: var(--paleta250);
+  border: 1px solid var(--paleta251);
+  box-shadow: 1px 3px 4px var(--paleta1); /* Sombra 3D */
+  transition: transform 0.3s ease;
+  padding: 10px;
+  max-width: 400px;
+}
+
+.card-content:hover {
+  transform: translateY(-5px);
+}
+
+.card-content h2 {
+  border-radius: 8px;
+  border: 1px solid var(--paleta11);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px 0; /* Reduz a margem superior e inferior */
+  padding: 0; /* Remove o espaçamento interno */
+  font-size: 12px;
+}
+
+.card-content p {
+  margin: 4px 0; /* Reduz a margem superior e inferior */
+  padding: 0; /* Remove o espaçamento interno */
+  font-size: 12px;
+}
+
+/* Estilo para o texto "Código ZPL" */
+.cod-zpl-label {
+  font-size: 0.8rem; /* Defina o tamanho da fonte desejado */
+  display: -webkit-box;
+  -webkit-line-clamp: 6; /* Número de linhas que você deseja exibir */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* Oculta o conteúdo que ultrapassa as linhas especificadas */
+}
+.card-image-container {
+  border-radius: 8px;
+  width: 300px; /* Largura do retângulo */
+  height: 150px; /* Altura do retângulo */
+  overflow: hidden; /* Esconde qualquer parte da imagem que exceda o tamanho do contêiner */
+  display: flex; /* Usa Flexbox para centralizar a imagem */
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Centraliza verticalmente */
+  border: 1px solid var(--paleta11); /* Adiciona uma borda ao contêiner, se desejar */
+}
+
+.card-image-container img {
+    max-width: 100%; /* Garante que a largura da imagem não exceda o contêiner */
+    max-height: 100%; /* Garante que a altura da imagem não exceda o contêiner */
+    object-fit: contain; /* Mantém a proporção da imagem ao ajustar */
+}
+
+/*📌📌📌_______________________________________________ Formulario de visão de etiqueta _________________________________________________📌📌📌*/
+.overlay4 {
+  display: none; 
+  position: fixed; 
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.9); 
+  display: flex; /* Adiciona flexbox */
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Centraliza verticalmente */
+}
+
+.modal4 {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+  text-align: center; /* Centraliza todo o conteúdo dentro do modal */
+}
+
+.close4 {
+  position: absolute;
+  top: -30px;
+  right: 10px;
+  color: #f5ecec; /* Altere a cor para se destacar sobre o fundo branco */
+  font-size: 30px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close4:hover,
+.close4:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}

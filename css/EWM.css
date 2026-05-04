@@ -1,0 +1,244 @@
+/* ==============================
+   Geral
+============================== */
+body, html {
+    padding: 0;
+    margin-left: 25px;
+    font-family: Arial, sans-serif;
+    transition: margin-left 0.5s; /* Suaviza a transição do corpo */
+}
+
+h2 {
+    margin-top: 0;
+    color: #00a9e0;
+}
+
+/* ==============================
+   Layout dos Gráficos
+============================== */
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.dashboard {
+    background-color: var(--paleta601);
+    color: var(--paleta620);
+    padding: 5px;
+    flex: 1 1 calc(10% - 40px);
+    min-width: 410px;
+    max-width: 20%;
+    text-align: center;
+    box-shadow: 0 4px 8px var(--paleta602);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--paleta602);
+}
+
+/* ==============================
+   Gráficos de Barras
+============================== */
+.bar-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.bar {
+    background-color: var(--paleta601);
+    padding: 5px;
+    text-align: center;
+    box-shadow: 0 4px 8px var(--paleta602);
+    height: 30vh;
+}
+
+.bar1 { width: 20%; }
+.bar2 { width: 50%; }
+.bar3 { width: 30%; }
+.bar4 { width: 100%; height: 50vh; }
+
+/* ==============================
+   Estilos de Tabelas
+============================== */
+.table-container {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaço entre as tabelas */
+    width: 100%;
+}
+
+.table-main, .table-aux-container {
+    width: 100%;
+}
+
+.table-main, .table-aux {
+    border-collapse: collapse;
+}
+
+.table-main th, .table-main td,
+.table-aux th, .table-aux td {
+    font-size: 12px;
+    border: 1px solid var(--paleta602);
+    padding: 2px;
+    text-align: left;
+}
+
+.table-aux-container {
+    max-height: 1150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.table-aux th, .table-aux td {
+    padding: 8px;
+    text-align: center;
+}
+
+/* ==============================
+   Estilos para Tabelas no Container
+============================== */
+#tableContainer table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#tableContainer th, #tableContainer td {
+    font-size: 16px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: left;
+}
+
+#tableContainer tr:hover td {
+    background-color: #00a9e0;
+    color: #ffffff;
+    box-shadow: inset 0px 0px 20px #00a9e0;
+}
+
+#tableContainer tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* ==============================
+   Estilos das Tabelas do Dashboard
+============================== */
+.dashboard-table {
+    color: #272222;
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+    font-size: 12px;
+    text-align: left;
+}
+
+.dashboard-table th, .dashboard-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.dashboard-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    color: #333;
+}
+
+.dashboard-table tr:nth-child(even) {
+    background-color: inherit;
+}
+
+.dashboard-table tr:hover {
+    background-color: #d3e4f7;
+}
+
+
+/* ==============================
+   Estilos das Linhas com Ruptura
+============================== */
+.ruptura-row {
+    background-color: #ffcccc !important;
+    color: #524e4e !important;
+    font-weight: bold;
+}
+
+.ruptura-row:hover {
+    background-color: #ff9999 !important;
+    color: #ffffff !important;
+}
+
+/* ==============================
+   Botões
+============================== */
+.toggle-button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.toggle-button {
+    border-radius: 4px; /* Bordas arredondadas */
+    background-color: #00a9e0;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 5px;
+    box-shadow: 0 4px 8px #31313152;
+}
+
+.toggle-button:hover {
+    background-color: #ffffff;
+    color: #00a9e0;
+}
+
+.hidden-button {
+    background-color: #d3d3d3;
+    color: #000;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.hidden-button:hover {
+    background-color: #d3d3d3;
+    color: #000;
+}
+/* ==============================
+   Estilos Responsivos
+============================== */
+@media (max-width: 1200px) {
+    .table-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .table-main {
+        width: 100%;
+        margin: 0;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 800px) {
+    .dashboard {
+        flex: 1 1 100%;
+    }
+    .bar1, .bar2 {
+        width: 100%;
+    }
+}
+
+/* ==============================
+   Classes Auxiliares
+============================== */
+.hidden {
+    display: none;
+}

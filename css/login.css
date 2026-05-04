@@ -1,0 +1,173 @@
+/* Reseta as margens e paddings, definindo a base do layout responsivo */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--paleta9);
+    color: var(--paleta6);
+    font-family: 'Roboto', sans-serif; /* Fonte moderna e legível */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    z-index: 1000;
+    margin: 0 20px; /* Margens para evitar que o conteúdo grude nas bordas */
+}
+
+#app {
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1); /* Background com transparência para um look mais moderno */
+    backdrop-filter: blur(10px); /* Efeito de desfoque para background */
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px; /* Limita a largura máxima para telas maiores */
+    width: 100%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra sutil e elegante */
+}
+
+/* _____________________________________________ Imagem Cabeçalho ___________________________________________________*/
+
+.imagem {
+    margin-top: -5px;
+    margin-bottom: 15px;
+    width: 100px;
+    height: 100px;
+    transition: transform 0.3s, filter 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adiciona uma sombra mais sutil e moderna */
+    border-radius: 50%; /* Torna a imagem circular */
+    object-fit: cover; /* Garante que a imagem mantenha as proporções dentro do contorno */
+}
+
+.imagem:hover {
+    transform: scale(1.1) rotate(5deg); /* Ajusta a rotação para ser mais suave e menos intensa */
+    filter: grayscale(50%); /* Escala de cinza sutil ao passar o mouse */
+}
+
+/* ____________________________________________ Cadastro _______________________________________________*/
+
+.cadastro { 
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+}
+
+/* Estilo para labels do formulário */
+.cadastro label {
+    font-size: 14px; /* Reduzido para harmonizar com um layout mais compacto */
+    margin-bottom: 5px;
+    color: var(--paleta6); /* Cor do texto combinando com o tema */
+    text-transform: uppercase; /* Torna o texto do label em letras maiúsculas */
+    font-weight: bold; /* Aumenta a importância do label */
+}
+
+/* Estilo para campos de entrada do formulário */
+.cadastro input {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil e moderna */
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+    height: 40px;
+    width: 100%; /* Largura total para responsividade */
+    border: 1px solid var(--paleta7);
+    padding: 5px 10px;
+    transition: border-color 0.3s;
+}
+
+.cadastro input:focus {
+    border-color: var(--paleta8); /* Altera a cor da borda ao focar */
+    outline: none; /* Remove o contorno padrão */
+}
+
+/* Estilo para o botão */
+#app button {
+    background: var(--paleta8);
+    width: 100%; /* Largura total para responsividade */
+    max-width: 150px; /* Limita a largura máxima do botão */
+    height: 45px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    margin-top: 20px;
+}
+
+#app button:hover {
+    background: var(--paleta8-hover); /* Altera a cor ao passar o mouse */
+    transform: translateY(-2px); /* Eleva o botão levemente */
+}
+
+.center {
+    text-align: center;
+}
+
+/* Animação para uma vibração sutil */
+@keyframes vibrate {
+    0% {
+        transform: translate(0, 0);
+    }
+    10% {
+        transform: translate(-1px, -1px);
+    }
+    20% {
+        transform: translate(1px, 1px);
+    }
+    30% {
+        transform: translate(-1px, -1px);
+    }
+    40% {
+        transform: translate(1px, 1px);
+    }
+    50% {
+        transform: translate(-1px, -1px);
+    }
+    60% {
+        transform: translate(1px, 1px);
+    }
+    70% {
+        transform: translate(-1px, -1px);
+    }
+    80% {
+        transform: translate(1px, 1px);
+    }
+    90% {
+        transform: translate(-1px, -1px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+/* Responsividade para diferentes tamanhos de tela */
+@media (max-width: 768px) {
+    #app {
+        padding: 20px;
+    }
+
+    .imagem {
+        width: 80px;
+        height: 80px;
+    }
+
+    #app button {
+        max-width: 100%;
+        margin-top: 15px;
+    }
+}

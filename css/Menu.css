@@ -1,0 +1,51 @@
+#dialog {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  margin-top: 0px;
+  overflow-y: auto;
+  font-size: 12px;
+  justify-content: center; /* Centraliza os itens horizontalmente */
+  align-items: flex-start; /* Alinha os itens ao topo */
+}
+
+.card {
+  width: 200px; /* Define uma largura fixa para os cards */
+  height: auto; /* Ajusta automaticamente a altura com base no conteúdo */
+  border: 1px solid #ccc; /* Adiciona uma borda para o card */
+  border-radius: 5px; /* Borda arredondada */
+  overflow: hidden; /* Garante que o conteúdo fique dentro do card */
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para o card */
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card button {
+  border: var(--paleta11);
+  box-shadow: 0px 0px 5px var(--paleta1); /* Sombra 3D */
+  background-color: var(--paleta10); 
+  width: 200px;
+  height: 200px;
+}
+
+
+#ImgButton {
+  width: 60%; /* A imagem ocupará 100% da largura do card */
+  height: auto; /* Mantém a proporção da imagem */
+  max-height: 200px; /* Define um limite máximo de altura */
+  object-fit: cover; /* Ajusta a imagem para cobrir o elemento sem distorcer */
+}
+
+.card label {
+  justify-content: center; /* Centraliza os itens horizontalmente */
+  align-items: flex-start; /* Alinha os itens ao topo */
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px; /* Adiciona espaçamento interno ao rótulo */
+  text-align: center; /* Centraliza o texto dentro do label */
+}

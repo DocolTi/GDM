@@ -1,0 +1,706 @@
+
+
+  body {
+    padding-top: 2%  !important; /* Agora ajusta automaticamente */
+  }
+
+/*📌📌📌__________________________________________________________________________________________________________________📌📌📌*/
+/*📌📌📌_______________________________________________ Cabeçario Padrão _________________________________________________📌📌📌*/
+.header1 {
+    align-items: center; /* Centraliza verticalmente o conteúdo */
+    height:9px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #ffffff;
+    width: 100%;
+    background: var(--tooltip-fundo);
+    color: var(--tooltip-cor);
+    text-align: center;
+    padding: 20px 0;
+    z-index: 1000; /* Para garantir que o cabeçalho esteja sempre na frente */
+    background-repeat: no-repeat;
+    background-size:cover;
+    background-attachment: fixed;
+}
+
+.header1 h1 {
+    position:absolute;
+    height: auto;
+    width: 280px;
+    top: 5%; /* Altere as unidades de medida conforme necessário */
+    left: 50%; /* Altere as unidades de medida conforme necessário */
+    transform: translate(-50%, -50%);
+    padding: 5px;
+    color: var(--tooltip-cor);
+    text-align: center;
+    font-size: 24px;
+}
+
+
+.header1 button {
+        margin: 10px;
+}
+
+/* ================================
+    MODAL
+================================ */
+
+.modal {
+    width: 490px !important;
+    max-width: 520px !important;
+    background: var(--form-bg);
+    color: var(--form-text);
+    padding: 20px 25px;
+    border-radius: 10px;
+    transition: all .3s ease;
+}
+/* ================================
+   TÍTULO DO FORMULÁRIO
+================================ */
+
+.modal h2 {
+    text-align: center;
+    color: var(--form-headline-color);
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+/* ==============================
+  Menu Lateral
+============================== */
+@media (max-width: 720px) {
+    .sidebar-buttons-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        width: 100%;
+    }
+    .header h1 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+}
+:root { --header-height: 5vh; }
+@media (max-width: 720px) { :root { --header-height: 5.0vh; } }
+
+/* ============================================
+   FORM COM LINHAS BEM ALINHADAS
+============================================ */
+.linha {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+/* rótulos */
+.linha label {
+    width: 100px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #3a2f24;
+    text-align: right;
+}
+
+/* inputs */
+.linha input,
+.linha select,
+.linha textarea {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 2px solid #b49f84;
+    background: #fffdf8;
+    border-radius: 4px;
+    height: 30px;
+}/* inputs */
+
+.linha select{
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 16px;
+    color: #757575;
+    border: 2px solid #b49f84;
+    background: #fffdf8;
+    border-radius: 4px;
+    height: 35px;
+}
+
+/* ============================================
+   BOTÃO SALVAR (grande, largo)
+============================================ */
+#btnSalvar {
+    width: 100%;
+    background: var(--form-btn-salvar-fundo);
+    border: 2px solid var(--form-btn-salvar-border);
+    padding: 20px;
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--form-btn-salvar-font);
+    cursor: pointer;
+    margin-top: 65px;
+    border-radius: 4px;
+}
+
+#btnSalvar:hover {
+  color:var(--form-btn-salvar-font-hover);
+  background: var(--form-btn-salvar-fundo-hover);
+}
+
+/* ============================================
+   BOTÃO CANCELAR (grande, largo)
+============================================ */
+.btn-cancelar {
+    width: 100%;
+    background: var(--form-btn-cancelar-fundo)!important;
+    border: 2px solid  var(--form-btn-cancelar-border)!important;
+    padding: 20px;
+    font-size: 20px;
+    color: var(--form-btn-cancelar-font)!important;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  color:var(--form-btn-cancelar-font-hover)!important;
+  background: var(--form-btn-cancelar-fundo-hover)!important;
+}
+/* ============================================
+   REMOÇÃO DO SCROLL HORIZONTAL DESNECESSÁRIO
+============================================ */
+body {
+    overflow-x: hidden !important;
+}
+
+/* ===============================
+   GRID PRINCIPAL – RESPONSIVO
+================================*/
+.grid-mes {
+    display: grid;
+    justify-content: end;
+    align-content: start;
+    gap: 10px;
+    padding: 10px;
+    width: 100%;
+    height: calc(100vh - 100px);
+    box-sizing: border-box;
+}
+
+/* ===============================
+   CARD BASE
+================================*/
+.grid-item {
+    width: var(--card-size);
+    height: var(--card-size);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 5px 3px;
+    border-radius: 14px;
+    background: #4CAF50;
+    color: white;
+
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    transition: all .25s ease;
+
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Hover do card */
+.grid-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+/* ===============================
+   STATUS GROUP (fixo + colado)
+================================*/
+.card-status-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    width: 90%;
+    margin-top: 6px;
+}
+
+/* ===============================
+   ELEMENTOS INTERNOS DO CARD
+================================*/
+
+/* Título principal */
+.card-title {
+    font-weight: 700;
+    font-size: calc(var(--card-size) * 0.15);
+    line-height: 1.1;
+}
+
+/* Motivo */
+.card-motivo {
+    font-size: calc(var(--card-size) * 0.10);
+    opacity: 0.9;
+}
+
+/* Indicador de gargalo */
+.card-gargalo {
+    position: absolute;
+    top: 20%;
+    font-size: calc(var(--card-size) * 0.18);
+    color: white;
+    text-shadow: 1px 1px 3px black;
+    pointer-events: none;
+    opacity: 1 !important;
+    z-index: 99;
+}
+
+/* Material */
+.card-material {
+    font-size: calc(var(--card-size) * 0.07);
+    margin-top: 4px;
+    opacity: .9;
+}
+
+/* ===============================
+   BADGES DE STATUS / NÍVEIS
+================================*/
+.card-status,
+.card-nivel,
+.card-nivel1,
+.card-nivel2 {
+    width: 90%;
+    padding: 5px 3px;
+    border-radius: 14px;
+    font-size: calc(var(--card-size) * 0.09);
+    opacity: .95;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* STATUS PADRÃO */
+.card-status {
+    border: 1px solid rgba(255, 255, 255, 0.486);
+    color: #f7f7f7;
+    margin-bottom: 4px;
+}
+
+/* NIVEL (vermelho) */
+.card-nivel {
+    background: #D32F2F;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #f7f7f7;
+    box-shadow:
+        0px 3px 6px rgba(0,0,0,0.35),
+        0px 8px 20px rgba(0,0,0,0.45),
+        inset 0px 1px 1px rgba(255,255,255,0.82);
+}
+
+/* NIVEL (vermelho) */
+.card-nivel2 {
+    background: #d38c2f;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #f7f7f7;
+    box-shadow:
+        0px 3px 6px rgba(0,0,0,0.35),
+        0px 8px 20px rgba(0,0,0,0.45),
+        inset 0px 1px 1px rgba(255,255,255,0.82);
+}
+
+/* NIVEL 1 (cinza) */
+.card-nivel1 {
+    background: rgba(25, 109, 0, 0.753);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #f7f7f7;
+    box-shadow:
+        0px 3px 6px rgba(0,0,0,0.35),
+        0px 8px 20px rgba(0,0,0,0.45),
+        inset 0px 1px 1px rgba(255,255,255,0.12);
+}
+
+/* Hover compartilhado */
+.card-nivel:hover,
+.card-nivel1:hover,
+.card-nivel2:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow:
+        0px 5px 12px rgba(0,0,0,0.40),
+        0px 15px 25px rgba(0,0,0,0.55),
+        inset 0px 1px 2px rgba(255,255,255,0.10);
+}
+
+/* ===============================
+   CORES DE STATUS
+================================*/
+.ok {
+    background: #4CAF50;
+}
+
+.turno-inativo {
+    background: #1E88E5;
+}
+
+.setup{
+    background: #e5881e;
+}
+
+.parado {
+    background: #D32F2F;
+}
+
+.Nlevantes{
+    background: #9e9e9e;
+}
+
+.justificativa{
+    background: #8caf4c;
+}
+
+.logistica {
+    position: relative;
+    margin-left: -20px;
+    margin-top: -20px;
+    width: 16px;
+    height: 16px;
+}
+
+.logistica::before,
+.logistica::after {
+    content: "";
+    position: absolute;
+    background-color: #ff6f00;
+    animation: riscoBlink 0.3s infinite;
+}
+
+.logistica::before {
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    height: 20px;
+}
+
+.logistica::after {
+    left: 0;
+    bottom: 0;
+    width: 14px;
+    height: 4px;
+}
+
+/* flash de atualização */
+.grid-item.flash {
+    animation: flash 0.6s ease;
+}
+
+@keyframes flash {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.0); }
+    100% { transform: scale(1); }
+}
+
+/* ============================================
+   BADGE PVD – borda amarela premium
+============================================ */
+.pvd-badge {
+    border: 3px solid #ffdd33;
+    padding: 2px 14px;
+    border-radius: 6px;
+    background: rgba(255, 221, 51, 0.18);
+    font-weight: 800;
+    color: #ffdd33;
+    text-shadow: 1px 1px 3px rgba(0,0,0,.45);
+    font-size: calc(var(--card-size) * 0.11);
+}
+
+/* Dark */
+.dark-mode .pvd-badge {
+    background: rgba(255, 221, 51, 0.22);
+    border-color: #ffcc00;
+    color: #ffcc00;
+}
+/* ================================
+   BORDAS ESPECIAIS
+================================ */
+
+/* ================================
+   BOLINHA DE RISCO – ANIMAÇÃO
+================================ */
+.bolinha-risco {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ff6f00; /* laranja */
+    animation: riscoBlink 0.3s infinite;
+}
+/* Animação de piscar */
+@keyframes riscoBlink {
+    0%   { background-color: #ffffff; } /* laranja */
+    25%  { background-color: #ff0000; } /* vermelho */
+    50%  { background-color: #00ffff; } /* vermelho */
+    75%  { background-color: #0011ff; } /* vermelho */
+    100% { background-color: #ffcc00; }
+}
+
+/* ============================
+      BORDA PARA GARGALO = SIM
+============================= */
+/* ================================
+   GARGALO – BORDER FIRE
+================================ */
+.gargalo-border {
+    border: 1px solid #ff5722;
+    box-shadow:
+        0 0 14px #ff5722,
+        0 0 26px #ff5722,
+        0 0 38px rgba(255, 87, 34, 0.9),
+        inset 0 0 12px rgba(255, 87, 34, 0.35);
+    animation: gargaloPulse 2s infinite ease-in-out;
+}
+
+@keyframes gargaloPulse {
+    0% {
+        box-shadow:
+            0 0 12px #ff5722,
+            0 0 26px #ff5722,
+            0 0 40px rgba(255, 87, 34, 0.85),
+            inset 0 0 10px rgba(255, 87, 34, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 0 20px #ff5722,
+            0 0 36px #ff784e,
+            0 0 60px rgba(255, 87, 34, 1),
+            inset 0 0 16px rgba(255, 87, 34, 0.45);
+    }
+    100% {
+        box-shadow:
+            0 0 12px #ff5722,
+            0 0 26px #ff5722,
+            0 0 40px rgba(255, 87, 34, 0.85),
+            inset 0 0 10px rgba(255, 87, 34, 0.3);
+    }
+}
+
+/* ===============================
+   Tooltip Premium com Linhas
+================================*/
+.tooltip-box {
+    position: fixed;
+    background: var(--tooltip-fundo);
+    color: var(--tooltip-cor);
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 15px;
+    max-width: 340px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 9999;
+
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.40);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.tooltip-box.visible {
+    opacity: 1;
+    transform: translateY(0px);
+}
+
+/* Título */
+.tooltip-title {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--tooltip-cor);
+}
+
+/* Container das linhas */
+.tooltip-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Linha individual */
+.tooltip-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tooltip-line:last-child {
+    border-bottom: none;
+}
+
+/* Label */
+.tooltip-label {
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+/* Valor */
+.tooltip-value {
+    font-weight: 700;
+    text-align: right;
+}
+.tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.tooltip-row span {
+    opacity: 0.7;
+}
+
+.tooltip-row strong {
+    font-weight: 600;
+}
+
+/* ===============================
+   CAMPO DE ERRO
+================================*/
+.campo-erro {
+    border: 2px solid #E53935 !important;
+    background: #ffebee !important;
+}
+
+/* ===============================
+   BOTÕES RÁPIDOS
+================================*/
+
+/* GRID PRINCIPAL DO FORM */
+.form-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.quick-buttons {
+    border-radius: 6px;
+    border: 1px solid var(--form-input-border);
+    padding: 10px;
+    width: 200px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 5px;
+}
+.form-fields .linha {
+    margin-bottom: 5px;
+}
+
+.quick-btn {
+    color: rgb(255, 255, 255) !important;
+    background-color:#ff7979 !important;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.quick-btn1 {
+    color: rgb(255, 255, 255) !important;
+    background-color: yellowgreen !important;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.quick-btn:hover {
+    background: #dcdcdc;
+}
+
+.quick-btn:active {
+    transform: scale(0.96);
+}
+
+.card-ultimo-apont {
+    font-size: calc(var(--card-size) * 0.07);
+    color: #e0e0e0;
+    margin-top: 2px;
+    opacity: 0.9;
+}
+
+/* opcional: centralizar melhor no form desta tela */
+.linha-switch-palete .switch {
+    margin: 0;
+}
+/* ================================
+   PALETE FECHADO – Borda diagonal + texto
+================================ */
+
+.palete-fechado-border::before {
+    content: "PALETE FECHADO";
+    position: absolute;
+    top: 50%;
+    left: 95%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+
+    white-space: nowrap;
+    line-height: 1;
+    text-align: center;
+
+    font-size: clamp(7px, calc(var(--card-size) * 0.08), 14px);
+    font-weight: 800;
+    letter-spacing: clamp(0.5px, calc(var(--card-size) * 0.01), 2px);
+
+    color: rgba(0, 0, 0, 0.5); /* efeito transparente */
+
+    pointer-events: none;
+}
+
+
+/* ================================
+   MES – Borda com faixa diagonal e texto vazado
+================================ */
+.mes-border {
+    /* faixa preta no meio */
+    background-image: linear-gradient(
+        45deg,
+        transparent 45%,
+        rgba(0, 0, 0, 0.30) 40%,
+        rgba(0, 0, 0, 0.30) 55%,
+        transparent 55%
+    );
+
+    background-blend-mode: overlay;
+
+}
+
+/* TEXTO "MES" VAZADO NA FAIXA */
+.mes-border::after {
+    content: "MES";
+    position: absolute;
+    top: 30%;
+    left: 29%;
+
+    transform: translate(-50%, -50%) rotate(45deg);
+
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 4px;
+
+    color: rgba(255, 255, 255, 0.26); /* efeito transparente */
+    mix-blend-mode: overlay;       /* efeito vazado */
+
+    pointer-events: none;
+}
