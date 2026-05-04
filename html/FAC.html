@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo de Gráficos com Chart.js</title>
+    <script src="/GDM/js/FAC.js"></script> <!-- Seu arquivo FAC.js -->
+</head>
+<body>
+    <div class="header">
+        <h1>ROTINA DOS FACILITADORES</h1>
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button> 
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <div class="sidebar-buttons-container">
+            <button class="sidebar-button" type="button" onclick="openForm0()">SETOR</button>
+        </div>
+    </div>
+    <div class="chart-container">
+        <div class="pie-charts">
+            <h2>Gráficos em Pizza</h2>
+            <div class="chart-pie" id="pieChartsRow"></div>
+        </div>
+
+        <div class="bar-charts">
+            <h2>Gráficos de Barras</h2>
+            <div class="chart-bar" id="barChartsRow"></div>
+        </div>
+    </div>
+        <!-- Formulário sobreposto -->
+        <div class="overlay" id="overlay0">
+            <div class="modal">
+                <h2>Apontamento</h2>
+                <form id="formNovoApont0">                    
+                    <button type="submit">Salvar</button>
+                    <button type="button" onclick="closeForm0()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    <script>
+        function openForm0() {
+            document.getElementById("overlay0").style.display = "block";
+            // Selecione o formulário pelo ID ou outra referência, se necessário
+            const form = document.getElementById("overlay0"); // Substitua "meuFormulario" pelo ID do seu formulário
+            const firstInput = form.querySelector("input"); // Isso selecionará o primeiro elemento input do formulário
+            if (firstInput) {
+                firstInput.focus();
+            }
+            carregarHoraAtual()
+        }
+        function closeForm0() {
+            document.getElementById("overlay0").style.display = "none";
+        }
+    </script>
+
+    <link rel="stylesheet" href="/GDM/css/FAC.css">
+    <link rel="stylesheet" href="/GDM/css/public.css">
+</body>
+</html>

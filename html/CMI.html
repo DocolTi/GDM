@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga Máquina Importar</title>
+</head>
+<body>
+    <div class="popup" id="popup"></div>
+    <div class="header">       
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button> 
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <h1>CARGA MÁQUINA</h1>
+        <label class="titulo-escopo">Importar</label>
+    </div>
+
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+        <button type="submit">Enviar</button>
+    </form>
+
+
+
+
+
+    <div class="main-container">
+        <div class="content-container">
+            <div class="comunicados-container">
+                <input type="file" id="csvFileInput" accept=".csv">
+                <button id="loadDataBtn">Carregar e Exibir Dados</button>
+                <div id="pedidosContainer"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+
+        const BASE_URL = 'http://localhost:5500'; // Atualize a URL base se necessário
+
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('csvFile');
+            formData.append('csvFile', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${BASE_URL}/upload-csv`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                console.log('Success:', result);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        document.getElementById('loadDataBtn').addEventListener('click', function() {
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    Papa.parse(text, {
+                        header: false,
+                        delimiter: ';', // Configuração do delimitador para ponto e vírgula
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            let dados = results.data;
+                            dados = dados.slice(9); // Ignora as primeiras 9 linhas, começando a ler a partir da décima
+                            localStorage.setItem('dadosDetalhados', JSON.stringify(dados));
+                            dados.shift(); // Remove o cabeçalho se houver
+                            renderizarComoLista(dados);
+                            contarLogins(dados);
+                        }
+                    });
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Por favor, selecione um arquivo CSV.');
+            }
+        });
+
+        function renderizarComoLista(data) {
+            const pedidosContainer = document.getElementById('pedidosContainer');
+            pedidosContainer.innerHTML = ''; // Limpa o contêiner
+
+            const tabela = document.createElement('table');
+            tabela.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Centro de custo</th>
+                        <th>Descricao Centro de Custo</th>
+                        <th>Centro</th>
+                        <th>Centro de trabalho</th>
+                        <th>Descricao Centro de Trabalho</th>
+                        <th>Gestor do CC</th>
+                        <th>Periodo</th>
+                        <th>Dias Uteis</th>
+                        <th>Horas Disponiveis</th>
+                        <th>Horas de Ocupacao</th>
+                        <th>Horas de Ocupacao OEE</th>
+                        <th>% de OEE</th>
+                        <th>Quantidade de Maquinas</th>
+                        <th>T1</th>
+                        <th>T2</th>
+                        <th>T3</th>
+                        <th>Revezamento</th>
+                        <th>Horas Tryout</th>
+                        <th>Horas Preventiva</th>
+                        <th>Porcentagem</th>
+                    </tr>
+                </thead>
+            `;
+            const tbody = document.createElement('tbody');
+            tabela.appendChild(tbody);
+
+            data.forEach(linha => {
+                const row = tbody.insertRow();
+                linha.forEach((cell, index) => {
+                    row.insertCell().textContent = cell;
+                });
+            });
+
+            pedidosContainer.appendChild(tabela);
+        }
+
+        function contarLogins(data) {
+            const resultados = [];
+            const filtros = {
+                centroDeCusto: new Set(),
+                descriDeCusto: new Set(),
+                centroDeTrabalho: new Set(),
+                gestorDoCC: new Set(),
+                periodo: new Set()
+            };
+        
+            data.forEach(item => {
+                const nomeItem = item[3]; // Item da coluna 4
+                const valorPorcentagem = parseFloat(item[19]); // Valor da coluna 20
+                filtros.centroDeCusto.add(item[0]); // Coluna 0 - Número do Centro de custo
+                filtros.descriDeCusto.add(item[1]); // Coluna 2 - Centro de custo
+                filtros.centroDeTrabalho.add(item[3]); // Coluna 4 - Centro de trabalho
+                filtros.gestorDoCC.add(item[5]); // Coluna 6 - Gestor do CC
+                filtros.periodo.add(item[6]); // Coluna 6 - Periodo
+        
+                let cor;
+                if (valorPorcentagem <= 79) {
+                    cor = 'green';
+                } else if (valorPorcentagem > 79 && valorPorcentagem <= 99) {
+                    cor = 'yellow';
+                } else if (valorPorcentagem > 99) {
+                    cor = 'red';
+                }
+        
+                resultados.push({
+                    centroDeCusto: item[0],
+                    descriDeCusto: item[1],
+                    centroDeTrabalho: item[3],
+                    gestorDoCC: item[5],
+                    periodo: item[6],
+                    qtdMaq: item[12],
+                    t1: item[13],
+                    t2: item[14],
+                    t3: item[15],
+                    revezamento: item[16],
+                    nome: nomeItem,
+                    valor: valorPorcentagem,
+                    cor: cor
+                });
+            });
+        
+            localStorage.setItem('resultados', JSON.stringify(resultados));
+            localStorage.setItem('filtros', JSON.stringify({
+                centroDeCusto: Array.from(filtros.centroDeCusto),
+                descriDeCusto: Array.from(filtros.descriDeCusto),
+                centroDeTrabalho: Array.from(filtros.centroDeTrabalho),
+                gestorDoCC: Array.from(filtros.gestorDoCC),
+                periodo: Array.from(filtros.periodo)
+            }));
+            window.open('/html/CMG.html', '_blank');
+        }
+        
+    </script>
+
+    <link rel="stylesheet" href="/css/public.css">
+    <script src="/js/tempo.js"></script>
+    <script src="/js/PUBLIC.JS"></script>
+    <script src="/js/Menu.js"></script>
+</body>
+</html>

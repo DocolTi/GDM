@@ -1,0 +1,38 @@
+[
+    {
+        "id": "1",
+        "name": "Etiqueta Pequena",
+        "widthMM": 100,
+        "heightMM": 15,
+        "dpi": 203,
+        "numLabels": 3,
+        "lineThickness": 15
+    },
+    {
+        "id": "2",
+        "name": "Etiqueta Média",
+        "widthMM": 150,
+        "heightMM": 50,
+        "dpi": 300,
+        "numLabels": 1,
+        "lineThickness": 3
+    },
+    {
+        "id": "3",
+        "name": "Etiqueta com duas 108 - 75 x 50 ",
+        "widthMM": 65,
+        "heightMM": 50,
+        "dpi": 300,
+        "numLabels": 2,
+        "lineThickness": 10
+    },
+    {
+        "id": "4",
+        "name": "Modelo 1 (50 x 75)",
+        "widthMM": 50,
+        "heightMM": 75,
+        "dpi": 300,
+        "numLabels": 2,
+        "lineThickness": 30
+    }
+]

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/gdm/imagem/Troca Rapida.ico">
+    <title>GDM - Menu</title>
+</head>
+<body>
+  <style>.dialog {overflow-y: auto;}</style>
+    <div class="popup" id="popup"></div>
+
+        <div class="header">
+            <h1>GDM</h1>
+
+        <!-- Menu do usuário -->
+        <button class="user-menu-btn" id="userMenuBtn" type="button">
+            <span id="userName">Usuário</span>
+            <span class="user-menu-icon">&#x25BC;</span>
+        </button>
+        <div class="user-menu" id="userMenu" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Usuário</strong>
+            </div>
+            <button type="button" class="user-menu-logout"
+                onclick="location.href='https://docol.soft4.com.br/login?_redirect=%2Fchamado'">
+                Abrir ticket de suporte
+            </button>
+            <button onclick="carregarValores()" class="user-menu-logout">Menu</button>
+            <button onclick="carregarValores0()" class="user-menu-logout">Logout</button>
+            <img src="/gdm/img/docol_logo.png" alt="Docol Logo" style="width: 120px; height: 50px;">
+        </div>
+    </div>
+
+<footer class="footer-docol">
+   <div class="footer-dev">
+        Desenvolvido por <strong>Fernando Habeck</strong>
+    </div>
+
+    <img src="/gdm/img/docol_logo.png" class="footer-logo" alt="Logo Docol">
+</footer>
+
+    <div id="dialog" class="dialog">
+
+          <div class="card" draggable="true">        
+              <button onclick="carregarValores1()">
+                  <img id="ImgButton" src="/gdm/img/icons8-carrinho.png" alt="button">                                                   
+                  <label>Usinagem Docol III</label>
+              </h1>
+              </button>      
+          </div> 
+
+          <div class="card" draggable="true">                     
+            <button onclick="carregarValores2()">
+                <img id="ImgButton" src="/gdm/img/icons8-impressora.png" alt="button">                                                      
+                <label>Etiquetas</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">                     
+            <button onclick="carregarValores3()">
+                <img id="ImgButton" src="/gdm/img/icons8-agenda-96.png" alt="button">                                                                                                      
+                <label>Apontamento Ferramentaria</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">                     
+            <button onclick="carregarValores4()">
+                <img id="ImgButton" src="/gdm/img/icons8-adicionar-usuário-masculino.png" alt="button">                                                    
+                <label>Cadastro de usuário</label>                                                     
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">                     
+            <button onclick="carregarValores5()">
+                <img id="ImgButton" src="/gdm/img/icons8-manuseie-com-cuidado-64.png" alt="button">                                                   
+                <label>Carga Máquina</label>                                                      
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores6()">
+                <img id="ImgButton" src="/gdm/img/icons8-carrinho.png" alt="button">                                                   
+                <label>*Lixa Polimento*</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores8()">
+                <img id="ImgButton" src="/gdm/img/icons8-caliper-96.png" alt="button">                                                   
+                <label>Calibração</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores9()">
+              <img id="ImgButton" src="/gdm/img/icons8-ftp-64.png" alt="button">                                                   
+              <label>Conexão RGDNC</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores10()">
+              <img id="ImgButton" src="/gdm/img/soft-desk.png" alt="button">                                                   
+              <label>Soft Desk</label>
+            </button>      
+          </div> 
+          
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores11()">
+              <img id="ImgButton" src="/gdm/img/SAP.png" alt="button">                                                   
+              <label>SAP</label>
+            </button>      
+          </div> 
+                    
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores12()">
+              <img id="ImgButton" src="/gdm/img/icons8-meu-carrinho-64.png" alt="button">                                                   
+              <label>Monitor Docol 4 - EWM</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores13()">
+              <img id="ImgButton" src="/gdm/img/icons8-manuseie-com-cuidado-64.png" alt="button">                                                   
+              <label>Solicitar Reserva</label>
+            </button>      
+          </div>  
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores14()">
+              <img id="ImgButton" src="/gdm/img/FerramentaUsinagem.png" alt="button">                                                   
+              <label>Controle de Ferramentas</label>
+            </button>      
+          </div> 
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores15()">
+              <img id="ImgButton" src="/gdm/img/TI.png" alt="button">                                                   
+              <label>Controle de Equipamentos TI</label>
+            </button>      
+          </div>  
+
+          <div class="card" draggable="true">        
+            <button onclick="carregarValores16()">
+              <img id="ImgButton" src="/gdm/img/MonitorDocol4.png" alt="button">                                                   
+              <label>Monitor Fábrica</label>
+            </button>      
+          </div> 
+      </div>
+
+      <script>
+        window.onload = () => {
+            // Verificar se o usuário está autenticado
+            const usuarioLogado = localStorage.getItem('usuarioLogado');
+            if (usuarioLogado !== 'true') {
+                // Usuário não está autenticado; redirecionar para a página de login
+                window.location.href = '/gdm/login.html';
+            }
+        };
+/* ======================================================================
+    Conex
+====================================================================== */     
+            const BASE_URL = 'http://gdi.docol.com.br:5500';
+/* ======================================================================
+    ACESSOS
+====================================================================== */      
+            const userAcess = localStorage.getItem('acess') || '';  
+            const thirdNumber = userAcess.charAt(0);                
+
+            console.log('Log - 0' + thirdNumber);
+
+            if (thirdNumber === '0' || thirdNumber === '') {
+                alert('Acesso negado.');
+                window.location.href = '/gdm/login.html'; // Redireciona caso não tenha acesso
+            } else {
+                console.log('Acesso liberado: ' + thirdNumber);
+            }
+        //__________________________________________________________________________________________________________
+        //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+
+        function loadCSS(href) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          document.head.appendChild(link);
+      }
+
+      function loadJS(src, callback) {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = callback;
+          document.head.appendChild(script);
+      }
+/* ======================================================================
+    Pega o nome do usuário do localStorage (prioridade: nome > nomeUsuario > username > Usuário)
+====================================================================== */
+    const nomeUsuario =
+        localStorage.getItem('nome') ||
+        localStorage.getItem('nomeUsuario') ||
+        localStorage.getItem('username') ||
+        'Usuário';
+
+    // Atualiza apenas o mini menu
+    document.getElementById('userMenuName').textContent = nomeUsuario;
+
+    // Alterna o menu ao clicar no botão
+    document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('userMenu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Fecha o menu ao clicar fora
+    document.addEventListener('click', function() {
+        document.getElementById('userMenu').style.display = 'none';
+    });
+/* ======================================================================
+    FIM DO CÓDIGO DE USUÁRIO
+====================================================================== */
+      </script>
+
+      <link rel="stylesheet" href="/gdm/css/public.css">
+      <link rel="stylesheet" href="/gdm/css/Menu.css"/>
+      <script src="/gdm/js/public.js"></script>
+      <script src="/gdm/js/tempo.js"></script>
+      <script src="/gdm/js/Menu.js"></script>
+</body>
+</html>

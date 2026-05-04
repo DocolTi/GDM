@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAL</title>
+</head>
+<body>
+<!-- ============================
+    CABEÇALHO SECUNDÁRIO (Calibração)
+============================= -->
+    <!-- Cabeçalho -->
+    <div class="header1">
+        <h1>MONITOR DE FÁBRICA</h1>
+
+        <!-- Menu do usuário -->
+        <button class="user-menu-btn" id="userMenuBtn" type="button">
+            <span id="userName">Usuário</span>
+            <span class="user-menu-icon">&#x25BC;</span>
+        </button>
+
+        <div class="user-menu" id="userMenu" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Usuário</strong>
+            </div>
+            <button type="button" class="user-menu-logout"
+                onclick="location.href='https://docol.soft4.com.br/login?_redirect=%2Fchamado'">
+                Abrir ticket de suporte
+            </button>
+            <button onclick="carregarValores()" class="user-menu-logout">Menu</button>
+            <button onclick="carregarValores0()" class="user-menu-logout">Logout</button>
+            <img src="/gdm/img/docol_logo.png" alt="Docol Logo" style="width: 120px; height: 50px;">
+        </div>
+
+        <button class="user-menu-btn1" id="userMenuBtn1" type="button">
+            <span id="userName1">Menu</span>
+            <span class="user-menu-icon1">&#x25BC;</span>
+        </button>
+
+        <div class="user-menu1" id="userMenu1" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Menu</strong>
+            </div>
+
+            <a><button class="user-menu-logout" type="button" onclick="openForm()">Cadastro</button></a> 
+            <a><button class="user-menu-logout" id="btnPainelMes">Painel</button></a>
+            <a><button class="user-menu-logout" id="toggleTheme">🌙 / ☀️</button></a>
+
+            <img  class="LogoMenu" src="/gdm/img/docol_logo.png" alt="Docol Logo">
+        </div>
+    </div>
+</div>
+
+<div class="linha-separadora1"></div>
+
+    <!-- ============================
+        MODAL DE CADASTRO DE CALIBRADORES
+    ============================= -->
+<div class="overlay" id="overlay">
+    <div class="modal">
+        <h2>STATUS DE LINHA</h2>
+
+        <form id="formAlterParada">
+
+            <div class="form-grid">
+
+                <!-- ============================
+                    COLUNA DIREITA — FORM INPUTS
+                ============================ -->
+                <div class="form-fields">
+
+                    <div class="linha">
+                        <label for="centro_trabalho">Máquina:</label>
+                        <select id="centro_trabalho" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+
+                    <div class="linha">
+                        <label for="selMotivo">Motivo da Parada:</label>
+                        <select id="selMotivo">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+
+                    <div class="linha">
+                        <label for="txtInicio">Início:</label>
+                        <input id="txtInicio" type="datetime-local" required>
+                    </div>
+
+                    <div class="linha">
+                        <label for="txtResponsavel">Responsável:</label>
+                        <input id="txtResponsavel" type="text">
+                    </div>
+
+                    <div class="linha">
+                        <label for="txtObs">Observação:</label>
+                        <textarea id="txtObs"></textarea>
+                    </div>
+
+                    <div class="linha">
+                        <button id="btnSalvar" type="submit">Salvar</button>
+                    </div>
+                    <div class="linha">
+                        <button id="btnCancelar" type="button" class="btn-cancelar">Cancelar</button>
+                    </div>
+
+                </div>
+                
+                <!-- ============================
+                    COLUNA ESQUERDA — BOTÕES RÁPIDOS
+                ============================ -->
+                <div class="quick-buttons">
+                    <div class="linha linha-switch-palete">
+                    <label for="switchLinhaParada">Fech. Palete:</label>
+
+                    <div class="switch">
+                        <div class="switch">
+                            <input type="checkbox" id="switchLinhaParada" />
+                            <label for="switchLinhaParada"></label>
+                        </div>
+                    </div>
+                </div>
+                    <h2>Parada Rápida</h2>
+                    <button class="quick-btn quick-btn1" data-motivo="Em Produção">Em Produção</button>
+                    <button class="quick-btn" data-motivo="Setup">Setup</button>
+                    <button class="quick-btn" data-motivo="Qualidade">Qualidade</button>
+                    <button class="quick-btn" data-motivo="Manutenção">Manutenção</button>
+                    <button class="quick-btn" data-motivo="Logística">Logística</button>
+                    <button class="quick-btn" data-motivo="TI">TI</button>
+                    <button class="quick-btn" data-motivo="Falta Operador">Falta Operador</button>
+                    <button class="quick-btn" data-motivo="Café">Café</button>
+                    <button class="quick-btn" data-motivo="Banheiro">Banheiro</button>
+                    <button class="quick-btn" data-motivo="Turno Inativo">Turno Inativo</button>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+    <!-- ============================
+        CONTAINER PRINCIPAL
+    ============================= -->
+    <div id="painelMesContainer">
+        <div id="painelMesGrid" class="grid-mes"></div>
+    </div>
+</div>
+
+<script>
+/* ===========================================================
+    CONFIGURAÇÃO DE CONEXÃO
+============================================================ */
+const BASE_URL = 'http://gdi.docol.com.br:5500';
+
+/* ===========================================================
+    Carrega tema salvo
+============================================================ */
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark-mode");
+}
+
+document.getElementById("toggleTheme").addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark-mode");
+
+    // Salva no navegador
+    const modo = document.documentElement.classList.contains("dark-mode") ? "dark" : "light";
+    localStorage.setItem("theme", modo);
+});
+
+/* ===========================================================
+    CONTROLE DE ACESSOS 111114111000000000
+============================================================ */
+const userAcess = localStorage.getItem('acess') || '';  
+const thirdNumber = userAcess.charAt(8); // Pega o 8º caractere do acesso
+
+console.log('Log - 8' + thirdNumber);
+
+if (thirdNumber === '0' || thirdNumber === '') {
+    alert('Acesso negado.');
+    window.location.href = '/gdm/login.html'; // Redireciona caso não tenha acesso
+} else {
+    console.log('Acesso liberado: ' + thirdNumber);
+}
+/* ===========================================================
+    FORMATA DATA PARA INPUT DATETIME-LOCAL
+============================================================ */
+function formatarDataLocal(date) {
+    const ano = date.getFullYear();
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
+    const hora = String(date.getHours()).padStart(2, '0');
+    const minuto = String(date.getMinutes()).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+}
+/* ===========================================================
+    FUNÇÃO DE SALVAR PARADA RÁPIDA
+============================================================ */
+document.querySelectorAll(".quick-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+
+    const inicio = document.getElementById("txtInicio").value.trim();
+    const obs = document.getElementById("txtObs").value.trim();
+
+        const maquina = document.getElementById("centro_trabalho").value;
+        if (!maquina) {
+            alert("Selecione uma máquina antes de registrar a parada.");
+            return;
+        }
+
+        const motivo = btn.dataset.motivo;
+
+        await salvarParada({
+            modo: "rapido",
+            maquina,
+            motivo,
+            inicio: normalizarInicioParaBanco(inicio),
+            obs: ""
+        });
+    });
+});
+
+/* ===========================================================
+    SUBMISSÃO DO FORMULÁRIO (Alterar de paradas)
+============================================================ */
+document.getElementById("formAlterParada").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const maquina = document.getElementById("centro_trabalho").value.trim();
+    const motivo  = document.getElementById("selMotivo").value.trim();
+    const inicio  = document.getElementById("txtInicio").value.trim();
+    const obs     = document.getElementById("txtObs").value.trim();
+
+    if (!maquina || !motivo || !inicio) {
+        alert("Preencha Máquina, Motivo e Início.");
+        return;
+    }
+
+    await salvarParada({
+        modo: "manual",
+        maquina,
+        motivo,
+        inicio: normalizarInicioParaBanco(inicio), // 🔥 ESSENCIAL
+        obs
+    })
+});
+
+/* ===========================================================
+    NORMALIZA INÍCIO PARA FORMATO DO BANCO
+============================================================ */
+function normalizarInicioParaBanco(valor) {
+    if (!valor) return "";
+
+    // Se já vier no formato BR correto
+    if (valor.includes("/") && valor.includes(" ")) {
+        return valor.substring(0, 16); // yyyy-MM-dd HH:mm
+    }
+
+    // Se vier ISO
+    if (valor.includes("T")) {
+        const [dataISO, horaISO] = valor.split("T");
+        const [ano, mes, dia] = dataISO.split("-");
+        const [hora, min] = horaISO.split(":");
+
+        return `${dia}/${mes}/${ano} ${hora}:${min}`;
+    }
+
+
+    return valor;
+}
+
+/* ===========================================================
+    FUNÇÃO DE SALVAR PARADA (Rápida e Manual)
+============================================================ */
+async function salvarParada({ modo, maquina, motivo, inicio, obs }) {
+    try {
+        const url = `${BASE_URL}/gdm_paradas/${maquina}`;
+
+        const payload = {
+            inicio: normalizarInicioParaBanco(inicio),
+            status_parada: motivo,
+            Obs: obs ?? ""
+        };
+
+        const resp = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error("Erro ao registrar parada.");
+
+        showSuccessMessage("18");
+        fecharPopupParada();
+        await carregarProducaoCT();
+        carregarPainelMes();
+
+    } catch (erro) {
+        console.error("Erro no salvamento:", erro);
+        alert("Falha ao salvar parada.");
+    }
+}
+
+
+/* ===========================================================
+    FUNÇÃO DE ABRIR FORMULÁRIO E INICIAR CONTAGEM
+============================================================ */
+let inicioParada = null;
+let timerInterval = null;
+
+function openForm() {
+    const overlay = document.getElementById("overlay");
+    overlay.style.display = "block";
+
+    // grava início
+    inicioParada = new Date();
+    document.getElementById("txtInicio").value = formatarDataLocal(inicioParada);
+}
+
+/* ===========================================================
+    BOTÃO CANCELAR DO FORMULÁRIO
+============================================================ */
+document.getElementById("btnCancelar").addEventListener("click", () => {
+
+    // Para temporizador se estiver rodando
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    // Fecha o formulário
+    document.getElementById("overlay").style.display = "none";
+
+    // (Opcional) limpa campos específicos
+    document.getElementById("txtInicio").value = "";
+});
+/* ===========================================================
+    LISTA DE CENTROS DE TRABALHO (FIXA)
+============================================================ */
+const centrosTrabalho = [
+    "CEL75101",
+    "CEL79501",
+    "CEL81501",
+    "CEL87501",
+    "CEL92001",
+    "CEL94001",
+    "CEL96501",
+    "CEL98501",
+    "CEL98001",
+    "CEL97001",
+    "CEL94201",
+    "CEL94101",
+    "CEL30001",
+    "CEL31801",
+    "CEL34001",
+    "CEL34101",
+    "CEL34201",
+    "CEL34301",
+    "CEL34401",
+    "CEL34501",
+    "CEL34601",
+    "CEL34701",
+    "CEL34801",
+    "CEL75201",
+    "CEL75501",
+    "CEL76001",
+    "CEL76601",
+    "CEL77501",
+    "CEL77601",
+    "CEL78501",
+    "CEL80001",
+    "CEL80501",
+    "CEL82001",
+    "CEL83001",
+    "CEL84001",
+    "CEL84501",
+    "CEL85001",
+    "CEL85501",
+    "CEL86001",
+    "CEL86501",
+    "CEL87001",
+    "CEL88001",
+    "CEL88501",
+    "CEL89501",
+    "CEL90001",
+    "CEL90501",
+    "CEL91501",
+    "CEL92501",
+    "CEL93001",
+    "CEL93501",
+    "CEL94501",
+    "CEL95001",
+    "CEL95501",
+    "CEL96001",
+    "CEL97501"
+].sort();
+
+
+let painelMesInterval = null;
+
+/* ===========================================================
+    FUNÇÃO DE ESCONDER TODOS OS CONTAINERS
+============================================================ */
+function esconderTudo() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("painelMesContainer").style.display = "none";
+
+    // Para o auto-refresh do painel, se estiver ativo
+    if (painelMesInterval) {
+        clearInterval(painelMesInterval);
+        painelMesInterval = null;
+    }
+}
+
+
+/* ===========================================================
+    BOTÃO PARA ABRIR PAINEL DO MÊS
+============================================================ */
+document.getElementById("btnPainelMes").addEventListener("click", async () => {
+    esconderTudo();
+    document.getElementById("painelMesContainer").style.display = "block";
+
+    await carregarProducaoCT();  // <<< adicionamos isso
+
+    setTimeout(() => ajustarGridAutoFit(), 50);
+    carregarPainelMes();
+
+    if (painelMesInterval) clearInterval(painelMesInterval);
+    painelMesInterval = setInterval(async () => {
+        await carregarProducaoCT();  // <<< também atualiza
+        carregarPainelMes();
+    }, 30000);
+});
+
+window.addEventListener("resize", () => ajustarGridAutoFit());
+
+/* ===========================================================
+    CARREGA PAINEL DO MÊS
+============================================================ */
+let producaoCT = {}; // <- adiciona isso
+
+async function carregarProducaoCT() {
+    try {
+        const resp = await fetch(`${BASE_URL}/producao_ct`);
+        producaoCT = await resp.json();
+    } catch (e) {
+        console.error("Erro ao carregar produção CT:", e);
+        producaoCT = {};
+    }
+}
+
+/* ===========================================================
+    FORMATA ÚLTIMO APONTAMENTO
+============================================================ */
+function formatarUltimoApont(dtUlt, hrUlt = "") {
+    if (!dtUlt) return "-";
+
+    // Caso dtUlt seja objeto Date (campo "inicio" do gdm_monitor_paradas)
+    if (dtUlt instanceof Date) {
+        if (isNaN(dtUlt.getTime())) return "-";
+
+        const dia = String(dtUlt.getDate()).padStart(2, "0");
+        const mes = String(dtUlt.getMonth() + 1).padStart(2, "0");
+        const ano = dtUlt.getFullYear();
+        const hora = String(dtUlt.getHours()).padStart(2, "0");
+        const min  = String(dtUlt.getMinutes()).padStart(2, "0");
+
+        return `${dia}/${mes}/${ano} ${hora}:${min}`;
+    }
+
+    // Converte para string
+    dtUlt = String(dtUlt).trim();
+    hrUlt = String(hrUlt).trim();
+
+    /* ===========================================================
+       CASO 1 — Data BR completa: "27/11/2025 14:22:00"
+    =========================================================== */
+    if (dtUlt.includes("/") && dtUlt.includes(":")) {
+        return dtUlt.substring(0, 16); // sem segundos
+    }
+
+    /* ===========================================================
+       CASO 2 — Data BR + hora separada
+    =========================================================== */
+    if (dtUlt.includes("/") && hrUlt) {
+        return `${dtUlt} ${hrUlt.substring(0, 5)}`;
+    }
+
+    /* ===========================================================
+       CASO 3 — ISO do SQL: "2025-12-07T00:00:00.000Z"
+       NÃO usar new Date() para evitar converter para UTC-3!
+    =========================================================== */
+    if (dtUlt.includes("T")) {
+        const [dataISO, tempoISO] = dtUlt.split("T");
+        let [ano, mes, dia] = dataISO.split("-");
+
+        let hora = "";
+        let min = "";
+
+        // Se a hora vem separada no banco
+        if (hrUlt) {
+            const parts = hrUlt.substring(0, 5).split(":");
+            hora = parts[0];
+            min  = parts[1];
+        } else {
+            // Hora vinda do próprio campo ISO
+            [hora, min] = tempoISO.split(":");
+        }
+
+        return `${dia}/${mes}/${ano} ${hora}:${min}`;
+    }
+
+    return "-";
+}
+/* ===========================================================
+    PARSE DATA/HORA BR PARA OBJETO DATE
+============================================================ */
+function parseDataHoraBR(dataStr, horaStr = "") {
+    if (!dataStr) return null;
+
+    dataStr = String(dataStr).trim();
+    horaStr = String(horaStr).trim();
+
+    // Se a data já vier com a hora completa → BR padrão
+    if (dataStr.includes("/") && dataStr.includes(":")) {
+        const [d, m, yHour] = dataStr.split("/");
+
+        // separa ano da hora
+        const ano = yHour.substring(0, 4);
+        let hora = "00:00";
+
+        const partesHora = yHour.substring(5).trim();
+        if (partesHora.includes(":"))
+            hora = partesHora.substring(0, 5);
+
+        return new Date(`${ano}-${m}-${d}T${hora}:00`);
+    }
+
+    // Se veio só a data BR (dd/MM/yyyy)
+    if (dataStr.includes("/")) {
+        const [d, m, y] = dataStr.split("/");
+        let hora = "00:00";
+
+        if (horaStr.includes(":")) {
+            hora = horaStr.substring(0, 5);
+        }
+
+        return new Date(`${y}-${m}-${d}T${hora}:00`);
+    }
+
+    // Caso ISO
+    if (dataStr.includes("T")) {
+        return new Date(dataStr);
+    }
+
+    return null;
+}
+
+/* ===========================================================
+    CARREGA PAINEL DO MÊS
+============================================================ */
+async function carregarPainelMes() {
+    const grid = document.getElementById("painelMesGrid");
+    grid.innerHTML = "";
+
+    const resp = await fetch(`${BASE_URL}/gdm_paradas/status`);
+    const statusData = await resp.json();
+
+    function statusEhEmProducao(status) {
+        const s = (status || "").toString().trim().toUpperCase();
+        return s === "EM PRODUÇÃO" || s === "EM PRODUCAO" || s === "EM PRODUÇÃO MES" || s === "EM PRODUCAO MES";
+    }
+
+    centrosTrabalho.forEach(ct => {
+        const dados = statusData[ct] || {
+            status: "Em Produção",
+            motivos: [],
+            gargalo: "",
+            status_palete: ""
+        };
+
+        let status = dados.status;
+        const motivos = dados.motivos || [];
+        const gargalo = (dados.gargalo || "").toString().trim().toUpperCase();
+        const statusPalete = (dados.status_palete || "").toString().trim().toUpperCase();
+
+        let cssClass = "ok";
+        if (!statusEhEmProducao(status)) cssClass = "parado";
+        if (status === "Turno Inativo") cssClass = "Nlevantes";
+        if (status === "Turno Inativo MES") cssClass = "Nlevantes";
+        if (status === "Parada - SETUP") cssClass = "setup";
+        if (status === "Setup") cssClass = "setup";
+        if (status === "Banheiro") cssClass = "turno-inativo";
+        if (status === "Almoço/Janta") cssClass = "turno-inativo";
+        if (status === "Sem Justificativa MES") cssClass = "justificativa";
+
+        const perf = producaoCT[ct]?.Performance_Linha || "-";
+        let material = producaoCT[ct]?.Material || "-";
+        let Qualidade = producaoCT[ct]?.Qualidade || "-";
+        let Acabamento = producaoCT[ct]?.Acabamento || "-";
+        let OP_Em_Producao = producaoCT[ct]?.OP_Em_Producao || "-";
+        let Try_Out = producaoCT[ct]?.Try_Out || "-";
+        let T1 = producaoCT[ct]?.T1 || "-";
+        let T2 = producaoCT[ct]?.T2 || "-";
+        let T3 = producaoCT[ct]?.T3 || "-";
+        let Total_t = producaoCT[ct]?.Total_T || "-";
+        let Descricao = producaoCT[ct]?.Descricao || "-";
+
+        const dtUlt = producaoCT[ct]?.Data_Ult_Apont || "";
+        const hrUlt = producaoCT[ct]?.Hora_Ult_Apont || "";
+        const inicioParada = dados.inicio ? parseDataHoraBR(dados.inicio) : null;
+
+        const DtHrBR = formatarUltimoApont(dtUlt, hrUlt);
+        const InicioBR = formatarUltimoApont(inicioParada);
+
+        if (material && material !== "-") {
+            material = String(material).substring(7);
+        }
+
+        if (OP_Em_Producao && OP_Em_Producao !== "-") {
+            OP_Em_Producao = String(OP_Em_Producao).substring(2);
+        }
+		
+        const motivoTxt = motivos.length > 0
+            ? motivos.join(", ")
+            : (statusEhEmProducao(status) ? status : "Em Produção");
+
+        let gargaloHtml = "";
+        let badgeExtra = "";
+
+        const extraClasses = [];
+
+        if (gargalo === "SIM") {
+            gargaloHtml = `<div class="pvd-badge">GARGALO</div>`;
+            extraClasses.push("gargalo-border");
+        } else if (gargalo === "MES") {
+            extraClasses.push("mes-border");
+        }
+
+        if (status === "Falta de preparação" || status === "Falta Peça MES" || status === "Logística") {
+            badgeExtra = `<div class="logistica"></div>`;
+        }
+		
+        if (statusPalete === "FECHADO") {
+            extraClasses.push("palete-fechado-border");
+        }
+
+        if (Qualidade === "Em InspeÃ§Ã£o" || Qualidade === "Em Inspeção") {
+            badgeExtra = `<div class="bolinha-risco"></div>`;
+        }
+
+        if (Acabamento && Acabamento.toString().trim().toUpperCase() === "PVD") {
+            gargaloHtml = `<div class="pvd-badge">PVD</div>`;
+        }
+
+        const div = document.createElement("div");
+        div.className = `grid-item ${cssClass} ${extraClasses.join(" ")}`;
+
+        if (Acabamento && Acabamento.toString().trim().toUpperCase() === "PVD") {
+            div.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${ct}${badgeExtra}</div>
+                    ${gargaloHtml}
+                </div>
+                <div class="card-status-group">
+                    <div class="card-motivo">${material}</div>
+                    <div class="card-status">${motivoTxt}</div>
+                    <div class="card-nivel1">${perf}</div>
+                </div>
+            `;
+        } else if (perf === "Em Ruptura") {
+            div.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${ct}${badgeExtra}</div>
+                    ${gargaloHtml}
+                </div>
+                <div class="card-status-group">
+                    <div class="card-motivo">${material}</div>
+                    <div class="card-status">${motivoTxt}</div>
+                    <div class="card-nivel">⚪${perf}</div>
+                </div>
+            `;
+        } else if (perf === "Risco Ruptura") {
+            div.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${ct}${badgeExtra}</div>
+                    ${gargaloHtml}
+                </div>
+                <div class="card-status-group">
+                    <div class="card-motivo">${material}</div>
+                    <div class="card-status">${motivoTxt}</div>
+                    <div class="card-nivel2">⚠️${perf}</div>
+                </div>
+            `;
+        } else {
+            div.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${ct}${badgeExtra}</div>
+                    <div class="card-title"></div>
+                    ${gargaloHtml}
+                </div>
+                <div class="card-status-group">
+                    <div class="card-motivo">${material}</div>
+                    <div class="card-status">${motivoTxt}</div>
+                    <div class="card-nivel1">${perf}</div>
+                </div>
+            `;
+        }
+
+        const tooltipHtml = `
+            <div class="tooltip-title">${ct}</div>
+
+            <div class="tooltip-row">
+                <span>Status:</span>
+                <strong>${status}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Performance Linha:</span>
+                <strong>${perf}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Material:</span>
+                <strong>${OP_Em_Producao}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Material:</span>
+                <strong>${material}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Descrição:</span>
+                <strong>${Descricao}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Gargalo:</span>
+                <strong>${gargalo || "Não"}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Palete:</span>
+                <strong>${statusPalete || "ABERTO"}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Qualidade:</span>
+                <strong>${Qualidade}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Acabamento:</span>
+                <strong>${Acabamento}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Try Out:</span>
+                <strong>${Try_Out}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>T1:</span>
+                <strong>${T1}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>T2:</span>
+                <strong>${T2}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>T3:</span>
+                <strong>${T3}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Total_t:</span>
+                <strong>${Total_t}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Último apontamento SAP:</span>
+                <strong>${DtHrBR}</strong>
+            </div>
+
+            <div class="tooltip-row">
+                <span>Último apontamento GDM:</span>
+                <strong>${InicioBR}</strong>
+            </div>
+        `;
+
+        div.dataset.tooltip = tooltipHtml;
+        div.addEventListener("mouseenter", (e) => mostrarTooltip(e, div.dataset.tooltip));
+        div.addEventListener("mousemove", moverTooltip);
+        div.addEventListener("mouseleave", esconderTooltip);
+
+        grid.appendChild(div);
+    });
+
+    ajustarGridAutoFit();
+}
+/* ===========================================================
+   POPUP TOOLTIP NOS CARDS
+============================================================ */
+
+// cria o tooltip na página uma única vez
+const tooltip = document.createElement("div");
+tooltip.className = "tooltip-box";
+document.body.appendChild(tooltip);
+
+// Mostra tooltip
+// Mostra tooltip com correção automática de borda
+function mostrarTooltip(event, conteudo) {
+    tooltip.innerHTML = conteudo;
+    tooltip.classList.add("visible");
+
+    posicionarTooltip(event);
+}
+
+// Move tooltip acompanhando mouse
+function moverTooltip(event) {
+    posicionarTooltip(event);
+}
+
+// Ajusta dinamicamente evitando bordas da tela
+function posicionarTooltip(event) {
+    const padding = 20; // margem da borda da tela
+    const w = tooltip.offsetWidth;
+    const h = tooltip.offsetHeight;
+
+    let left = event.pageX + 20;
+    let top = event.pageY + 20;
+
+    // bateu na borda direita → joga para a esquerda
+    if ((left + w + padding) > window.innerWidth) {
+        left = event.pageX - w - 20;
+    }
+
+    // bateu na borda esquerda → joga para a direita
+    if (left < padding) {
+        left = padding;
+    }
+
+    // bateu na borda inferior → sobe o tooltip
+    if ((top + h + padding) > window.innerHeight) {
+        top = event.pageY - h - 20;
+    }
+
+    // bateu no topo → limita
+    if (top < padding) {
+        top = padding;
+    }
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+}
+
+// Esconde tooltip
+function esconderTooltip() {
+    tooltip.classList.remove("visible");
+}
+
+
+/* ===========================================================
+   CALCULAR GRID DINÂMICO
+   RESPONSIVIDADE TOTAL (TUDO NA TELA)
+============================================================ */
+function ajustarGridAutoFit() {
+    const grid = document.getElementById("painelMesGrid");
+    const total = centrosTrabalho.length;
+
+    const largura = grid.clientWidth;
+    const altura = grid.clientHeight;
+    const gap = 12; // gap do CSS
+
+    let melhorCard = 0;
+    let melhorCol = 1;
+
+    for (let col = 1; col <= total; col++) {
+        const linhas = Math.ceil(total / col);
+
+        // tamanho baseado na largura
+        const cardW = (largura - gap * (col - 1)) / col;
+
+        // tamanho baseado na altura
+        const cardH = (altura - gap * (linhas - 1)) / linhas;
+
+        // o card deve caber nas duas dimensões
+        const cardSize = Math.min(cardW, cardH);
+
+        // seleciona o maior cardSize possível que caiba na tela
+        if (cardSize > melhorCard) {
+            melhorCard = cardSize;
+            melhorCol = col;
+        }
+    }
+
+    // aplica colunas
+    grid.style.gridTemplateColumns = `repeat(${melhorCol}, var(--card-size))`;
+
+    // aplica o tamanho final dos cards
+    document.documentElement.style.setProperty("--card-size", melhorCard + "px");
+}
+/* ===========================================================
+    FECHAR POPUP DE PARADA
+============================================================ */
+function fecharPopupParada(limpar = false) {
+    const overlay = document.getElementById("overlay");
+    if (overlay) overlay.style.display = "none";
+    if (limpar) limparCamposParada();
+}
+
+/* ===========================================================
+    LIMPAR CAMPOS DO FORMULÁRIO DE PARADA
+============================================================ */
+
+function atualizarVisualSwitchPalete() {
+    const sw = document.getElementById("switchLinhaParada");
+    const txt = document.getElementById("switchStatusPaleteTexto");
+
+    if (!sw || !txt) return;
+
+    if (sw.checked) {
+        txt.textContent = "Fechado";
+        txt.classList.add("ativo");
+    } else {
+        txt.textContent = "Aberto";
+        txt.classList.remove("ativo");
+    }
+}
+/* ===========================================================
+    EVENTO DE CHANGE DO SWITCH DE PALETE
+============================================================ */
+document.getElementById("switchLinhaParada").addEventListener("change", async function () {
+    atualizarVisualSwitchPalete();
+
+    const maquina = document.getElementById("centro_trabalho").value;
+    if (!maquina) {
+        alert("Selecione uma máquina antes de alterar o fechamento do palete.");
+        this.checked = false;
+        atualizarVisualSwitchPalete();
+        return;
+    }
+
+    await salvarStatusPalete(maquina, this.checked);
+});
+
+/* ===========================================================
+    FUNÇÃO DE SALVAR PARADA (Rápida e Automático)
+============================================================ */
+
+async function salvarStatusPalete(maquina, fechado) {
+    try {
+        const url = `${BASE_URL}/gdm_paradas/${maquina}`;
+
+        const payload = {
+            status: fechado ? "fechado" : "aberto"
+        };
+
+        const resp = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error("Erro ao salvar status do palete.");
+
+        await carregarProducaoCT();
+        await carregarPainelMes();
+
+    } catch (erro) {
+        console.error("Erro ao salvar status do palete:", erro);
+        alert("Falha ao salvar status do palete.");
+    }
+}
+
+/* ======================================================================
+    Carregar listas (Tipos, Status, Frequência, Localização) do JSON
+====================================================================== */ 
+fetch('/gdm/json/data.json')
+    .then(response => response.json())
+    .then(data => {
+        // Cadastro
+        preencherSelect('selMotivo', data.MotParada);
+        preencherSelect('centro_trabalho', data.maquinasdocol4);
+
+        // Se quiser também popular "status" do formulário (cadastro manual)
+        const statusSelect = document.getElementById('status');
+        if (statusSelect && Array.isArray(data.Status)) {
+            statusSelect.innerHTML = '';
+            data.Status.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                statusSelect.appendChild(opt);
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao carregar JSON:", error);
+    });
+function preencherSelect(id, lista) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+
+    sel.innerHTML = '<option value="">Selecione...</option>';
+
+    lista.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        opt.textContent = item;
+        sel.appendChild(opt);
+    });
+}
+/* ======================================================================
+    Pega o nome do usuário do localStorage (prioridade: nome > nomeUsuario > username > Usuário)
+====================================================================== */
+const nomeUsuario =
+    localStorage.getItem('nome') ||
+    localStorage.getItem('nomeUsuario') ||
+    localStorage.getItem('username') ||
+    'Usuário';
+
+// Atualiza apenas o mini menu
+document.getElementById('userMenuName').textContent = nomeUsuario;
+
+// Alterna o menu ao clicar no botão
+document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', function() {
+    document.getElementById('userMenu').style.display = 'none';
+});
+
+// Alterna o menu ao clicar no botão
+document.getElementById('userMenuBtn1').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('userMenu1');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', function() {
+    document.getElementById('userMenu1').style.display = 'none';
+});
+
+/* ===========================================================
+    INICIALIZAÇÃO (Ao carregar a página)
+============================================================ */
+/* ===========================================================
+    ABRIR PAINEL AUTOMATICAMENTE AO CARREGAR A TELA
+============================================================ */
+window.addEventListener("load", async () => {
+    
+    // Esconde outras telas
+    esconderTudo();
+
+    // Exibe painel
+    document.getElementById("painelMesContainer").style.display = "block";
+
+    // Carrega produção
+    await carregarProducaoCT();
+
+    // Monta o painel
+    carregarPainelMes();
+
+    // Ajusta tamanho
+    setTimeout(() => ajustarGridAutoFit(), 50);
+
+    // Inicia auto refresh de 30s
+    if (painelMesInterval) clearInterval(painelMesInterval);
+    painelMesInterval = setInterval(async () => {
+        await carregarProducaoCT();
+        carregarPainelMes();
+    }, 30000);
+});
+</script>
+
+<!-- ============================
+    ARQUIVOS CSS E JS EXTERNOS
+============================= -->
+<link rel="stylesheet" href="/gdm/css/public.css">
+<link rel="stylesheet" href="/gdm/css/MonitorDocol.css">
+<!-- Import JS no final (melhora desempenho) -->
+<script src="/gdm/js/public.js"></script>
+
+</body>
+</html>

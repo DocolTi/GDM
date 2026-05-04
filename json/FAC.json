@@ -1,0 +1,28 @@
+{
+    "charts": [
+        {
+            "type": "pie",
+            "labels": ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            "datasetLabel": "Exemplo de Dataset 1",
+            "datasetData": [12, 19, 3, 5, 2, 3]
+        },
+        {
+            "type": "pie",
+            "labels": ["A", "B", "C", "D", "E", "F"],
+            "datasetLabel": "Exemplo de Dataset 2",
+            "datasetData": [10, 5, 20, 8, 15, 12]
+        },
+        {
+            "type": "bar",
+            "labels": ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            "datasetLabel": "# of Votes",
+            "datasetData": [12, 9, 3, 5, 2, 3]
+        },
+        {
+            "type": "bar",
+            "labels": ["A", "B", "C", "D", "E", "F"],
+            "datasetLabel": "# of Sales",
+            "datasetData": [30, 15, 25, 18, 10, 20]
+        }
+    ]
+}

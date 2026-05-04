@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="PT">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPRESSÃO DE ETIQUETAS</title>
+</head>
+
+<body>
+    <div class="header">
+        <h1>CENTRAL ETIQUETAS</h1>
+
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button>
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <div class="sidebar-buttons-container">
+            <button id="cadastroEtiquetas" class="sidebar-button" type="button" onclick="openForm()">Cadastrar Etiquetas</button>
+            <button class="sidebar-button" type="button" onclick="openForm1()">Imprimir</button>
+            <button class="sidebar-button" type="button" onclick="openForm2()">Calibrar Impre.</button>
+            <button class="sidebar-button" type="button" onclick="openForm3()">Filtro</button>
+            <button class="sidebar-button" type="button" onclick="openForm5()">Aumentar Temp. Impre.</button>
+            <button class="sidebar-button" type="button" onclick="openForm6()">Impr. Vagão</button>
+            <!--<button class="sidebar-button" type="button" onclick="openForm5()">Cancelar Fila Impre.</button>
+            <button onclick="convertImageToGRF()">Convert to GRF</button> -->
+        </div>
+    </div>
+
+        <!-- Formulário sobreposto -->
+        <div class="overlay" id="overlay">
+            <div class="modal">
+                <h2>Cadastrar Etiquetas</h2>
+                <form id="formNovoEtq" enctype="multipart/form-data">
+                    <label for="modelo-etq">Modelo Etiqueta:</label>
+                    <input type="text" id="modelo-etq" name="modelo-etq"><br>
+                    
+                    <label for="nome-etq">Nome Etiqueta:</label>
+                    <input type="text" id="nome-etq" name="nome-etq"><br>                
+                    
+                    <label for="cod-etq">Código Etiqueta:</label>
+                    <input type="text" id="cod-etq" name="cod-etq"><br>
+                    
+                    <label for="img-etq">Arraste ou selecione uma imagem:</label>
+                    <input type="file" id="img-etq" name="img-etq" accept="image/*" onchange="previewImage(event)" style="display:none;">
+                    <div id="drop-area" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" onclick="document.getElementById('img-etq').click()">
+                        Solte a imagem aqui ou clique para selecionar
+                    </div>
+                    <br>
+                    
+                    <label for="grf-etq">GRF:</label>
+                    <textarea id="grf-etq" name="grf-etq"></textarea><br>
+
+                    <label for="zpl-etq">ZPL Etiqueta:</label>
+                    <textarea type="zpl-etq" id="zpl-etq" name="zpl-etq"></textarea><br>
+                    
+                    <label for="observacao">Observação:</label>
+                    <textarea id="observacao" name="observacao"></textarea><br>
+                    
+                    <button type="submit">Cadastrar</button>
+                    <button type="button" onclick="closeForm()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="overlay1" id="overlay1">
+            <div class="modal">
+                <h1>Imprimir</h1>
+                <form id="imprimirForm" action="http://gdi.docol.com.br:5500/zpl" method="POST">
+
+                    <label for="printerDirectory">Diretório da Impressora:</label><br>
+                    <input type="text" id="printerDirectory" name="printerDirectory"><br>
+
+                    <label for="qtdetq">QTD:</label><br>
+                    <input type="number" id="qtdetq" name="qtdetq" min="0" max="500" step="1" oninput="validateQuantity()"><br>
+
+                    <div style="display: none;">
+                        <label for="data-etq">Data:</label>
+                        <input type="text" id="data-etq" name="data-etq"><br>
+                    </div> 
+                    
+                    <label for="infetq1">INFO 1:</label>
+                    <input type="text" id="infetq1" name="infetq1"><br>
+                    
+                    <label for="infetq2">INFO 2:</label>
+                    <input type="text" id="infetq2" name="infetq2"><br>
+                    
+                    <label for="infetq3">INFO 3:</label>
+                    <input type="text" id="infetq3" name="infetq3"><br>
+                    
+                    <label for="infetq4">INFO 4:</label>
+                    <input type="text" id="infetq4" name="infetq4"><br>
+                    
+                    <label for="infetq5">INFO 5:</label>
+                    <input type="text" id="infetq5" name="infetq5"><br>
+                    
+                    <label for="infetq6">INFO 6:</label>
+                    <input type="text" id="infetq6" name="infetq6"><br>
+                    
+                    <label for="infetq7">INFO 7:</label>
+                    <input type="text" id="infetq7" name="infetq7"><br>
+
+                    <div style="display: block;">
+                        <label for="zplData">Código ZPL:</label><br>
+                        <textarea id="zplData" name="zplData"></textarea><br>
+        
+                        <label for="grfData">Código GRF:</label><br>
+                        <textarea id="grfData" name="grfData"></textarea><br>
+                    </div>
+
+                    <button type="submit" onclick="Imprimir()">Enviar para Impressão</button>
+                    <button type="button" onclick="closeForm1()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="overlay2" id="overlay2">
+            <div class="modal">
+                <h1>Calibrar Impressora</h1>
+                <form id="imprimirForm1" action="http://gdi.docol.com.br:5500/zplReset" method="POST">
+
+                    <label for="printerDirectory">Diretório da Impressora:</label><br>
+                    <input type="text" id="printerDirectory" name="printerDirectory"><br>
+
+                    <button type="submit" onclick="Imprimir()">Resetar</button>
+                    <button type="button" onclick="closeForm2()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay3">
+            <div class="modal">
+                <h2>Filtrar Etiquetas</h2>
+                <label for="filtro-nome">Filtrar por Nome:</label>
+                <input type="text" id="filtro-nome" name="filtro-nome">
+                
+                <label for="filtro-item">Filtrar por Item:</label>
+                <input type="text" id="filtro-item" name="filtro-item">
+                
+                <label for="filtro-modelo">Filtrar por Modelo:</label>
+                <input type="text" id="filtro-modelo" name="filtro-modelo">
+                
+                <button onclick="filtrarEtiquetas()">Filtrar</button>       
+                <button type="button" onclick="closeForm3()">Cancelar</button>
+            </div> 
+        </div>  
+
+        <div class="overlay4" id="imageModal4" style="display: none;">
+            <div class="modal4">
+                <span class="close4" onclick="closeImageModal()">&times;</span>
+                <img class="modal-content4" id="imgModal4">
+            </div>
+        </div>
+         
+        <div class="overlay5" id="overlay5">
+            <div class="modal">
+                <h1>Aumentar Temp. Impressora</h1>
+                <form id="imprimirForm5" action="http://gdi.docol.com.br:5500/zplConfig1" method="POST">
+
+                    <label for="printerDirectory">Diretório da Impressora:</label><br>
+                    <input type="text" id="printerDirectory" name="printerDirectory"><br>
+
+                    <label for="qtdetq">Temperatura da Impressora</label><br>
+                    <input type="number" id="qtdetq" name="qtdTemp" min="0" max="25" step="1" oninput="validateQuantity1()"><br>
+
+                    <button type="submit" onclick="Imprimir()">Resetar</button>
+                    <button type="button" onclick="closeForm5()">Cancelar</button>
+                </form>
+            </div>
+        </div>          
+    <div id="pedidosContainer"></div>
+    <!-- Restante do seu HTML -->
+
+	<div class="overlay6" id="overlay6">
+		<div class="modal">
+			<h1>Impressão de Vagão</h1>
+			<form id="imprimirForm6" action="http://localhost:5500/zplConfig2" method="POST">
+				<label for="printerDirectory">Diretório da Impressora:</label><br>
+				<input type="text" id="printerDirectory" name="printerDirectory"><br>
+
+				<label for="qtdetq1">Range 1</label><br>
+				<input type="number" id="qtdetq1" name="qtdTemp1" min="1" max="600" step="1" oninput="validarIntervalo()"><br>
+				
+				<label for="qtdetq2">Range 2</label><br>
+				<input type="number" id="qtdetq2" name="qtdTemp2" min="1" max="600" step="1" oninput="validarIntervalo()"><br><br>
+			
+				<label for="infetq2">Vagão Informado:</label>
+				<textarea type="text" id="infetq1" name="infetq2"></textarea><br>
+			
+				<button type="submit" onclick="Imprimir()">Imprimir</button><br><br>
+				<button type="button" onclick="limparFormulario('imprimirForm6')">Limpar</button>
+				<button type="button" onclick="closeForm6()">Cancelar</button>
+			</form>
+			
+		</div>
+	</div>
+
+    <div class="container1">   
+        <div class="scroll-wrapper">
+            <div id="pedidosContainer" class="card-container">
+                <!-- Cartões serão adicionados aqui dinamicamente -->
+            </div>    
+        </div>
+    </div>
+    
+    <script>
+	
+//__________________________________________________________________________________________________________
+        const BASE_URL = 'http://gdi.docol.com.br:5500';
+//__________________________________________________________________________________________________________
+//🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥 ACESSOS 🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+
+        const userAcess = localStorage.getItem('acess');
+        const thirdNumber = userAcess.charAt(2);
+
+        if (thirdNumber === '0') {
+            alert('Acesso negado.');
+			window.location.href = '/gdm/login.html'; // Redireciona caso não tenha acesso
+        }
+        if (thirdNumber === '1') {
+            document.getElementById('cadastroEtiquetas').style.display = 'none';
+
+        }
+                // Ocultar o botão "Cadastrar Etiquetas" se thirdNumber não for '1'
+        if (thirdNumber === '2') {
+            alert('Acesso a cadastro');
+        }
+		
+//__________________________________________________________________________________________________________
+        function validateQuantity() {
+            const qty = document.getElementById("qtdetq").value;
+            if (isNaN(qty) || qty <= 0 || qty > 500) {
+                alert("Por favor, insira um número válido entre 1 e 500.");
+                document.getElementById("qtdetq").value = 1; // Valor padrão para evitar valores inválidos
+                return false;
+            }
+            return true;
+        }
+        
+        function validateQuantity1() {
+            var qty = document.getElementById("qtdetq").value;
+            if (isNaN(qty) || qty < 1 || qty > 30) {
+                alert("Por favor, insira um número entre 1 e 30.");
+                document.getElementById("qtdetq").value=1;
+                return false;
+            }
+            return true;
+        }
+// Função para abrir o modal e exibir a imagem ampliada
+function selecionarEtiqueta1(id) {
+    // Fetch para obter os dados da etiqueta pelo ID
+    fetch(`${BASE_URL}/getEtiquetaById/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na rede ou endpoint não encontrado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const etiqueta = data[0]; // Ajuste conforme a estrutura real da sua resposta
+            const imgSrc = `/gdm/img/etq/${etiqueta.Id}.png`;
+
+            // Atualizar a fonte da imagem do modal
+            const modalImg = document.getElementById("imgModal4");
+            modalImg.src = imgSrc;
+
+            // Exibir o modal
+            document.getElementById("imageModal4").style.display = "block";
+        })
+        .catch(error => console.error('Erro ao buscar etiqueta:', error));
+}
+
+    // Função para fechar o modal
+    function closeImageModal() {
+        document.getElementById("imageModal4").style.display = "none";
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.querySelectorAll('.card-content4').forEach(card => {
+            card.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                selecionarEtiqueta(id);
+            });
+        });
+    });
+
+//__________________________________________________________________________________________________________
+//🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥 Filtros 🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+// Função para filtrar as etiquetas
+function filtrarEtiquetas() {
+    const filtroNome = document.getElementById('filtro-nome').value.toLowerCase();
+    const filtroItem = document.getElementById('filtro-item').value.toLowerCase();
+    const filtroModelo = document.getElementById('filtro-modelo').value.toLowerCase();
+
+    // Seleciona todas as etiquetas
+    const etiquetas = document.querySelectorAll('.card-content');
+    let container = document.getElementById('pedidosContainer');
+    container.innerHTML = ''; // Limpa o container antes de reorganizar
+
+    etiquetas.forEach(etiqueta => {
+        const nome = etiqueta.querySelector('p:nth-child(2)').textContent.toLowerCase();
+        const item = etiqueta.querySelector('p:nth-child(3)').textContent.toLowerCase();
+        const modelo = etiqueta.querySelector('p:nth-child(4)').textContent.toLowerCase();
+
+        // Verifica se a etiqueta atende aos critérios de filtragem e exibe conforme necessário
+        if (nome.includes(filtroNome) && item.includes(filtroItem) && modelo.includes(filtroModelo)) {
+            etiqueta.style.display = 'block'; // Exibe a etiqueta
+            container.appendChild(etiqueta); // Reorganiza as etiquetas no container
+        } else {
+            etiqueta.style.display = 'none'; // Oculta a etiqueta
+        }
+    });
+    closeForm3();
+}
+
+    //__________________________________________________________________________________________________________
+    //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+    document.getElementById('imprimirForm1').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevenir o comportamento padrão de envio do formulário
+        // Aqui, coletamos os dados do formulário
+        const formData = new FormData(this);
+
+        // Substituímos por um objeto para usar no fetch
+        const formObject = {};
+        formData.forEach((value, key) => formObject[key] = value);
+
+    //---------------------------------------------------------------------------------------------------------------
+        try {
+            const response = await fetch(`${BASE_URL}/zplReset`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject),
+            });
+
+            if (!response.ok) {
+                throw new Error('A resposta do servidor não foi OK.');
+            }
+
+            const data = await response.json();
+
+            // Verifica se a operação foi bem-sucedida
+            if (data.success) {
+                showSuccessMessage('15'); // Mostra mensagem de sucesso
+            } else {
+                showSuccessMessage('16'); // Mostra mensagem de erro recebida do servidor
+            }                
+            
+        } catch (error) {
+            showSuccessMessage('16');
+        }
+    });   
+    
+//___________________________________________________ Temp. Impressora _______________________________________________________
+    //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+    document.getElementById('imprimirForm5').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevenir o comportamento padrão de envio do formulário
+        // Aqui, coletamos os dados do formulário
+        const formData = new FormData(this);
+
+        // Substituímos por um objeto para usar no fetch
+        const formObject = {};
+        formData.forEach((value, key) => formObject[key] = value);
+
+    //---------------------------------------------------------------------------------------------------------------
+        try {
+            const response = await fetch(`${BASE_URL}/zplConfig1`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject),
+            });
+
+            if (!response.ok) {
+                throw new Error('A resposta do servidor não foi OK.');
+            }
+
+            const data = await response.json();
+
+            // Verifica se a operação foi bem-sucedida
+            if (data.success) {
+                showSuccessMessage('15'); // Mostra mensagem de sucesso
+                closeForm5();
+            } else {
+                showSuccessMessage('16'); // Mostra mensagem de erro recebida do servidor
+            }                
+            
+        } catch (error) {
+            showSuccessMessage('16');
+        }
+    });
+//___________________________________________________ Impressã0 de Vagão _______________________________________________________
+    //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+    document.getElementById('imprimirForm6').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevenir o comportamento padrão de envio do formulário
+        // Aqui, coletamos os dados do formulário
+        const formData = new FormData(this);
+
+        // Substituímos por um objeto para usar no fetch
+        const formObject = {};
+        formData.forEach((value, key) => formObject[key] = value);
+
+     //---------------------------------------------------------------------------------------------------------------
+        try {
+            const response = await fetch(`${BASE_URL}/zplConfig2`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject),
+            });
+
+            if (!response.ok) {
+                throw new Error('A resposta do servidor não foi OK.');
+            }
+
+            const data = await response.json();
+
+            // Verifica se a operação foi bem-sucedida
+            if (data.success) {
+                showSuccessMessage('15'); // Mostra mensagem de sucesso
+                closeForm5();
+            } else {
+                showSuccessMessage('16'); // Mostra mensagem de erro recebida do servidor
+            }                
+            
+        } catch (error) {
+            showSuccessMessage('16');
+        }
+    });
+
+    function limparFormulario(formId) {
+    const form = document.getElementById(formId);
+    if (form) {
+        form.reset(); // Reseta os valores do formulário para o estado inicial
+    } else {
+        console.error(`Formulário com ID "${formId}" não encontrado.`);
+    }
+}
+
+//__________________________________________________________________________________________________________
+//🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+    document.getElementById('imprimirForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevenir comportamento padrão de envio
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true; // Desabilitar o botão para evitar múltiplos envios
+
+        const formData = new FormData(this);
+        const formObject = {};
+        formData.forEach((value, key) => formObject[key] = value);
+
+        try {
+            const response = await fetch(`${BASE_URL}/zpl`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject),
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao comunicar com o servidor.');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                alert('Impressão bem-sucedida.');
+            } else {
+                alert('Falha ao imprimir. Por favor, verifique os dados e tente novamente.');
+            }
+        } catch (error) {
+            console.error('Erro ao enviar dados:', error);
+            alert('Erro ao enviar dados para impressão.');
+        } finally {
+            submitButton.disabled = false; // Reabilitar o botão após a operação
+        }
+    });
+//---------------------------------------------------------------------------------------------------------------
+        // Função para executar o script Python
+        async function convertImageToGRF() {
+            try {
+                // Após a execução bem-sucedida do script Python, abre o grfabrir em uma nova aba
+                const fipN = "2345200R00";
+                const pdfUrl = `${BASE_URL}/grfabrir`; // A URL para o PDF que você deseja abrir
+                window.open(pdfUrl, '_blank');
+
+            } catch (error) {
+                console.error('Erro ao enviar solicitação:', error);
+            }   
+        }
+//___________________________________________________________________________________
+// Rota para adicionar uma nova Etiqueta
+//___________________________________________________________________________________
+        document.getElementById('formNovoEtq').addEventListener('submit', async function(event) {
+            // Evite que o formulário seja enviado automaticamente
+            event.preventDefault();
+
+            // Verifique se todos os campos obrigatórios foram preenchidos antes de enviar o formulário
+            const modelo = document.getElementById('modelo-etq').value;
+            const nome = document.getElementById('nome-etq').value;
+            const cod = document.getElementById('cod-etq').value;
+            const grf = document.getElementById('grf-etq').value;
+            const zpl = document.getElementById('zpl-etq').value;
+            const obs = document.getElementById('observacao').value;
+
+            // Verifique se algum dos campos obrigatórios está vazio
+            if (!modelo || !nome || !cod ) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return; // Pare a execução se algum campo estiver vazio
+            }
+
+            const novoSetup = {
+                modelo: modelo,
+                nome: nome,
+                cod_etq: cod,
+                grf: grf,
+                cod_zpl: zpl,
+                obs: obs
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/salvaEtq`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(novoSetup)
+                });
+
+                const data = await response.json();
+                console.log('Resposta do servidor:', data);
+
+                closeForm();
+                atualizarDados();
+                
+            } catch (error) {
+                console.error('Erro ao enviar solicitação:', error);
+            }
+        });
+
+        
+        document.getElementById('qtdetq').addEventListener('input', function(event) {
+            const novo1 = document.getElementById('zplData').value;
+            const novo2 = document.getElementById('qtdetq').value;
+
+            if (/^PQ\d+/g.test(novo1)) {
+                document.getElementById('zplData').value = novo1.replace(/^PQ\d+/g, `^PQ${novo2}`);
+            }
+        });
+//___________________________________________________________________________________
+// Abrir formulário
+//___________________________________________________________________________________   
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+        }
+    
+        function handleDrop(event) {
+            event.preventDefault();
+            var files = event.dataTransfer.files;
+            document.getElementById('img-etq').files = files;
+            previewImage(event);
+        }
+    
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var imgElement = document.createElement('img');
+                imgElement.src = reader.result;
+                imgElement.style.maxWidth = '100%';
+                document.getElementById('drop-area').innerHTML = '';
+                document.getElementById('drop-area').appendChild(imgElement);
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+//___________________________________________________________________________________
+// Adicione um evento de clique para cada botão de status
+//___________________________________________________________________________________                        
+        function openForm() {
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function closeForm() {
+            document.getElementById("overlay").style.display = "none";
+        }
+
+        function openForm1() {
+            document.getElementById("overlay1").style.display = "block";
+        }
+        function closeForm1() {
+            document.getElementById("overlay1").style.display = "none";
+        }
+
+        function openForm2() {
+            document.getElementById("overlay2").style.display = "block";
+        }
+        function closeForm2() {
+            document.getElementById("overlay2").style.display = "none";
+        }
+
+        // Função para abrir o modal de filtro
+        function openForm3() {
+            document.getElementById("overlay3").style.display = "flex";
+        }
+
+        // Função para fechar o modal de filtro
+        function closeForm3() {
+            document.getElementById("overlay3").style.display = "none";
+        }
+
+        // Função para abrir o modal de filtro
+        function openForm5() {
+            document.getElementById("overlay5").style.display = "flex";
+        }
+
+        // Função para fechar o modal de filtro
+        function closeForm5() {
+            document.getElementById("overlay5").style.display = "none";
+        }
+        
+        // Função para impressão de Etiquetas Vagão
+        function openForm6() {
+            document.getElementById("overlay6").style.display = "block";
+        }
+        function closeForm6() {
+            document.getElementById("overlay6").style.display = "none";
+        }
+		
+        function Imprimir() {
+            closeForm1();
+        }
+//___________________________________________________________________________________
+// Chame a função de atualização quando a página carregar
+//___________________________________________________________________________________
+        window.addEventListener('load', function() {
+            atualizarDados();
+
+//___________________________________________________________________________________
+// Atualize os dados a cada 5 minutos
+//___________________________________________________________________________________
+setInterval(atualizarDados, 1 * 60 * 1000); // 5 minutos * 60 segundos * 1000 milissegundos
+        });     
+
+        function atualizarDados() {
+            fetch(`${BASE_URL}/etiqueta`)
+                .then(response => response.json())
+                .then(data => {
+                    const pedidosContainer = document.getElementById('pedidosContainer');
+                    pedidosContainer.innerHTML = '';
+        
+                    data.forEach(etiqueta => {
+                        const card = document.createElement('div');
+                        card.classList.add('card');
+        
+                        const cardContent = document.createElement('div');
+
+                        cardContent.innerHTML = `
+                            <div class="card-content">
+                                <h2>${etiqueta.Id}</h2>
+                                <p><strong>Nome----:</strong> ${etiqueta.nome}</p>
+                                <p><strong>Código do Modelo:</strong> ${etiqueta.item}</p>
+                                <p><strong>Modelo Etiqueta:</strong> ${etiqueta.modelo}</p>
+                                <p><strong>Tamanho ETQ:</strong> ${etiqueta.tamanho}</p>
+                                <div class="card-image-container">
+                                    <img src="/GDM/img/etq/${etiqueta.Id}.png" alt="Imagem da Etiqueta">
+                                </div>
+                                <p><strong>Codigo da Etiqueta:</strong> ${etiqueta.cod_etq}</p><br>
+                                <button onclick="selecionarEtiqueta(${etiqueta.Id})">Carregar</button>
+                                <button onclick="selecionarEtiqueta1(${etiqueta.Id})">Visualizar IMG</button>
+                            </div>
+                        `;
+        
+                        card.appendChild(cardContent);
+                        pedidosContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar dados do servidor:', error);
+                });
+        }
+
+//___________________________________________________________________________________
+// Função para selecionar uma etiqueta
+//___________________________________________________________________________________
+function selecionarEtiqueta(id) {
+    // Fetch para obter os dados da etiqueta pelo ID
+    fetch(`${BASE_URL}/getEtiquetaById/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na rede ou endpoint não encontrado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Supondo que a resposta seja um array e você esteja interessado no primeiro item
+            const etiqueta = data[0]; // Ajuste conforme a estrutura real da sua resposta
+            document.getElementById('zplData').value = etiqueta.cod_zpl || '';
+            document.getElementById('grfData').value = etiqueta.grf || '';            
+            document.getElementById("overlay1").style.display = "block";
+
+            // Substituir "#100@" pelo valor atual da data
+            
+            const zplData = etiqueta.cod_zpl;
+
+            // Atualizar o campo zplData com o ZPL atualizado
+            document.getElementById('zplData').value = zplData;
+
+            // Exibir o modal
+            document.getElementById("overlay1").style.display = "block";
+        })
+        .catch(error => console.error('Erro ao buscar etiqueta:', error));
+}
+
+// Função para obter a data atual no formato MM/DD/YY
+function getCurrentDate() {
+    const currentDate = new Date();
+    const year = String(currentDate.getFullYear()).slice(-2); // Obtém os dois últimos dígitos do ano
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Obtém o mês atual (adiciona um zero à esquerda se for menor que 10)
+    const day = String(currentDate.getDate()).padStart(2, '0'); // Obtém o dia do mês atual (adiciona um zero à esquerda se for menor que 10)
+    return `${day}/${month}/${year}`; // Retorna a data no formato MM/DD/YY
+}
+
+window.addEventListener('load', function() {
+    showSuccessMessage('3');
+});
+
+</script>
+<link rel="stylesheet" href="/gdm/css/public.css">
+<link rel="stylesheet" href="/gdm/css/ETQ.css">
+<script src="/gdm/js/public.js"></script>
+</body>
+</html>

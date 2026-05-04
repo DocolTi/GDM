@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="http://GDI.docol.com.br/GDM/css/public.css">
+    <link rel="stylesheet" href="http://GDI.docol.com.br/GDM/css/EWM.css">
+	
+	<script src="/GDM/js/public.js"></script>
+	<script src="/GDM/js/tempo.js"></script>
+</head>
+
+<body>
+    <!-- ==============================
+    Header
+    ============================== -->
+    <div class="header">
+        <h1>MONITOR EWM</h1>
+		
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button> 
+		
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="http://GDI.docol.com.br/GDM/img/icons8-logout-96.png" alt="imagem">
+        </button> 
+		
+        <div class="sidebar-buttons-container">
+            <div class="info-date-time">
+                Última atualização: <span id="dataHoraInfo">Carregando...</span>
+            </div>            
+        </div>
+		
+    </div>
+
+    <div class="main-container" id="mainContainer">
+        <div class="sidebar" id="sidebar">
+
+            <a><button class="toggle-button" onclick="toggleSection('bar1Container')"> 👁️‍🗨️ Resultado Produção - Vagão - Ruptura </button></a>               
+            <a><button class="toggle-button" onclick="toggleSection('fullWidthTable')">👁️‍🗨️ Resultado por HRS de Produção</button></a>
+            <a><button class="toggle-button" onclick="toggleSection('auxTable')">👁️‍🗨️ Resultado Prioridade Tarefas</button></a>
+            <!--<a><button class="toggle-button" id="viewListBtn" onclick="toggleScroll()">Vagões das Linhas EM RUPTURA</button></a>-->
+            <a><button class="toggle-button" onclick="toggleSection('dashboardContainer')"> 👁️‍🗨️ Resultado por Centro de Custo</button></a>
+            <a><button class="toggle-button" onclick="toggleSection('bar4Container')"> 👁️‍🗨️ Produção Dia Docol 4</button></a>
+
+            <label id="MenuLote" class="MenuLote">||</label>
+        </div>
+    </div>
+
+    <div class="content" id="content">
+        <!-- ==============================
+        Botão para Gráfico de Barras
+        ============================== -->
+
+        <div class="bar-container" id="bar1Container">
+            <div class="bar bar1">
+                <canvas id="bar1"></canvas>
+            </div>
+            <div class="bar bar2">
+                <canvas id="bar2"></canvas>
+            </div>
+            <div class="bar bar3">
+                <canvas id="bar3"></canvas>
+            </div>
+        </div>
+        <!-- ==============================
+        Tabelas
+        ============================== -->
+        
+        <div class="table-container" id="tableContainer">
+            <!-- Tabela Principal -->
+            <div class="table-main">
+                <table id="fullWidthTable">
+                    <thead>
+                        <tr>
+                            <th>Centro Trabalho</th>
+                            <th>DescriçãoCT</th>
+                            <th class="hidden">Centro Custo</th>
+                            <th class="hidden">Meta Dia</th>
+                            <th class="hidden">Disp. Produção Pc</th>
+                            <th class="hidden">Em Preparação</th>
+                            <th class="hidden">Sem Tarefa Pc</th>
+                            <th>Status</th>
+                            <th>Hrs. Disp.</th>
+                            <th>Hrs. Disp. Produção</th>
+                            <th>HRs. Preparação</th>
+                            <th>HRs. Sem Tarefa</th>
+                            <th class="hidden">Qtd Operadores</th>
+                            <th class="hidden">m5</th>
+                            <th class="hidden">m7</th>
+                            <th class="hidden">m10</th>
+                            <th class="hidden">m11</th>
+                            <th class="hidden">m12</th>
+                            <th class="hidden">m13</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        
+            <!-- Tabela Auxiliar -->
+            <div class="table-aux-container">
+                <table id="auxTable" class="table-aux">
+                    <thead>
+                        <tr>
+                            <th>Centro Trabalho</th>
+                            <th>Ordem de Produção</th>
+                            <th>Vagão</th>
+                            <th>Horário de Início</th>
+                            <th>Código do Item</th>
+                            <th>Data de Início</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auxTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+                <!-- ==============================
+        Dashboards
+        ============================== -->
+        <div class="dashboard-container" id="dashboardContainer"></div>
+
+        <!-- ==============================
+        Gráficos de Barras em Desenvolvimento
+        ============================== -->
+        <div class="bar-container hidden" id="bar4Container">
+            <div class="bar bar4">
+                <canvas id="bar4"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+
+        // ==============================
+        // Mebu lateral
+        // ==============================
+        function saveSectionVisibility(sectionId, isHidden) {
+            localStorage.setItem(`sectionVisibility_${sectionId}`, isHidden);
+        }
+
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContainer = document.getElementById('mainContainer');
+
+            sidebar.classList.toggle('hidden');
+            if (sidebar.classList.contains('hidden')) {
+                mainContainer.style.marginLeft = '0'; // Ajusta o espaço quando o menu está oculto
+            } else {
+                mainContainer.style.marginLeft = '200px'; // Ajusta o espaço quando o menu está visível
+            }
+        }
+
+        function updateMenuButtons() {
+            const sections = ['bar1Container', 'fullWidthTable', 'auxTable', 'dashboardContainer', 'bar4Container']; // IDs das seções
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const button = document.querySelector(`.toggle-button[onclick="toggleSection('${sectionId}')"]`);
+                if (section && button) {
+                    if (section.classList.contains('hidden')) {
+                        button.classList.add('hidden-button'); // Adiciona classe cinza se a seção está oculta
+                    } else {
+                        button.classList.remove('hidden-button'); // Remove a classe se a seção está visível
+                    }
+                }
+            });
+        }
+
+        function restoreSectionVisibility() {
+            const sectionIds = ['bar1Container', 'fullWidthTable', 'auxTable', 'dashboardContainer', 'bar4Container']; // IDs das seções
+            sectionIds.forEach(sectionId => {
+                const isHidden = localStorage.getItem(`sectionVisibility_${sectionId}`) === 'true';
+                const section = document.getElementById(sectionId);
+                const button = document.querySelector(`.toggle-button[onclick="toggleSection('${sectionId}')"]`);
+
+                if (section) {
+                    if (isHidden) {
+                        section.classList.add('hidden');
+                    } else {
+                        section.classList.remove('hidden');
+                    }
+                }
+
+                // Atualiza o botão correspondente
+                if (button) {
+                    if (isHidden) {
+                        button.classList.add('hidden-button');
+                    } else {
+                        button.classList.remove('hidden-button');
+                    }
+                }
+            });
+        }
+
+        // ==============================
+        // Configurações Iniciais
+        // ==============================
+        const BASE_URL = 'http://gdi.docol.com.br:5500';
+
+        // ==============================
+        // Variáveis de Cores
+        // ==============================
+        function getCSSVariableValue(variableName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+        }
+
+        const chartColors = {
+            paleta600: getCSSVariableValue('--paleta600'),
+            paleta601: getCSSVariableValue('--paleta601'),
+            paleta602: getCSSVariableValue('--paleta602'),
+            paleta603: getCSSVariableValue('--paleta603'),
+            paleta604: getCSSVariableValue('--paleta604'),
+            paleta605: getCSSVariableValue('--paleta605'),
+            paleta606: getCSSVariableValue('--paleta606'),
+            paleta607: getCSSVariableValue('--paleta607'),
+            paleta608: getCSSVariableValue('--paleta608'),
+            paleta609: getCSSVariableValue('--paleta609'),
+            paleta610: getCSSVariableValue('--paleta610'),
+            paleta620: getCSSVariableValue('--paleta620')
+        };
+
+        // ==============================
+        // Inicialização ao Carregar a Página
+        // ==============================
+        window.onload = async function() {
+            try {
+                ativarRolagemAutomatica(); // Ativa a rolagem automática
+                restoreSectionVisibility(); // Restaura visibilidade das seções
+                updateMenuButtons(); // Atualiza as cores dos botões do menu
+                await atualizarDados(); // Atualiza dados ao carregar a página
+                await atualizarDadosBar4(); // Atualiza o gráfico 4 na primeira vez
+                setInterval(async () => {
+                    console.log("Atualizando dados a cada 10 minutos...");
+                    await atualizarDados();
+                    await atualizarDadosBar4(); // Atualiza o gráfico 4 a cada 10 minutos
+                }, 10 * 60 * 1000); // Atualização a cada 10 minutos
+            } catch (error) {
+                console.error('Erro ao carregar os dados:', error);
+            }
+        };
+
+        // ==============================
+        // Funções para Rolagem Automática
+        // ==============================
+        let scrollInterval; 
+        let isScrolling = true; 
+
+        function toggleScroll() {
+            const button = document.getElementById('viewListBtn');
+            if (isScrolling) {
+                clearInterval(scrollInterval);
+                isScrolling = false;
+                button.textContent = 'Iniciar Rolagem';
+            } else {
+                ativarRolagemAutomatica();
+                isScrolling = true;
+                button.textContent = 'Pausar Rolagem';
+            }
+        }
+
+        function ativarRolagemAutomatica() {
+            const tabelaAuxiliar = document.querySelector('.table-aux-container');
+
+            if (tabelaAuxiliar) {
+                let isScrollingDown = true;
+
+                scrollInterval = setInterval(() => {
+                    if (isScrollingDown) {
+                        tabelaAuxiliar.scrollBy(0, 1); // Rola para baixo
+                        if (tabelaAuxiliar.scrollTop + tabelaAuxiliar.clientHeight >= tabelaAuxiliar.scrollHeight) {
+                            isScrollingDown = false;
+                        }
+                    } else {
+                        tabelaAuxiliar.scrollBy(0, -1); // Rola para cima
+                        if (tabelaAuxiliar.scrollTop === 0) {
+                            isScrollingDown = true;
+                        }
+                    }
+                }, 100); // Ajuste o intervalo de tempo de rolagem conforme necessário
+            }
+        }
+
+        // ==============================
+        // Funções para Controle de Seções
+        // ==============================
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const button = document.querySelector(`.toggle-button[onclick="toggleSection('${sectionId}')"]`);
+
+            if (section) {
+                section.classList.toggle('hidden');
+                saveSectionVisibility(sectionId, section.classList.contains('hidden'));
+            }
+
+            // Atualiza a cor do botão com base no estado da seção
+            if (button) {
+                if (section.classList.contains('hidden')) {
+                    button.classList.add('hidden-button');
+                } else {
+                    button.classList.remove('hidden-button');
+                }
+            }
+        }
+
+        function saveSectionVisibility(sectionId, isHidden) {
+            localStorage.setItem(`sectionVisibility_${sectionId}`, isHidden);
+        }
+
+        // ==============================
+        // Funções para Gráficos
+        // ==============================
+        let chartInstances = []; // Variável global para armazenar os gráficos para serem destruídos posteriormente
+
+        function clearCharts() {
+            if (chartInstances.length > 0) {
+                chartInstances.forEach(chart => chart.destroy());
+                chartInstances = []; // Limpa a lista de gráficos
+            }
+        }
+        // ==============================
+        // Função Principal para Atualização dos Dados
+        // ==============================
+        
+        async function atualizarDados() {
+                    try {
+                        clearCharts(); // Limpa gráficos anteriores
+                        console.log("Atualizando gráficos e dashboards...");
+                        await loadData1(); // Carrega novos dados e atualiza tabelas
+                        initializeCharts(); // Inicializa gráficos após atualização
+                        updateBar1ChartWithTotals(); // Atualiza gráfico 1 com totais
+                    } catch (error) {
+                        console.error('Erro ao carregar os dados:', error);
+                    }
+                }
+                function atualizarGraficoPorDia() {
+            const ajusteDia = parseInt(document.getElementById('diaSelector').value);
+
+            // Atualiza o gráfico com os novos dados
+            atualizarGrafico(dadosFiltrados);
+        }
+        
+        const dashboards = [
+            { title: "1001651010 - Célula VD", chartId: "chart1" },
+            { title: "1001651020 - Célula Reg. Gaveta", chartId: "chart2" },
+            { title: "1001651030 - Montagem DocolMatic", chartId: "chart3" },
+            { title: "1001651040 - Cél Mont Pertutti", chartId: "chart4" },
+            { title: "1001651050 - Montagem Geral", chartId: "chart5" },
+            { title: "1001651060 - Emb Acab VD", chartId: "chart6" },
+            { title: "1001651070 - Embalagem Chuveiros", chartId: "chart7" },
+            { title: "1001651080 - Embalagem Cozinha", chartId: "chart8" },
+            { title: "1001651090 - Emb Luxo/Especiais", chartId: "chart9" },
+            { title: "1001651100 - Montagem/Emb Acess", chartId: "chart10" },
+            { title: "1001651110 - Cél Montagem Modular", chartId: "chart11" },
+        ];
+
+        const dashboardContainer = document.getElementById('dashboardContainer');
+
+        const extractCostCenterNumber = (title) => {
+            return title.split(' - ')[0];
+        };
+
+        // ==============================
+        // Funções para Processamento de Dados
+        // ==============================
+        function applyColorsAndSort(data) {
+            data.sort((a, b) => {
+                const order = ['Em Ruptura', 'Risco Ruptura', 'Linha com 1 turno', 'Autonomia +1 dia',''];
+                return order.indexOf(a.status) - order.indexOf(b.status);
+            });
+            return data.map(row => {
+                let color = '';
+                let fontColor = '#000000'; // Cor padrão da fonte
+                switch (row.status) {
+                    case 'Em Ruptura':
+                        color = 'var(--paleta604)'; // Cor vermelho para "Em Ruptura"
+                        fontColor = '#FFFFFF'; // Texto branco para destaque
+                        break;
+                    case 'Risco Ruptura':
+                        color = 'var(--paleta607)'; // Cor amarelo para "Risco Ruptura"
+                        fontColor = '#000000'; // Texto preto
+                        break;
+                    case 'Linha com 1 turno':
+                        color = 'var(--paleta609)'; // Cor amarela para "Linha com 1 turno"
+                        fontColor = '#000000'; // Texto preto
+                        break;
+                    case 'Autonomia +1 dia':
+                        color = 'var(--paleta606)'; // Cor verde para "Autonomia +1 dia"
+                        fontColor = '#FFFFFF'; // Texto preto
+                        break;
+                }
+                return { ...row, color, fontColor }; // Adiciona a cor ao objeto de linha
+            });
+        }
+        // ==============================
+        // Função para formatar a data no padrão desejado com ajuste manual de fuso horário
+        // ==============================
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+
+            // Ajuste o fuso horário manualmente, por exemplo, para UTC-3 (Brasil sem horário de verão)
+            date.setHours(date.getHours() + 3);
+
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const seconds = date.getSeconds().toString().padStart(2, '0');
+
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
+        // ==============================
+        // Função para Atualizar Gráficos e Tabelas
+        // ==============================
+        async function loadData1() {
+            try {
+                const dataEWM = await fetchData(`${BASE_URL}/select_EWM1`);
+                const dataZRPP013 = await fetchData(`${BASE_URL}/select_ZRPP013`);
+                const dataZRPP008 = await fetchData(`${BASE_URL}/select_ZRPP008`); // Adiciona a busca dos dados de ZRPP008
+
+                // Processar o total produzido por centro de trabalho a partir de ZRPP008
+                const totalProduzidoPorCentro = calcularTotalProduzidoPorCentro(dataZRPP008);
+
+                // Formata a data de atualização usando a nova função que ajusta o fuso horário
+                const ultimaAtualizacao = dataEWM[0]?.dataAtauliArq ? formatDateTime(dataEWM[0].dataAtauliArq) : 'Data não disponível';
+
+                const dataHoraInfo = document.getElementById('dataHoraInfo');
+                if (dataHoraInfo) {
+                    dataHoraInfo.textContent = ultimaAtualizacao;
+                    console.log(ultimaAtualizacao); // Exibe a data formatada no console
+                }
+
+                const dadosOrdenados = applyColorsAndSort(dataEWM);
+
+                // Atualiza os dados com o total produzido
+                const dadosComTotalProduzido = dadosOrdenados.map(item => {
+                    const totalProduzido = totalProduzidoPorCentro[item.centroTrabalho] || 0;
+                    return { ...item, produzido: totalProduzido };
+                });
+
+                // Atualizar Tabela Principal e Tabela Auxiliar
+                updateTable('tableBody', dadosComTotalProduzido);
+
+                const rupturedCenters = dadosComTotalProduzido
+                    .filter(item => item.status === 'Em Ruptura')
+                    .map(item => item.centroTrabalho);
+
+                const filteredAuxData = dataZRPP013.filter(item => rupturedCenters.includes(item.CenTrab))
+                    .sort((a, b) => a.CenTrab.localeCompare(b.CenTrab, 'pt-BR'));
+
+                updateTable('auxTableBody', filteredAuxData, true);
+
+                // Atualizar Dashboards
+                dashboardContainer.innerHTML = '';
+                dashboards.forEach((dashboard, index) => {
+                    const costCenterNumber = extractCostCenterNumber(dashboard.title);
+                    const filteredData = dadosComTotalProduzido.filter(item => item.CentroCusto === costCenterNumber);
+                    const html = createDashboardHtml(dashboard.title, dashboard.chartId, filteredData, index);
+                    dashboardContainer.innerHTML += html;
+                });
+            } catch (error) {
+                console.error('Erro ao carregar os dados do SQL:', error);
+            }
+        }        
+        // ==============================
+        // Função para Buscar Dados
+        // ==============================
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar os dados: ${response.statusText}`);
+                }
+                const data = await response.json();
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error(`Nenhum dado encontrado na consulta ${url}.`);
+                }
+                console.log("Dados recebidos com sucesso:", data); // Verificação de dados
+                return data;
+            } catch (error) {
+                console.error('Erro ao carregar os dados:', error);
+                throw error;
+            }
+        }
+
+        // ==============================
+        // Função para Atualizar Tabela
+        // ==============================
+        function updateTable(tableId, data, isAuxTable = false) {
+        const tableBody = document.getElementById(tableId);
+            if (!tableBody) {
+            console.error(`Elemento com id ${tableId} não encontrado`);
+            return;
+        }
+        
+        tableBody.innerHTML = '';
+
+        const rows = data.map(item => {
+                if (isAuxTable) {
+                    let statusVag = '';
+                    if (item.Data_confirmacao_Vagao === '' && item.Vagao === '') {
+                        statusVag = "🟥 " + item.Vagao;
+                    } else if (item.Data_confirmacao_Vagao != '' && item.Vagao != '') {
+                        statusVag = "🚚 " + item.Vagao;
+                    } else {
+                        statusVag = "🟨 " + item.Vagao;
+                    }
+                    return `
+                        <tr>
+                            <td>${item.CenTrab}</td>
+                            <td>${item.Ordem}</td>
+                            <td>${statusVag}</td>
+                            <td>${item.Liberacao}</td>
+                            <td>${item.Material}</td>
+                            <td>${item.Data_confirmacao_Vagao}</td>
+                        </tr>`;
+                } else {
+                    // Define o ícone e o status concatenado com base no valor de 'item.status'
+                    let statusConct = '';
+                    if (item.status === 'Em Ruptura') {
+                        statusConct = "❌ " + item.status;
+                    } else if (item.status === 'Risco Ruptura') {
+                        statusConct = "⚠️ " + item.status;
+                    } else if (item.status === 'Linha com 1 turno') {
+                        statusConct = "✅ " + item.status;
+                    } else if (item.status === 'Autonomia +1 dia') {
+                        statusConct = "✅ " + item.status;
+                    }
+
+                    return `
+                        <tr class="${item.className}">
+                            <td>${item.centroTrabalho}</td>
+                            <td>${item.DescricaoCT}</td>
+                            <td class="hidden">${item.CentroCusto}</td>
+                            <td class="hidden">${item.metaDia}</td>
+                            <td class="hidden">${item.produzido}</td> <!-- Exibe o total produzido -->
+                            <td class="hidden">${item.DispProduPc}</td>
+                            <td class="hidden">${item.emPreparacaoPc}</td>
+                            <td class="hidden">${item.semTarefaPc}</td>
+                            <td style="background-color: ${item.color}; color: ${item.fontColor}; font-weight: bold; font-size: 14px;">
+                                ${statusConct}
+                            </td>
+                            <td>${item.totalHrs.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${item.DispProduHr.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${item.emPreparacaoHr.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${item.semTarefaHr.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td class="hidden">${item.MediaPessoa}</td>
+                            <td class="hidden">${item.m5}</td>
+                            <td class="hidden">${item.m7}</td>
+                            <td class="hidden">${item.m10}</td>
+                            <td class="hidden">${item.m11}</td>
+                            <td class="hidden">${item.m12}</td>
+                            <td class="hidden">${item.m14}</td>
+                        </tr>`;
+                }
+            }).join('');
+
+            tableBody.innerHTML = rows;
+        }
+
+
+        // ==============================
+        // Função para Criar HTML do Dashboard
+        // ==============================
+        function createDashboardHtml(title, chartId, filteredData, index) {
+            return `
+                <div class="dashboard">
+                    <h3>${title}</h3>
+                    <canvas id="${chartId}"></canvas>
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Centro Trabalho</th>
+                                <th class="hidden">Número do centro de custo</th>
+                                <th>Meta/Dia</th>
+                                <th>Produzido</th>
+                                <th>Disp. Produção</th>
+                                <th>Em Preparação</th>
+                                <th>Sem Tarefa Pc</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grid-row-${index}">
+                            ${filteredData.map(item => `
+                                <tr class="${item.status === 'Em Ruptura' ? 'ruptura-row' : ''}">
+                                    <td class="table-text-color">${item.centroTrabalho}</td>
+                                    <td class="hidden">${item.CentroCusto}</td>
+                                    <td class="table-text-color">${item.metaDia}</td>
+                                    <td class="table-text-color">${item.produzido}</td>
+                                    <td class="table-text-color">${item.DispProduPc}</td>
+                                    <td class="table-text-color">${item.emPreparacaoPc}</td>
+                                    <td class="table-text-color">${item.semTarefaPc}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        // ==============================
+        // Funções para Inicializar e Atualizar Gráficos
+        // ==============================
+        function initializeCharts() {
+            clearCharts(); // Limpa gráficos anteriores
+            dashboards.forEach((dashboard, index) => {
+                const data = getGridDataForChart(index);
+                const ctx = document.getElementById(dashboard.chartId);
+                if (ctx) {
+                    const newChart = new Chart(ctx, createChartConfig(data));
+                    chartInstances.push(newChart); // Armazena gráfico criado
+                }
+            });
+        }
+
+        // ==============================
+        // Funções para Calcular Totais
+        // ==============================
+        const getTotalGridData1 = () => {
+            
+            let totalmetaDia = 0;
+            let totalProduzido = 0;
+            let totalDispProduzir = 0;
+            let totalPreparacao = 0;
+            let totalSemTarefa = 0;
+
+            const rows = document.querySelectorAll("#tableBody tr");
+
+            rows.forEach(row => {
+                if (row.cells.length > 4) {
+                    totalmetaDia += parseFloat(row.cells[3].textContent) || 0; 
+                    totalProduzido += parseFloat(row.cells[4].textContent) || 0; 
+                    totalDispProduzir += parseFloat(row.cells[5].textContent) || 0; 
+                    totalPreparacao += parseFloat(row.cells[6].textContent) || 0; 
+                    totalSemTarefa += parseFloat(row.cells[7].textContent) || 0; 
+                }
+            });
+
+            return [totalmetaDia, totalProduzido, totalDispProduzir, totalPreparacao, totalSemTarefa];
+        };
+
+        const getTotalGridData2 = () => {
+            let M5 = 0;
+            let M7 = 0;
+            let M10 = 0;
+            let M11 = 0;
+            let M12 = 0;
+
+            const rows = document.querySelectorAll("#tableBody tr");
+
+            rows.forEach(row => {
+                if (row.cells.length > 4) {
+                    M5 += parseFloat(row.cells[15].textContent) || 0; 
+                    M7 += parseFloat(row.cells[16].textContent) || 0; 
+                    M10 += parseFloat(row.cells[17].textContent) || 0; 
+                    M11 += parseFloat(row.cells[18].textContent) || 0; 
+                    M12 += parseFloat(row.cells[19].textContent) || 0; 
+                }
+            });
+
+            return [M5, M7, M10, M11, M12];
+        };
+
+        const getTotalGridData3 = () => {
+            let RUPTU_1 = 0;
+            let RUPTU_2 = 0;
+            let RUPTU_3 = 0;
+            let RUPTU_4 = 0;
+
+            const rows = document.querySelectorAll("#tableBody tr");
+
+            rows.forEach(row => {
+                if (row.cells.length > 4) {
+                    if (row.cells[8].textContent.trim() === '❌ Em Ruptura') { RUPTU_1 += 1; }
+                    if (row.cells[8].textContent.trim() === '⚠️ Risco Ruptura') { RUPTU_2 += 1; }
+                    if (row.cells[8].textContent.trim() === '✅ Linha com 1 turno') { RUPTU_3 += 1; }
+                    if (row.cells[8].textContent.trim() === '✅ Autonomia +1 dia') { RUPTU_4 += 1; }
+                }
+            });
+                
+            return [RUPTU_1, RUPTU_2, RUPTU_3, RUPTU_4];
+        };
+
+        // ==============================
+        // Funções para Formatar Números
+        // ==============================
+        function formatNumber(value) {
+            return value.toLocaleString('pt-BR');
+        }
+
+        function formatAbbreviation(value) {
+            if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+            if (value >= 1000) return (value / 1000).toFixed(1) + 'k';
+            return value.toString();
+        }
+
+        // ==============================
+        // Funções para Criar Dados do Gráfico
+        // ==============================
+        const getGridDataForChart = (index) => {
+            const rows = document.querySelectorAll(`#grid-row-${index} tr`);
+            let totalmetaDia = 0;
+            let totalProduzido = 0;
+            let totalDispProduzir = 0;
+            let totalPreparacao = 0;
+            let totalSemTarefa = 0;
+
+            rows.forEach(row => {
+                if (row.cells.length > 4) {
+                    totalmetaDia += parseFloat(row.cells[2].textContent) || 0; 
+                    totalProduzido += parseFloat(row.cells[3].textContent) || 0; 
+                    totalDispProduzir += parseFloat(row.cells[4].textContent) || 0; 
+                    totalPreparacao += parseFloat(row.cells[5].textContent) || 0; 
+                    totalSemTarefa += parseFloat(row.cells[6].textContent) || 0; 
+                }
+            });
+
+            return [totalmetaDia, totalProduzido, totalDispProduzir, totalPreparacao, totalSemTarefa];
+        };
+
+        const createChartData = (dataValues) => ({
+            labels: ['Meta dia', 'Produzido', 'Disp. Produção', 'Em Preparação', 'Sem Tarefa'],
+            datasets: [{
+                data: dataValues,
+                backgroundColor: [chartColors.paleta608, chartColors.paleta606, chartColors.paleta605, chartColors.paleta607, chartColors.paleta604],
+            }]
+        });
+
+        const createChartConfig = (dataValues) => ({
+            type: 'bar',
+            data: createChartData(dataValues),
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        display: true,
+                        anchor: 'end',
+                        align: 'top',
+                        offset: -5,
+                        color: chartColors.paleta603,
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        formatter: (value) => formatNumber(value)
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return formatNumber(value);
+                            },
+                            stepSize: 1000
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+        // ==============================
+        // Função para Atualizar Gráfico com Totais
+        // ==============================
+        function updateBar1ChartWithTotals() {
+            const [totalmetaDia, totalProduzido, totalDispProduzir, totalPreparacao, totalSemTarefa] = getTotalGridData1();
+            const [M5, M7, M10, M11, M12] = getTotalGridData2();
+            const [RUPTU_1, RUPTU_2, RUPTU_3, RUPTU_4] = getTotalGridData3();
+            const ctxBar1 = document.getElementById('bar1');
+            const ctxBar2 = document.getElementById('bar2');
+            const ctxBar3 = document.getElementById('bar3');
+
+            if (ctxBar1) {
+                const configBar1 = {
+                    type: 'bar',
+                    data: {
+                        labels: ['Meta dia', 'Produzido', 'Disp. Produção', 'Em Preparação', 'Sem Tarefa'],
+                        datasets: [{
+                            label: 'TOTAL DA PRODUÇÃO',
+                            data: [totalmetaDia, totalProduzido, totalDispProduzir, totalPreparacao, totalSemTarefa],
+                            backgroundColor: [chartColors.paleta608, chartColors.paleta606, chartColors.paleta605, chartColors.paleta607, chartColors.paleta604],
+                            borderColor: [chartColors.paleta608, chartColors.paleta606, chartColors.paleta605, chartColors.paleta607, chartColors.paleta604],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return `Valor: ${formatNumber(tooltipItem.raw)}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                offset: -5,
+                                color: chartColors.paleta603,
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                formatter: (value) => formatNumber(value)
+                            },
+                            title: {
+                                display: true,
+                                text: 'DISPONIBILIDADE DE PRODUÇÃO',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 30
+                                },
+                                color: chartColors.paleta620,
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatNumber(value);
+                                    },
+                                    stepSize: 10000
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                };
+
+                const chartBar1 = new Chart(ctxBar1, configBar1);
+                chartInstances.push(chartBar1); 
+            }
+
+            if (ctxBar2) {
+                const configBar2 = {
+                    type: 'bar',
+                    data: {
+                        labels: [
+                            '2 - Em coleta',
+                            '3 - Preparando Vagão',
+                            '4 - Vagão Completo',
+                            '5 - Produzindo',
+                            '6 - OP Produzida',
+                        ],
+                        datasets: [{
+                            label: 'PRINCIPAIS STATUS DO VAGÃO',
+                            data: [M5, M7, M10, M11, M12],
+                            backgroundColor: [chartColors.paleta604, chartColors.paleta607, chartColors.paleta607, chartColors.paleta607, chartColors.paleta607],
+                            borderColor: [chartColors.paleta604, chartColors.paleta607, chartColors.paleta607, chartColors.paleta607, chartColors.paleta607],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return `Valor: ${tooltipItem.raw}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                offset: -5,
+                                color: chartColors.paleta603,
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                formatter: (value) => `${value}`
+                            },
+                            title: {
+                                display: true,
+                                text: 'DISPONIBILIDADE DE VAGÃO',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 30
+                                },
+                                color: chartColors.paleta620,
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 50
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                };
+
+                const chartBar2 = new Chart(ctxBar2, configBar2);
+                chartInstances.push(chartBar2); 
+            }
+
+            if (ctxBar3) {
+                const configBar3 = {
+                    type: 'bar',
+                    data: {
+                        labels: [
+                            'Em Ruptura',
+                            'Risco Ruptura',
+                            'Linha com 1 turno',
+                            'Autonomia +1 dia',
+                        ],
+                        datasets: [{
+                            label: 'AUTONOMIA E RUPTURA DA LINHA',
+                            data: [RUPTU_1, RUPTU_2, RUPTU_3, RUPTU_4],
+                            backgroundColor: [chartColors.paleta604, chartColors.paleta607, chartColors.paleta609, chartColors.paleta606],
+                            borderColor: [chartColors.paleta604, chartColors.paleta607, chartColors.paleta609, chartColors.paleta606],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return `Valor: ${tooltipItem.raw}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                offset: -5,
+                                color: chartColors.paleta603,
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                formatter: (value) => `${value}`
+                            },
+                            title: {
+                                display: true,
+                                text: 'AUTONOMIA E RUPTURA DA LINHA',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 30
+                                },
+                                color: chartColors.paleta620,
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 5
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                };
+
+                const chartBar3 = new Chart(ctxBar3, configBar3);
+                chartInstances.push(chartBar3); 
+            }
+        }
+
+        // ==============================
+        // Função para Carregar Dados do Banco de Dados SQL
+        // ==============================
+        async function atualizarDadosBar4() {
+    try {
+        const response = await fetch(`${BASE_URL}/select_ZRPP008`);
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            throw new Error('Nenhum dado encontrado.');
+        }
+
+        // Agrupa os dados por data e soma a quantidade produzida
+        const dadosAgrupados = data.reduce((acc, item) => {
+            const dataFormatada = item.Dt_entrada;
+            const quantidade = parseFloat(item.QTD_Pc_Boa) || 0;
+
+            if (!acc[dataFormatada]) {
+                acc[dataFormatada] = 0;
+            }
+            acc[dataFormatada] += quantidade;
+
+            return acc;
+        }, {});
+
+        // Organiza os dados para o gráfico
+        const labels = Object.keys(dadosAgrupados).map(dataString => {
+            const date = new Date(dataString);
+            date.setDate(date.getDate() + 1); // Adiciona um dia à data
+            const dia = String(date.getDate()).padStart(2, '0');
+            const mes = String(date.getMonth() + 1).padStart(2, '0');
+            const ano = date.getFullYear();
+            const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const diaSemana = diasSemana[date.getDay()];
+            return `${dia}.${mes}.${ano} (${diaSemana})`;
+        });
+
+        const qtdBoa = Object.values(dadosAgrupados);
+
+        // Define cores dinamicamente
+        const backgroundColors = labels.map(label => {
+            const diaSemana = label.slice(-4, -1); // Pega o dia da semana (e.g., Dom, Seg)
+            if (diaSemana === 'Sáb') return chartColors.paleta610;
+            if (diaSemana === 'Dom') return chartColors.paleta610;
+            return chartColors.paleta606;
+        });
+
+        // Configura o gráfico
+        const ctx = document.getElementById('bar4');
+        if (ctx) {
+            const config = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Peças Boas',
+                            data: qtdBoa,
+                            backgroundColor: backgroundColors, // Cores dinâmicas
+                            borderColor: chartColors.paleta606,
+                            borderWidth: 1,
+                            barThickness: 50,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    return `Valor: ${tooltipItem.raw}`;
+                                },
+                            },
+                        },
+                        legend: {
+                            display: false,
+                        },
+                        datalabels: {
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            offset: -5,
+                            color: '#000',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            formatter: (value) => value.toLocaleString('pt-BR'),
+                        },
+                        title: {
+                            display: true,
+                            text: 'Produção Diária Agrupada',
+                            font: {
+                                size: 20,
+                                weight: 'bold',
+                            },
+                            padding: {
+                                top: 20,
+                                bottom: 20,
+                            },
+                            color: '#003366',
+                        },
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45,
+                            },
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString('pt-BR');
+                                },
+                                stepSize: 10000, // Intervalo entre os valores no eixo Y
+                            },
+                        },
+                    },
+                },
+                plugins: [ChartDataLabels],
+            };
+
+            // Atualiza ou cria o gráfico
+            if (window.chartBar4) {
+                window.chartBar4.destroy();
+            }
+            window.chartBar4 = new Chart(ctx, config);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar os dados para o gráfico 4:', error);
+    }
+}
+
+// ==============================
+// Função para Menu lateral
+// ==============================
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const button = document.querySelector(`.toggle-button[onclick="toggleSection('${sectionId}')"]`);
+
+    if (section) {
+        section.classList.toggle('hidden');
+        saveSectionVisibility(sectionId, section.classList.contains('hidden'));
+    }
+
+    // Alterar cor do botão com base no estado da seção
+    if (button) {
+        if (section.classList.contains('hidden')) {
+            button.classList.add('hidden-button');
+        } else {
+            button.classList.remove('hidden-button');
+        }
+    }
+}
+
+// ==============================
+// Função para Calcular o Total Produzido por Centro de Trabalho para o Dia Atual
+// ==============================
+function calcularTotalProduzidoPorCentro(dataZRPP008) {
+    const totalPorCentro = {};
+    
+    // Obtendo a data de hoje no formato correto (apenas dia, mês e ano)
+    const hoje = new Date();
+    const diaAtual = hoje.getDate(); // Obtém o dia UTC
+    const mesAtual = hoje.getMonth() + 1; // Corrigido para mês correto
+    const anoAtual = hoje.getFullYear(); // Obtém o ano UTC
+
+    // Itera pelos dados e calcula o total de produção apenas para o dia atual
+    dataZRPP008.forEach(item => {
+        const dataEntrada = new Date(item.Dt_entrada); // Converte a string da data para objeto Date
+
+        // Extrai o dia, mês e ano da data de entrada no UTC
+        const diaEntrada = dataEntrada.getUTCDate();
+        const mesEntrada = dataEntrada.getUTCMonth() + 1; // Corrigido para mês correto
+        const anoEntrada = dataEntrada.getUTCFullYear();
+
+        // Verifica se a data de entrada é igual à data de hoje
+        if (diaEntrada === diaAtual && mesEntrada === mesAtual && anoEntrada === anoAtual) {
+            const centroTrabalho = item.Maquina;
+            const produzido = parseFloat(item.QTD_Pc_Boa) || 0; // Certifique-se de que está pegando a quantidade produzida corretamente.
+
+            if (!totalPorCentro[centroTrabalho]) {
+                totalPorCentro[centroTrabalho] = 0;
+            }
+
+            totalPorCentro[centroTrabalho] += produzido; // Soma a quantidade produzida para o dia atual
+        }
+    });
+
+    return totalPorCentro;
+}
+
+    </script>
+
+</body>
+
+</html>

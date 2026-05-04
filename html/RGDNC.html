@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="PT">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping IPs</title>
+    <link rel="stylesheet" href="/GDM/css/RGDNC.css">
+    <link rel="stylesheet" href="/GDM/css/public.css">
+</head>
+
+<body>
+    <div class="header">
+        <h1>CONEXÃO RGDNC</h1>
+
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button>
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <div class="sidebar-buttons-container">
+            <!--<button onclick="convertImageToGRF()">Convert to GRF</button> -->
+        </div>
+        <BR>
+    <div id="loading">Carregando...</div>
+    </div>
+    
+    <div id="last-update">Última atualização: 🕐 <span id="last-update-time"></span></div>
+    <table id="ping-table">
+        <thead>
+            <tr>
+                <th>Nome do Equipamento</th>
+                <th>IP</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data rows will be inserted here -->
+        </tbody>
+    </table>
+    <script>
+        const BASE_URL = 'http://gdi.docol.com.br:5500';
+        let lastUpdateTime = '';
+        const loadingIndicator = document.getElementById('loading');
+        const lastUpdateTimeElement = document.querySelector('#last-update-time');
+        const tableBody = document.querySelector('#ping-table tbody');
+
+        function fetchPingResults() {
+            loadingIndicator.style.display = 'block'; // Mostra o indicador de carregamento
+            axios.get(`${BASE_URL}/ping`)
+                .then(response => {
+                    const results = response.data;
+                    const currentTime = new Date().toLocaleTimeString();
+
+                    // Atualiza a hora da última atualização
+                    if (currentTime !== lastUpdateTime) {
+                        lastUpdateTime = currentTime;
+                        lastUpdateTimeElement.textContent = lastUpdateTime;
+                    }
+
+                    tableBody.innerHTML = '';
+
+                    results.forEach(result => {
+                        const row = document.createElement('tr');
+                        const cellName = document.createElement('td');
+                        cellName.textContent = result.name;
+                        row.appendChild(cellName);
+
+                        const cellIp = document.createElement('td');
+                        cellIp.textContent = result.ip;
+                        row.appendChild(cellIp);
+
+                        const cellStatus = document.createElement('td');
+                        cellStatus.textContent = result.alive ? '✅ - Ativo' : '🔴 - Inativo';
+                        row.appendChild(cellStatus);
+
+                        tableBody.appendChild(row);
+                    });
+
+                    loadingIndicator.style.display = 'none'; // Oculta o indicador de carregamento
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar dados de ping:', error.message);
+                    loadingIndicator.style.display = 'none'; // Oculta o indicador de carregamento mesmo em caso de erro
+                });
+        }
+
+        // Fetch ping results every 5 seconds
+        setInterval(fetchPingResults, 10000);
+
+        // Fetch ping results immediately on page load
+        document.addEventListener('DOMContentLoaded', fetchPingResults);
+    </script>
+    <script src="/GDM/js/public.js"></script>
+</body>
+</html>

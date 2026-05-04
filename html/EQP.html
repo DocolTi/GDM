@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status de Impressoras e Ping</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center; /* Centraliza o texto e outros elementos */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto; /* Centraliza a tabela */
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        #loading {
+            display: none;
+            font-weight: bold;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+        }
+        .filter-button, .filter-select {
+            margin-right: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #chart-container {
+            width: 80%; /* Ajusta a largura do contêiner do gráfico */
+            max-width: 800px; /* Define a largura máxima do contêiner do gráfico */
+            margin: 0 auto; /* Centraliza o contêiner do gráfico */
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Status de Impressoras e Ping</h1>
+    <div id="loading">Carregando...</div>
+    <p>Última atualização: <span id="last-update-time"></span></p>
+    
+    <div class="filter-container">
+        <button class="filter-button" onclick="applyFilter('all')">Mostrar Todos</button>
+        <button class="filter-button" onclick="applyFilter('online')">Mostrar Online</button>
+        <button class="filter-button" onclick="applyFilter('offline')">Mostrar Offline</button>
+        <button class="filter-button" onclick="applyFilter('errors')">Mostrar Erros</button>
+        
+        <select id="factory-filter" class="filter-select" onchange="applyFactoryFilter()">
+            <option value="all">Todas as Fábricas</option>
+            <!-- Opções de fábricas serão preenchidas dinamicamente -->
+        </select>
+    </div>
+
+    <div id="chart-container">
+        <canvas id="factory-chart"></canvas>
+    </div>
+    
+    <table id="ping-table">
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Modelo</th>
+                <th>Status da Impressora</th>
+                <th>Nome</th>
+                <th>IP</th>
+                <th>CC</th>
+                <th>Local</th>
+                <th>Fábrica</th>
+                <th>Status</th>       
+
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+
+    <script>
+        const BASE_URL = 'http://gdi.docol.com.br:5500';
+        let lastUpdateTime = '';
+        let allResults = [];
+        const loadingIndicator = document.getElementById('loading');
+        const lastUpdateTimeElement = document.querySelector('#last-update-time');
+        const tableBody = document.querySelector('#ping-table tbody');
+        const ctx = document.getElementById('factory-chart').getContext('2d');
+        let factoryChart = null;
+
+// Função para buscar os resultados de ping
+function fetchPingResults() {
+    loadingIndicator.style.display = 'block'; // Exibe o indicador de carregamento
+
+    axios.get(`${BASE_URL}/ping`)
+        .then(response => {
+            const results = response.data;
+            const currentTime = new Date().toLocaleTimeString();
+
+            // Atualiza a hora da última atualização
+            if (currentTime !== lastUpdateTime) {
+                lastUpdateTime = currentTime;
+                lastUpdateTimeElement.textContent = lastUpdateTime;
+            }
+
+            allResults = results; // Armazena todos os resultados
+
+            // Popula o filtro de fábricas
+            populateFactoryFilter(results);
+
+            // Recupera o filtro armazenado e aplica
+            const filterType = localStorage.getItem('filterType') || 'all';
+            applyFilter(filterType);
+
+            // Oculta o indicador de carregamento
+            loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Erro ao buscar dados de ping:', error.message);
+            loadingIndicator.style.display = 'none';
+        });
+}
+
+
+// Função para exibir os resultados na tabela
+function displayResults(results) {
+    tableBody.innerHTML = '';
+
+    results.forEach(result => {
+        const row = document.createElement('tr');
+        
+        const cellnumero = document.createElement('td');
+        cellnumero.textContent = result.numero;
+        row.appendChild(cellnumero);
+        
+        const cellmodelo = document.createElement('td');
+        cellmodelo.textContent = result.modelo;
+        row.appendChild(cellmodelo);
+        
+        const cellstatus2 = document.createElement('td');
+        cellstatus2.textContent = result.status2;
+        row.appendChild(cellstatus2);
+
+        const cellName = document.createElement('td');
+        cellName.textContent = result.name;
+        row.appendChild(cellName);
+
+        const cellIp = document.createElement('td');
+        cellIp.textContent = result.ip;
+        row.appendChild(cellIp);
+
+        const cellCc = document.createElement('td');
+        cellCc.textContent = result.cc;
+        row.appendChild(cellCc);
+
+        const cellLocal = document.createElement('td');
+        cellLocal.textContent = result.local;
+        row.appendChild(cellLocal);
+
+        const cellFab = document.createElement('td');
+        cellFab.textContent = result.fabrica;
+        row.appendChild(cellFab);
+
+        const cellStatus = document.createElement('td');
+        cellStatus.textContent = result.alive ? '🟢 - Ativo' : '❌ - Inativo';
+        row.appendChild(cellStatus);
+
+        tableBody.appendChild(row);
+    });
+}
+
+
+        function updateChart(results) {
+            // Contadores para cada fábrica e status
+            const factoryStatusCount = results.reduce((acc, result) => {
+                const factory = result.fabrica || 'Desconhecida';
+                const status = result.alive ? 'Ativo' : 'Inativo';
+
+                // Inicializa o objeto para a fábrica se não existir
+                if (!acc[factory]) {
+                    acc[factory] = { Ativo: 0, Inativo: 0 };
+                }
+
+                // Incrementa o contador de acordo com o status
+                acc[factory][status] += 1;
+                return acc;
+            }, {});
+
+            // Gera os labels e dados para o gráfico
+            const labels = [];
+            const activeData = [];
+            const inactiveData = [];
+
+            for (const [factory, statusCounts] of Object.entries(factoryStatusCount)) {
+                labels.push(factory);
+                activeData.push(statusCounts.Ativo);
+                inactiveData.push(statusCounts.Inativo);
+            }
+
+            // Se o gráfico já existir, remova-o
+            if (factoryChart) {
+                factoryChart.destroy();
+            }
+
+            // Criação do novo gráfico
+            factoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Ativo',
+                            data: activeData,
+                            backgroundColor: 'rgba(75, 192, 75, 0.2)', // Verde
+                            borderColor: 'rgba(75, 192, 75, 1)', // Verde
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Inativo',
+                            data: inactiveData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)', // Vermelho
+                            borderColor: 'rgba(255, 99, 132, 1)', // Vermelho
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            color: 'black',
+                            anchor: 'center',
+                            align: 'center',
+                            formatter: function(value) {
+                                return value; // Exibe o valor da barra
+                            },
+                            font: {
+                                weight: 'bold'
+                            },
+                            borderRadius: 3,
+                            padding: 2
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        // Função para filtrar resultados
+        function applyFilter(filterType) {
+            localStorage.setItem('filterType', filterType); // Armazena o filtro no localStorage
+
+            let filteredResults = [];
+
+            if (filterType === 'online') {
+                filteredResults = allResults.filter(result => result.alive);
+            } else if (filterType === 'offline') {
+                filteredResults = allResults.filter(result => !result.alive);
+            } else if (filterType === 'errors') {
+                filteredResults = allResults.filter(result => result.errors);
+            } else {
+                filteredResults = allResults;
+            }
+
+            // Aplica o filtro de fábrica
+            const selectedFactory = document.getElementById('factory-filter').value;
+            if (selectedFactory !== 'all') {
+                filteredResults = filteredResults.filter(result => result.fabrica === selectedFactory);
+            }
+
+            displayResults(filteredResults);
+            updateChart(filteredResults);
+        }
+
+        // Função para aplicar o filtro por fábrica
+        function applyFactoryFilter() {
+            applyFilter(localStorage.getItem('filterType') || 'all');
+        }
+
+        // Função para popular o seletor de fábricas
+        function populateFactoryFilter(results) {
+            const factorySelect = document.getElementById('factory-filter');
+            
+            // Limpa as opções existentes para evitar duplicações
+            factorySelect.innerHTML = '<option value="all">Todas as Fábricas</option>';
+
+            const factories = new Set(results.map(result => result.fabrica).filter(fabrica => fabrica)); // Remove duplicatas e valores nulos
+            factories.forEach(factory => {
+                const option = document.createElement('option');
+                option.value = factory;
+                option.textContent = factory;
+                factorySelect.appendChild(option);
+            });
+        }
+
+
+        // Atualiza a cada 60 segundos
+        setInterval(fetchPingResults, 60000);
+
+        // Inicializa a busca de resultados
+        fetchPingResults();
+    </script>
+    <link rel="stylesheet" href="/GDM/css/public.css">
+    <script src="/GDM/js/PUBLIC.JS"></script>
+</body>
+</html>

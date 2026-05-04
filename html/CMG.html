@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Carga Máquina</title>
+</head>
+<body>
+
+    <div class="popup" id="popup"></div>
+    <div class="header">       
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button> 
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <h1>CARGA MÁQUINA</h1>
+
+        <div class="sidebar-buttons-container">
+            <button class="sidebar-button" type="button" onclick="openForm()">Filtros</button>
+            <button class="sidebar-button" type="button" onclick="openFormCarga()">Carga</button>
+        </div>
+
+    </div>
+
+    <div class="overlay1" id="overlay1">
+        <div class="modal">
+            <h2>Craga de Dados</h2><br>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="csvFile" name="csvFile" accept=".csv" required><br><br><br>
+                <button type="submit">Enviar</button>        
+                <button type="button" onclick="closeFormCarga()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <h2>Filtros</h2>
+            <label>Centro Custo</label>
+            <select id="filtrocentroDeCusto" onchange="atualizarFiltrosSecundarios('centroDeCusto')"></select>
+            <label>Descrição Centro Custo</label>
+            <select id="filtroDesriCentroDeCusto" onchange="atualizarFiltrosSecundarios('descriDeCusto')"></select>
+            <label>Centro de Trabalho</label>
+            <select id="filtroCentroDeTrabalho" onchange="atualizarFiltrosSecundarios('centroDeTrabalho')"></select>
+            <label>Gestor</label>
+            <select id="filtroGestorDoCC" onchange="atualizarFiltrosSecundarios('gestorDoCC')"></select>
+            <label for="filtroCores">Cor:</label>
+            <select id="filtroCores">
+                <option value="">Todos</option>
+                <option value="Vermelho">Vermelho</option>
+                <option value="orange">Laranja</option>
+                <option value="green">Verde</option>
+            </select>
+            <label>Periodo</label>
+            <select id="filtroPeriodo" onchange="atualizarFiltrosSecundarios('periodo')"></select>
+            <button onclick="atualizarGrafico()">Atualizar</button>
+            <div class="switch">
+                <input type="checkbox" id="switch" onchange="toggleMostrarValores()" />
+                <label for="switch"></label>
+            </div>
+            <button onclick="closeForm()">Cancelar</button>
+            <button class="sidebar-button" type="button" onclick="limparFiltros()">Limpar Filtros</button>
+        </div>
+    </div>
+
+    <canvas id="resultadosChart"></canvas>
+    <div id="dataList" style="margin-top: 20px;"></div> <!-- Container para a tabela de dados -->
+    
+    <script>
+        const BASE_URL = 'http://gdi.docol.com.br:5500'; // Atualize a URL base se necessário
+//🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+
+document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    const formData = new FormData(document.getElementById('uploadForm'));
+    
+    try {
+        const response = await fetch(`${BASE_URL}/upload-csv`, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.text();
+        alert(result);
+        closeFormCarga();
+    } catch (error) {
+        console.error('Erro ao enviar o arquivo:', error);
+        alert('Erro ao enviar o arquivo.');
+    }
+});
+
+//🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+
+// Função para processar e enviar o arquivo CSV
+
+        function limparFiltros() {
+            // Limpa todos os filtros e atualiza o gráfico
+            document.getElementById('filtrocentroDeCusto').value = '';
+            document.getElementById('filtroDesriCentroDeCusto').value = '';
+            document.getElementById('filtroCentroDeTrabalho').value = '';
+            document.getElementById('filtroGestorDoCC').value = '';
+            document.getElementById('filtroPeriodo').value = '';
+            document.getElementById('filtroCores').value = '';
+            document.getElementById('switch').checked = false;
+            atualizarGrafico();
+        }
+
+        function closeForm() {
+            document.getElementById("overlay").style.display = "none";
+        }
+        function openForm() {
+            document.getElementById("overlay").style.display = "block";
+        }
+        function closeFormCarga() {
+            document.getElementById("overlay1").style.display = "none";
+        }
+
+        function openFormCarga() {
+            document.getElementById("overlay1").style.display = "block";
+        }
+
+        let chart;
+        let resultados; // Armazenamos os resultados globalmente para acessar de outras funções
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Busca os dados do servidor ao carregar a página
+            fetch(`${BASE_URL}/select_cargaMaq`)
+            .then(response => response.json())
+            .then(data => {
+                resultados = data;
+                console.log(resultados); // Verifique o formato dos dados aqui
+                inicializarFiltros();
+            })
+            .catch(error => console.error('Erro ao buscar dados:', error));
+        });
+
+        function inicializarFiltros() {
+            // Inicializar cada filtro com opções
+            inicializarSelect(document.getElementById('filtrocentroDeCusto'), extrairOpcoes('centroDeCusto'));
+            inicializarSelect(document.getElementById('filtroDesriCentroDeCusto'), extrairOpcoes('descriDeCusto'));
+            inicializarSelect(document.getElementById('filtroCentroDeTrabalho'), extrairOpcoes('centroDeTrabalho'));
+            inicializarSelect(document.getElementById('filtroGestorDoCC'), extrairOpcoes('gestorDoCC'));
+            inicializarSelect(document.getElementById('filtroPeriodo'), extrairOpcoes('periodo'));
+            inicializarSelect(document.getElementById('filtroCores'), new Set(['red', 'orange', 'green'])); // Adiciona o filtro de cores
+
+            carregarGrafico(); // Carregar o gráfico inicialmente
+        }
+
+        function extrairOpcoes(campo) {
+            return new Set(resultados.map(item => item[campo]));
+        }
+
+        function inicializarSelect(selectElement, options) {
+            selectElement.innerHTML = '<option value="">Todos</option>'; // Opção para não selecionar nada
+            options.forEach(option => {
+                selectElement.options.add(new Option(option, option));
+            });
+        }
+
+        function atualizarFiltrosSecundarios(filtroPrincipal) {
+            const filtrosSecundarios = {
+                'centroDeCusto': ['centroDeTrabalho', 'gestorDoCC', 'periodo'],
+                'descriDeCusto': ['centroDeTrabalho', 'gestorDoCC', 'periodo'],
+                'centroDeTrabalho': ['centroDeCusto', 'gestorDoCC'],
+                'gestorDoCC': ['centroDeCusto', 'centroDeTrabalho']
+            };
+        
+            const secundarios = filtrosSecundarios[filtroPrincipal] || [];
+            secundarios.forEach(sec => atualizarSelect(sec));
+        }
+        
+        function atualizarSelect(filtroSecundario) {
+            const filtrocentroDeCusto = document.getElementById('filtrocentroDeCusto').value;
+            const filtroDesriCentroDeCusto = document.getElementById('filtroDesriCentroDeCusto').value;
+            const filtroCentroDeTrabalho = document.getElementById('filtroCentroDeTrabalho').value;
+            const filtroGestorDoCC = document.getElementById('filtroGestorDoCC').value;
+            const filtroPeriodo = document.getElementById('filtroPeriodo').value;
+        
+            const filteredResults = resultados.filter(item => 
+                (item.centroDeCusto === filtrocentroDeCusto || filtrocentroDeCusto === "") &&
+                (item.descriDeCusto === filtroDesriCentroDeCusto || filtroDesriCentroDeCusto === "") &&
+                (item.centroDeTrabalho === filtroCentroDeTrabalho || filtroCentroDeTrabalho === "") &&
+                (item.gestorDoCC === filtroGestorDoCC || filtroGestorDoCC === "") &&
+                (item.periodo === filtroPeriodo || filtroPeriodo === "")
+            );
+        
+            const options = new Set(filteredResults.map(item => item[filtroSecundario]));
+            inicializarSelect(document.getElementById('filtro' + capitalizeFirstLetter(filtroSecundario)), options);
+        }
+        
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function carregarGrafico() {
+            atualizarGrafico(); // Carrega o gráfico inicial com todos os dados ou filtrados
+        }
+
+        function atualizarGrafico() {
+            closeForm();
+            const filtrocentroDeCusto = document.getElementById('filtrocentroDeCusto').value;
+            const filtroDesriCentroDeCusto = document.getElementById('filtroDesriCentroDeCusto').value;
+            const filtroCentroDeTrabalho = document.getElementById('filtroCentroDeTrabalho').value;
+            const filtroGestorDoCC = document.getElementById('filtroGestorDoCC').value;
+            const filtroPeriodo = document.getElementById('filtroPeriodo').value;
+            const filtroCor = document.getElementById('filtroCores').value;
+            const mostrarValoresDiferentesDeZero = document.getElementById('switch').checked; // Verifica se o switch está ativado
+            let dadosFiltrados;
+        
+            dadosFiltrados = resultados.filter(item =>
+                (item.centroDeCusto === filtrocentroDeCusto || filtrocentroDeCusto === "") &&
+                (item.descriDeCusto === filtroDesriCentroDeCusto || filtroDesriCentroDeCusto === "") &&
+                (item.centroDeTrabalho === filtroCentroDeTrabalho || filtroCentroDeTrabalho === "") &&
+                (item.gestorDoCC === filtroGestorDoCC || filtroGestorDoCC === "") &&
+                (item.periodo === filtroPeriodo || filtroPeriodo === "")
+            );
+
+            // Aplica o filtro de cor
+            if (filtroCor) {
+                dadosFiltrados = dadosFiltrados.filter(item => getColorFromValue(item.valor) === filtroCor);
+            }
+
+            // Aplica o filtro para valores diferentes de zero, se necessário
+            if (mostrarValoresDiferentesDeZero) {
+                dadosFiltrados = dadosFiltrados.filter(item => item.valor !== 0);
+            }
+
+            // Atualiza o gráfico
+            if (chart) {
+                chart.destroy(); // Remove o gráfico existente
+            }
+
+            chart = new Chart(document.getElementById('resultadosChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: dadosFiltrados.map(item => item.centroDeTrabalho), // Mapeia os labels
+                    datasets: [{
+                        label: 'Cor',
+                        data: dadosFiltrados.map(item => item.valor), // Mapeia os dados
+                        backgroundColor: dadosFiltrados.map(item => getColorFromValue(item.valor)), // Define as cores de fundo
+                        borderColor: dadosFiltrados.map(item => getColorFromValue(item.valor)), // Define as cores da borda
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false // Oculta a legenda
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const data = dadosFiltrados[context.dataIndex];
+                                    return [
+                                        `Centro de Custo: ${data.centroDeCusto}`,
+                                        `Descrição Centro de Custo: ${data.descriDeCusto}`,
+                                        `Centro de Trabalho: ${data.centroDeTrabalho}`,
+                                        `Gestor: ${data.gestorDoCC}`,
+                                        `Período: ${data.periodo}`,
+                                        `QtdMaq: ${data.qtdMaq}`,
+                                        `T1: ${data.t1}`,
+                                        `T2: ${data.t2}`,
+                                        `T3: ${data.t3}`,
+                                        `Revezamento: ${data.revezamento}`,
+                                        `% de OEE: ${context.raw.toFixed(2)}%`
+                                    ];
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value) => `${value.toFixed(2)}%`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `${value}%`
+                            }
+                        }
+                    }
+                }
+            });
+            atualizarLista(dadosFiltrados); // Atualiza a tabela de dados filtrados
+        }
+
+        function atualizarLista(dados) {
+            const container = document.getElementById('dataList');
+            container.innerHTML = '';
+        
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.border = '1';
+        
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            table.appendChild(thead);
+            table.appendChild(tbody);
+        
+            // Adiciona cabeçalhos
+            const headers = ['Centro de Custo', 'Descrição Centro de Custo', 'Centro de Trabalho', 'Gestor', 'Período', 'QtdMaq', 'T1', 'T2', 'T3', 'Revezamento', '% de OEE', 'Cor'];
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+        
+            // Adiciona dados
+            dados.forEach(item => {
+                const row = document.createElement('tr');
+                
+                const corSelect = getColorFromValue(item.valor); // Obtém a cor com base no valor
+                
+                const values = [
+                    item.centroDeCusto,
+                    item.descriDeCusto,
+                    item.centroDeTrabalho,
+                    item.gestorDoCC,
+                    item.periodo,
+                    item.qtdMaq,
+                    item.t1,
+                    item.t2,
+                    item.t3,
+                    item.revezamento,
+                    item.valor.toFixed(2) + '%',
+                    corSelect // Adiciona a coluna de cor
+                ];
+        
+                values.forEach((value, index) => {
+                    const td = document.createElement('td');
+                    if (index === values.length - 1) {
+                        // Se for a última coluna (Cor), aplicar cor de fundo e texto
+                        td.style.backgroundColor = value; // Aplica a cor de fundo para a célula
+                        td.textContent = getColorName(value); // Define o texto com o nome da cor
+                    } else {
+                        td.textContent = value;
+                    }
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+        
+            container.appendChild(table);
+        }
+        
+        // Função para converter valores em cores
+        function getColorFromValue(valor) {
+            if (valor <= 66) {
+                return 'green';
+            } else if (valor > 66 && valor < 80) {
+                return 'orange';
+            } else {
+                return 'red';
+            }
+        }
+        
+        // Função para obter o nome da cor
+        function getColorName(cor) {
+            switch(cor) {
+                case 'red':
+                    return 'Vermelho';
+                case 'orange':
+                    return 'Laranja';
+                case 'green':
+                    return 'Verde';
+                default:
+                    return 'Desconhecido';
+            }
+        }        
+
+function toggleMostrarValores() {
+    atualizarGrafico(); // Atualiza o gráfico e a tabela ao alternar o switch
+}
+
+    </script>
+    
+<link rel="stylesheet" href="/GDM/css/public.css">
+<script src="/GDM/js/public.js"></script>
+
+</body>
+</html>

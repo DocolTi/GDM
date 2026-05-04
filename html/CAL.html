@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAL</title>
+</head>
+<body>
+<!-- ============================
+    CABEÇALHO SECUNDÁRIO (Calibração)
+============================= -->
+    <!-- Cabeçalho -->
+    <div class="header">
+        <h1>GDM-CALIBRADORES</h1>
+
+        <!-- Menu do usuário -->
+        <button class="user-menu-btn" id="userMenuBtn" type="button">
+            <span id="userName">Usuário</span>
+            <span class="user-menu-icon">&#x25BC;</span>
+        </button>
+        <div class="user-menu" id="userMenu" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Usuário</strong>
+            </div>
+            <button type="button" class="user-menu-logout"
+                onclick="location.href='https://docol.soft4.com.br/login?_redirect=%2Fchamado'">
+                Abrir ticket de suporte
+            </button>
+            <button onclick="carregarValores()" class="user-menu-logout">Menu</button>
+            <button onclick="carregarValores0()" class="user-menu-logout">Logout</button>
+            <img src="/gdm/img/docol_logo.png" alt="Docol Logo" style="width: 120px; height: 50px;">
+        </div>
+    </div>
+
+    <!-- Menu lateral -->
+    <div class="main-container" id="mainContainer">
+        <div class="sidebar" id="sidebar">
+            <a><button class="toggle-button" type="button" onclick="openForm()">Cadastro</button></a> 
+            <a><button class="toggle-button" id="btnAlterarCalibradores">Alterar</button></a> 
+            <a><button class="toggle-button" id="btnPesquisarCalibradores">Pesquisar</button></a>
+            <a><button class="toggle-button" id="toggleTheme">🌙 / ☀️</button></a>
+            <label id="MenuLote" class="MenuLote">›|</label>
+        </div>›
+    </div>
+</div>
+
+<div class="linha-separadora1"></div>
+
+    <!-- ============================
+        MODAL DE CADASTRO DE CALIBRADORES
+    ============================= -->
+    <div class="overlay" id="overlay">
+    <div class="modal">
+        <h2>Cadastro de Calibrador</h2>
+        <form id="formNovoCalibrador">
+
+        <!-- Tipo -->
+        <div class="form-group">
+            <label for="tipo">Tipo</label>
+            <select id="tipo" name="tipo">
+            <option value="">Selecione...</option>
+            <option value="Paquímetro">Paquímetro</option>
+            <option value="Micrômetro">Micrômetro</option>
+            <option value="Relógio Comparador">Relógio Comparador</option>
+            <option value="Calibrador">Calibrador</option>
+            <option value="Outro">Outro</option>
+            </select>
+        </div>
+
+        <!-- Tipo -->
+        <div class="form-group">
+            <label for="centro">Centro</label>
+            <select id="centro" name="centro">
+            <option value="">Selecione...</option>
+            </select>
+        </div>
+
+        <!-- Código -->
+        <div class="form-group">
+            <label for="Codi">Código</label>
+            <input type="text" id="Codi" name="Codi" maxlength="12" required>
+        </div>
+
+        <!-- Descrição -->
+        <div class="form-group">
+            <label for="Descricao">Descrição</label>
+            <input type="text" id="Descricao" name="Descricao" maxlength="100" required>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+            <option value="Aprovado">Aprovado</option>
+            <option value="Reprovado">Reprovado</option>
+            <option value="Enviado">Enviado para Calibração</option>
+            <option value="Manutencao">Manutenção</option>
+            <option value="Inativo">Inativo</option>
+            </select>
+        </div>
+
+        <!-- Controlado -->
+        <div class="form-group">
+            <label for="Controlado">Controlado</label>
+            <select id="Controlado" name="Controlado">
+            <option value="SIM">SIM</option>
+            <option value="NÃO">NÃO</option>
+            </select>
+        </div>
+
+        <!-- Localização -->
+        <div class="form-group">
+            <label for="localizacao">Localização</label>
+            <select id="localizacao" name="localizacao">
+                <option value="">Selecione...</option>
+            </select>
+        </div>
+
+        <!-- Frequência -->
+        <div class="form-group">
+            <label for="frequencia">Frequência (dias)</label>
+            <input type="number" id="frequencia" name="frequencia" maxlength="4">
+        </div>
+
+        <!-- Última Calibração -->
+        <div class="form-group">
+            <label for="ultiCalibr">Data Última Calibração</label>
+            <input type="date" id="ultiCalibr" name="ultiCalibr">
+        </div>
+
+        <!-- Número do Certificado -->
+        <div class="form-group">
+            <label for="numeCertif">Número do Certificado</label>
+            <input type="text" id="numeCertif" name="numeCertif" maxlength="20">
+        </div>
+
+        <!-- Observações -->
+        <div class="form-group">
+            <label for="Obs">Observações</label>
+            <textarea id="Obs" name="Obs" maxlength="100" placeholder="Digite observações ou observações adicionais"></textarea><br><br>
+        </div>
+
+        <!-- Botões -->
+        <div class="form-group">
+            <button type="submit" class="toggle-button">Salvar</button>
+        </div>        <!-- Botões -->
+        <div class="form-group">
+            <button type="button" class="toggle-button" onclick="closeForm()">Cancelar</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+    <!-- ============================
+        ALTERAR CALIBRADORES
+    ============================= -->
+<div class="container" id="alterarCalibradoresContainer" style="display:none;">        
+        <!-- Campo ID centralizado e bloqueado -->
+        <div class="form-row id-centered">
+            <div class="form-group">
+                <label for="id">ID</label>
+                <input type="text" id="id" name="Id" readonly style="width:150px;">
+            </div>
+        </div>        
+        <!-- Campo ID centralizado e bloqueado -->
+        <div class="form-row id-centered">
+            <div class="form-group">
+                <label for="codigo">Código</label>
+                <input type="text" id="codigo" name="Codi" style="width:200px;">
+            </div>
+        </div>
+
+        <!-- Linhas do formulário agrupando inputs -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <input type="text" id="descricao" name="Descricao">
+            </div>
+            <div class="form-group">
+                <label for="centro_main">Centro</label>
+                <select id="centro_main"></select>
+            </div>
+            <div class="form-group">
+                <label for="tipo_instrumento">Tipo de Instrumento</label>
+                <select id="tipo_instrumento"></select>
+            </div>
+        </div>
+
+        <!-- Linha com área e frequência -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="localizacao_main">Localização</label>
+                <select id="localizacao_main" name="localizacao">
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="frequencia_main">Frequência (dias)</label>
+                <input type="text" id="frequencia_main" name="frequencia">
+            </div>
+            <div class="form-group">
+                <label for="ultiCalibr_main">Data Última Calibração</label>
+                <input type="date" id="ultiCalibr_main" name="ultiCalibr">
+            </div>
+        </div>
+
+        <!-- Linha com erro máximo e certificado -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="numeCertif_main">Número do Certificado</label>
+                <input type="text" id="numeCertif_main" name="numeCertif_main">
+            </div>
+
+            <div class="form-group">
+                <label for="versaoCertif">Versão do Certificado</label>
+                <input type="text" id="versaoCertif" name="versaoCertif" maxlength="2" placeholder="01">
+            </div>
+
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="button" class="toggle-button" onclick="abrirCertificado()">📄 Abrir Certificado</button>
+            </div>
+        </div>
+
+        <br><hr class="linha-vermelha"><br>
+
+        <!-- Upload de imagem do instrumento -->
+        <div class="form-row align-start">
+        <!-- FOTO -->
+        <div class="form-group form-group--image">
+            <label>Foto do calibrador</label>
+            <div class="upload-section">
+            <img id="previewImagem" src="/gdm/img/icons8-caliper-48.png" alt="Preview">
+            </div>
+        </div>
+
+        <!-- ANOTAÇÕES -->
+        <div class="form-group form-group--obs">
+            <label for="obs">Anotações Gerais</label>
+            <textarea id="obs" name="Obs"></textarea>
+        </div>
+        </div>
+
+        <br><hr class="linha-vermelha"><br>
+
+        <!-- Status do calibrador -->
+        <div class="form-group">
+            <label>Status:</label>
+            <div class="status-options">
+                <label><input type="radio" name="status" value="Aprovado"> Aprovado</label>
+                <label><input type="radio" name="status" value="Reprovado"> Reprovado</label>
+                <label><input type="radio" name="status" value="Enviado"> Enviado para Calibração</label>
+                <label><input type="radio" name="status" value="Manutencao"> Enviado para Manutenção</label>
+                <label><input type="radio" name="status" value="Inativo"> Inativo</label>
+            </div>
+        </div>
+        
+        <br><hr class="linha-vermelha"><br>
+
+        <!-- Botões principais -->
+        <div class="buttons">
+            <button class="toggle-button" type="button" onclick="salvarCalibrador()">Salvar</button>
+            <button class="toggle-button btn-mini" type="button" onclick="deletarCalibrador()">Deletar</button>
+        </div>
+    </div>
+<!-- ============================
+    LISTAGEM DE CALIBRADORES CADASTRADOS
+============================= -->
+<div class="container" id="listaCalibradoresContainer" style="display:none;">
+    <!-- Indicador de calibradores vencidos -->
+<div id="indicadorVencidos" class="indicador-vencidos" onclick="toggleFiltroVencidos()">
+    🔴 Calibradores vencidos: <span id="contadorVencidos">0</span>
+</div>
+
+
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h2>📋 Calibradores Cadastrados</h2>
+
+        <!-- 🔽 Botão de Exportação -->
+        <button type="button" class="exportar-btn" onclick="exportarCalibradores()">📤 Exportar Excel</button>
+
+    </div>
+
+    <!-- FILTROS -->
+    <div class="form-row">
+        <div class="form-group">
+            <label for="filtroTipo">Tipo</label>
+            <select id="filtroTipo">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="filtroCodigo">Código</label>
+            <input type="text" id="filtroCodigo" placeholder="Ex: 0041">
+        </div>
+        <div class="form-group">
+            <label for="filtroStatus">Status</label>
+            <select id="filtroStatus">
+                <option value="">Todos</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="filtroDescricao">Descrição</label>
+            <input type="text" id="filtroDescricao" placeholder="Ex: Micrômetro 25mm">
+        </div>
+        <div class="form-group">
+            <label for="filtroLocalizacao">Localização</label>
+            <select id="filtroLocalizacao">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="button" class="toggle-button" onclick="carregarListaCalibradores()">🔍 Buscar</button>
+        </div>
+    </div>
+
+    <!-- TABELA -->
+    <div class="table-wrapper">
+        <table id="tabelaCalibradores" class="cal-table">
+                <thead>
+                    <tr>
+                        <th>Centro</th>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Tipo</th>
+                        <th>Localização</th>
+                        <th>Status</th>
+                        <th>Frequência (dias)</th>
+                        <th>Próxima Calibração</th> <!-- NOVO -->
+                        <th>Última Calibração</th>
+                        <th>Número do Certificado</th>
+                        <th>Versão</th>
+                    </tr>
+                </thead>
+            <tbody id="tbodyCalibradores">
+                <tr><td colspan="9" style="text-align:center;">Clique em “🔍 Buscar” para visualizar</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- ==========================================================
+     POPUP - HISTÓRICO DE MOVIMENTAÇÕES
+=========================================================== -->
+<div id="movPopup" class="modal-mov" aria-hidden="true">
+    <div class="modal-mov-content">
+        <span class="close-mov" onclick="fecharPopupMov()">×</span>
+        <h2>📦 Histórico de Movimentações</h2>
+
+        <table class="mov-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Código</th>
+                    <th>Seq</th>
+                    <th>Tipo</th>
+                    <th>Afi</th>
+                    <th>Local</th>
+                    <th>Item</th>
+                    <th>Status</th>
+                    <th>Data Entrada</th>
+                    <th>Data Criação</th>
+                    <th>Data Entrega</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyMovimentacoesPopup"></tbody>
+        </table>
+
+        <!-- ✅ NOVO BOTÃO -->
+        <div style="text-align:right; margin-top:15px;">
+            <button class="toggle-button" id="btnBloquearFerramenta" onclick="bloquearFerramenta()">🔒 Bloquear Ferramenta</button>
+            <button class="toggle-button" id="btnBloquearFerramenta" onclick="desbloquearFerramenta()">🔒 Desbloquear Ferramenta</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================
+    ALTERAR CALIBRADORES
+============================= -->
+<div class="container" id="alterarCalibradoresContainer" style="display:none;">
+<!-- ==========================================================
+     MODAL DE IMAGEM (LIGHTBOX)
+============================================================== -->
+<div id="imageModal" class="img-modal" aria-hidden="true">
+    <div class="img-modal-content">
+        <span class="img-modal-close">&times;</span>
+        <img id="modalImg" src="" alt="Visualização">
+    </div>
+</div>
+
+
+<script>
+/* ===========================================================
+    CONFIGURAÇÃO DE CONEXÃO
+============================================================ */
+const BASE_URL = 'http://gdi.docol.com.br:5500';
+
+/* ===========================================================
+    TIPO DE EQUIPAMENTO PADRÃO
+============================================================ */
+const GRUPO_PADRAO = "ESCalibrador";
+/* ===========================================================
+    Carrega tema salvo
+============================================================ */
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark-mode");
+}
+
+document.getElementById("toggleTheme").addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark-mode");
+
+    // Salva no navegador
+    const modo = document.documentElement.classList.contains("dark-mode") ? "dark" : "light";
+    localStorage.setItem("theme", modo);
+});
+/* ===========================================================
+    CONTROLE DE ACESSOS
+============================================================ */
+const userAcess = localStorage.getItem('acess') || '';  
+const thirdNumber = userAcess.charAt(7); // Pega o 8º caractere do acesso
+
+console.log('Log - 7' + thirdNumber);
+
+if (thirdNumber === '0' || thirdNumber === '') {
+    alert('Acesso negado.');
+    window.location.href = '/gdm/login.html'; // Redireciona caso não tenha acesso
+} else {
+    console.log('Acesso liberado: ' + thirdNumber);
+}
+        
+/* ===========================================================
+    CARREGAR DADOS
+============================================================ */
+function marcarStatus(status) {
+
+    if (!status) return;
+    const radio = document.querySelector(`input[name="status"][value="${status}"]`);
+    if (radio) radio.checked = true;
+    }
+
+    async function carregarCalibradorPorCodigo(codi, abrirMov = true) {
+        if (!codi) return;
+
+        // 🔹 Só busca e abre popup se for permitido
+        if (abrirMov) {
+            try {
+                const movResp = await fetch(`${BASE_URL}/gdm_cal_mov/${encodeURIComponent(codi)}?grupo=${encodeURIComponent(GRUPO_PADRAO)}`);
+                if (movResp.ok) {
+                    const movList = await movResp.json();
+                    if (movList && movList.length > 0) {
+                        abrirPopupMov(codi, GRUPO_PADRAO);
+                    } else {
+                        console.log("Nenhuma movimentação registrada para este calibrador.");
+                    }
+                }
+            } catch (e) {
+                console.warn("Não foi possível carregar movimentações:", e);
+            }
+        }
+
+    try {
+        const resp = await fetch(`${BASE_URL}/gdm_cal/${encodeURIComponent(codi)}?grupo=${encodeURIComponent(GRUPO_PADRAO)}`);
+
+        if (!resp.ok) { alert("Instrumento não encontrado!"); return; }
+        const data = await resp.json();
+
+            // preencher campos
+            // preencher campos principais (usar IDs únicos)
+            const idEl  = document.getElementById('id');
+            const centEl  = document.getElementById('centro_main');
+            const descEl  = document.getElementById('descricao');
+            const freqEl  = document.getElementById('frequencia_main');
+            const ultiEl  = document.getElementById('ultiCalibr_main');
+            const locaEl  = document.getElementById('localizacao_main');
+            const certEl  = document.getElementById('numeCertif_main');
+            const versEl  = document.getElementById('versaoCertif');
+            const obsEl   = document.getElementById('obs');
+
+            if (idEl) idEl.value = data.Id || "";
+            if (centEl) centEl.value = data.centro || "";
+            if (descEl) descEl.value = data.Descricao || "";
+            if (freqEl) freqEl.value = data.frequencia || "";
+            if (ultiEl) ultiEl.value = data.ultiCalibr || "";
+            if (locaEl) locaEl.value = data.localizacao || "";
+            if (certEl) certEl.value = data.numeCertif || "";
+            if (versEl) versEl.value = data.versaoCertif || "";
+            if (obsEl)  obsEl.value  = data.Obs || "";
+        marcarStatus(data.status);
+
+        // carregar foto (rota que tenta várias extensões)
+        // carregar foto (rota que tenta várias extensões)
+        // Regra: se código for tipo "CAL-0610-013", buscar imagem "0610"
+        const img = document.getElementById('previewImagem');
+        if (img) {
+            // tenta extrair o número central entre os hifens (ex: "CAL-0610-013" → "0610")
+            const match = codi.match(/CAL-(\d+)-\d+/i);
+            const imgCode = match ? match[1].replace(/^0+/, '') || match[1] : codi; 
+            // remove zeros à esquerda se quiser só “610”
+
+            img.onerror = () => { img.src = '/gdm/img/icons8-caliper-48.png'; };
+            img.src = `${BASE_URL}/fotoabrir/${encodeURIComponent(imgCode)}`;
+        }
+
+            } catch (err) {
+                console.error("Erro ao carregar calibrador:", err);
+            }
+        }
+
+const codigoInput = document.getElementById('codigo');
+    if (codigoInput) {
+    codigoInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const codi = codigoInput.value.trim();
+            carregarCalibradorPorCodigo(codi, false); // 🚫 NÃO abre popup nesta tela
+        }
+    });
+}
+
+/* ===========================================================
+    EXPORTAR CALIBRADORES PARA EXCEL
+============================================================ */
+async function exportarCalibradores() {
+    const original = '📤 Exportar Excel';
+    const submitBtn = document.querySelector('.exportar-btn');
+    const overlayExp = document.getElementById('overlayExport'); // opcional, se tiver overlay
+
+    // Captura filtros aplicados
+    const tipo = document.getElementById('filtroTipo').value || '';
+    const codigo = document.getElementById('filtroCodigo').value || '';
+    const status = document.getElementById('filtroStatus').value || '';
+    const descricao = document.getElementById('filtroDescricao').value || '';
+    const localizacao = document.getElementById('filtroLocalizacao').value || '';
+
+    // Bloqueia o botão durante a exportação
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Exportando...';
+    }
+    if (overlayExp) overlayExp.style.display = 'flex';
+
+    try {
+        // Monta URL com filtros
+        const queryString = new URLSearchParams({
+            tipo,
+            codigo,
+            status,
+            descricao,
+            localizacao,
+            grupo: GRUPO_PADRAO
+        }).toString();
+
+        const resp = await fetch(`${BASE_URL}/export-calibradores-xlsx?${queryString}`);
+        if (!resp.ok) throw new Error(await resp.text());
+
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `calibradores_filtrados.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+        a.remove();
+
+        if (overlayExp) overlayExp.style.display = 'none';
+    } catch (err) {
+        console.error('Erro export:', err);
+        alert('Não foi possível exportar agora. Tente novamente.');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = original;
+        }
+        if (overlayExp) overlayExp.style.display = 'none';
+    }
+}
+
+/* ===========================================================
+   CONTROLE DE VISUALIZAÇÃO - BOTÕES LATERAIS
+============================================================ */
+const alterarContainer = document.getElementById('alterarCalibradoresContainer');
+const listaContainer = document.getElementById('listaCalibradoresContainer');
+const overlay = document.getElementById('overlay');
+
+function esconderTudo() {
+    alterarContainer.style.display = 'none';
+    listaContainer.style.display = 'none';
+    overlay.style.display = 'none';
+}
+
+function marcarAtivo(botaoId) {
+    document.querySelectorAll('.sidebar .toggle-button').forEach(btn => btn.classList.remove('active'));
+    const btn = document.getElementById(botaoId);
+    if (btn) btn.classList.add('active');
+}
+
+// === Botão "Cadastro Calibradores"
+document.querySelector('button[onclick="openForm()"]').addEventListener('click', () => {
+    esconderTudo();
+    overlay.style.display = 'block';
+    marcarAtivo('');
+});
+
+// === Botão "Alterar Calibradores"
+document.getElementById('btnAlterarCalibradores').addEventListener('click', () => {
+    esconderTudo();
+    alterarContainer.style.display = 'block';
+    marcarAtivo('btnAlterarCalibradores');
+});
+
+// === Botão "Pesquisar Calibradores"
+document.getElementById('btnPesquisarCalibradores').addEventListener('click', () => {
+    esconderTudo();
+    listaContainer.style.display = 'block';
+    carregarFiltrosLista();
+    marcarAtivo('btnPesquisarCalibradores');
+});
+
+/* ===========================================================
+   TELA PADRÃO AO INICIAR
+============================================================ */
+window.addEventListener('load', async () => {
+    try {
+        // Esconde tudo e exibe o container de pesquisa
+        esconderTudo();
+        listaContainer.style.display = 'block';
+        marcarAtivo('btnPesquisarCalibradores');
+        await carregarFiltrosLista();
+        await carregarListaCalibradores();
+    } catch (e) {
+        console.error('Erro ao iniciar página:', e);
+    }
+});
+// ==========================================================
+// Popup de Movimentações
+// ==========================================================
+let idSelecionado = null; // variável global
+
+async function abrirPopupMov(codigo) {
+    try {
+        const grupo = document.getElementById("grupo_main")?.value || "ESCalibrador"; // fallback
+        console.log('Abrindo popup para código:', codigo, 'e grupo:', grupo);
+        const resp = await fetch(`${BASE_URL}/gdm_cal_mov/${codigo}?grupo=${grupo}`);
+        if (!resp.ok) throw new Error('Erro ao consultar movimentações');
+
+        const lista = await resp.json();
+        const tbody = document.getElementById('tbodyMovimentacoesPopup');
+        const modal = document.getElementById('movPopup');
+        tbody.innerHTML = '';
+
+        if (!lista || lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#666;">Nenhuma movimentação encontrada.</td></tr>`;
+        } else {
+            lista.forEach(mov => {
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${mov.Id || ''}</td>
+                    <td>${mov.Cod || ''}</td>
+                    <td>${mov.Seq || ''}</td>
+                    <td>${mov.Tipo || ''}</td>
+                    <td>${mov.Afi || ''}</td>
+                    <td>${mov.Local || ''}</td>
+                    <td>${mov.Item || ''}</td>
+                    <td>${mov.Status || ''}</td>
+                    <td>${mov.DTEntra ? new Date(mov.DTEntra).toLocaleString() : ''}</td>
+                    <td>${mov.DTCria ? new Date(mov.DTCria).toLocaleString() : ''}</td>
+                    <td>${mov.DTEntrega ? new Date(mov.DTEntrega).toLocaleDateString() : ''}</td>
+                `;
+
+                // 🔹 Clique para selecionar
+                tr.addEventListener('click', () => {
+                    document.querySelectorAll('.mov-table tr').forEach(l => l.classList.remove('selected'));
+                    tr.classList.add('selected');
+                    idSelecionado = mov.Id; // ✅ armazena o ID verdadeiro
+                    console.log('Selecionado ID:', idSelecionado);
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        modal.style.display = 'block';
+    } catch (err) {
+        console.error('Erro ao abrir popup de movimentações:', err);
+        alert('Erro ao buscar movimentações do calibrador.');
+    }
+}
+
+// ==========================================================
+// Bloquear Ferramenta
+// ==========================================================
+async function bloquearFerramenta() {
+    if (!idSelecionado) return alert('Selecione uma linha da tabela.');
+
+    if (!confirm(`Bloquear ferramenta ID ${idSelecionado}?`)) return;
+
+    try {
+        const resp = await fetch(`${BASE_URL}/ferramenta-bloqueio/${idSelecionado}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                grupo: GRUPO_PADRAO,
+                statusBloqueio: '1'
+            })
+        });
+
+        if (!resp.ok) throw new Error(await resp.text());
+        alert("Ferramenta bloqueada!");
+
+    } catch (err) {
+        console.error(err);
+        alert("Erro ao bloquear.");
+    }
+}
+// ==========================================================
+// Desbloquear Ferramenta
+// ==========================================================
+async function desbloquearFerramenta() {
+    if (!idSelecionado) return alert('Selecione uma linha.');
+
+    if (!confirm(`Desbloquear ferramenta ID ${idSelecionado}?`)) return;
+
+    try {
+        const resp = await fetch(`${BASE_URL}/ferramenta-bloqueio/${idSelecionado}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                grupo: GRUPO_PADRAO,
+                statusBloqueio: '0'
+            })
+        });
+
+        if (!resp.ok) throw new Error(await resp.text());
+        alert("Ferramenta desbloqueada!");
+
+    } catch (err) {
+        console.error(err);
+        alert("Erro ao desbloquear.");
+    }
+}
+
+function fecharPopupMov() {
+    const modal = document.getElementById('movPopup');
+    modal.style.display = 'none';
+}
+
+// Fecha o modal ao clicar fora do conteúdo
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('movPopup');
+    if (event.target === modal) modal.style.display = 'none';
+});
+
+/* ===========================================================
+    LISTAGEM DE CALIBRADORES (com destaque para vencidos)
+============================================================ */
+let calibradoresCache = [];   // Armazena todos os calibradores
+let mostrandoVencidos = false; // Estado do filtro ativo
+
+/* ===========================================================
+    LISTAGEM DE CALIBRADORES (filtragem completa no front)
+============================================================ */
+async function carregarListaCalibradores() {
+    try {
+        const tipo = document.getElementById('filtroTipo').value.trim().toLowerCase();
+        const codigo = document.getElementById('filtroCodigo').value.trim().toLowerCase();
+        const descricao = document.getElementById('filtroDescricao').value.trim().toLowerCase();
+        const localizacao = document.getElementById('filtroLocalizacao').value.trim().toLowerCase();
+        const status = document.getElementById('filtroStatus').value.trim().toLowerCase();
+
+        // 🔹 Busca todos os calibradores do servidor
+        const resp = await fetch(`${BASE_URL}/gdm_cal?grupo=ESCalibrador`);
+        if (!resp.ok) throw new Error("Erro ao carregar lista de calibradores");
+        const todos = await resp.json();
+
+        // 🔹 Aplica filtro manualmente no front-end
+        const filtrados = todos.filter(cal => {
+            const tipoOk = !tipo || (cal.tipo || '').toLowerCase() === tipo;
+            const codigoOk = !codigo || (cal.Codi || '').toLowerCase().includes(codigo);
+            const descricaoOk = !descricao || (cal.Descricao || '').toLowerCase().includes(descricao);
+            const localOk = !localizacao || (cal.localizacao || '').toLowerCase() === localizacao;
+            const statusOk = !status || (cal.status || '').toLowerCase() === status;
+            return tipoOk && codigoOk && descricaoOk && localOk && statusOk;
+        });
+
+        calibradoresCache = filtrados;
+        renderizarTabela(filtrados);
+    } catch (err) {
+        console.error("Erro ao listar calibradores:", err);
+        alert("Erro ao listar calibradores.");
+    }
+}
+
+/* ===========================================================
+    RENDERIZAR TABELA (com cálculo de vencidos)
+============================================================ */
+function renderizarTabela(lista) {
+    const tbody = document.getElementById('tbodyCalibradores');
+    const contador = document.getElementById('contadorVencidos');
+    const hoje = new Date();
+
+    tbody.innerHTML = '';
+    let qtdVencidos = 0;
+
+    if (!lista.length) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Nenhum calibrador encontrado</td></tr>`;
+        contador.textContent = '0';
+        return;
+    }
+
+    for (const cal of lista) {
+        const ultima = cal.ultiCalibr ? new Date(cal.ultiCalibr) : null;
+        const freq = parseInt(cal.frequencia || 0, 10);
+
+        let proxima = null;
+        let vencido = false;
+
+        if (ultima && !Number.isNaN(freq) && freq > 0) {
+        proxima = new Date(ultima);
+        proxima.setDate(proxima.getDate() + freq);
+        // zera horário pra comparar apenas data
+        proxima.setHours(0,0,0,0);
+        const hojeClean = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+        vencido = proxima < hojeClean;
+        }
+
+        if (vencido) qtdVencidos++;
+
+        const proximaStr = proxima ? proxima.toLocaleDateString() : '';
+
+        const tr = document.createElement('tr');
+        if (vencido) tr.classList.add('vencido');
+
+        tr.innerHTML = `
+        <td>${cal.centro || ''}</td>
+        <td>${cal.Codi || ''}</td>
+        <td>${cal.Descricao || ''}</td>
+        <td>${cal.tipo || ''}</td>
+        <td>${cal.localizacao || ''}</td>
+        <td>${cal.status || ''}</td>
+        <td>${cal.frequencia || ''}</td>
+        <td>${proximaStr}</td> <!-- NOVO -->
+        <td>${cal.ultiCalibr ? new Date(cal.ultiCalibr).toLocaleDateString() : ''}</td>
+        <td>${cal.numeCertif || ''}</td>
+        <td>${cal.versaoCertif || ''}</td>
+        `;
+        tr.addEventListener('click', () => carregarCalibradorPorCodigo(cal.Codi));
+        tbody.appendChild(tr);
+    }
+
+    contador.textContent = qtdVencidos;
+}
+
+
+// Popula filtros tipo/localização com os mesmos dados do JSON carregado
+async function carregarFiltrosLista() {
+    try {
+        const resp = await fetch('/gdm/json/data.json');
+        const data = await resp.json();
+
+        preencherSelect('filtroTipo', data.TiposInstrumento);
+        preencherSelect('filtroLocalizacao', data.Localizacoes);
+        preencherSelect('filtroStatus', data.Status); // ✅ novo filtro de status
+    } catch (e) {
+        console.error("Erro ao carregar filtros:", e);
+    }
+}
+
+// Chamada automática ao abrir a tela
+window.addEventListener('load', () => {
+    carregarFiltrosLista();
+    carregarListaCalibradores();
+});
+/* ===========================================================
+    FILTRO DE CALIBRADORES VENCIDOS
+============================================================ */
+function toggleFiltroVencidos() {
+    const indicador = document.getElementById('indicadorVencidos');
+    mostrandoVencidos = !mostrandoVencidos; // alterna estado
+
+    if (mostrandoVencidos) {
+        indicador.classList.add('ativo');
+        const hoje = new Date();
+        const filtrados = calibradoresCache.filter(cal => {
+            const ultima = cal.ultiCalibr ? new Date(cal.ultiCalibr) : null;
+            const freq = parseInt(cal.frequencia || 0);
+            if (!ultima || !freq) return false;
+            const proxima = new Date(ultima);
+            proxima.setDate(proxima.getDate() + freq);
+            return proxima < hoje;
+        });
+        renderizarTabela(filtrados);
+    } else {
+        indicador.classList.remove('ativo');
+        renderizarTabela(calibradoresCache);
+    }
+}
+
+/* ===========================================================
+    SUBMISSÃO DO FORMULÁRIO (Cadastro de calibrador)
+============================================================ */
+document.getElementById("formNovoCalibrador").addEventListener("submit", async function (e) {
+e.preventDefault();
+
+const novo = {
+    tipo:        document.getElementById("tipo").value.trim(),
+    centro:      document.getElementById("centro").value.trim(),
+    grupo:       GRUPO_PADRAO,
+    Codi:        document.getElementById("Codi").value.trim(),
+    Descricao:   document.getElementById("Descricao").value.trim(),
+    status:      document.getElementById("status").value.trim(),
+    Controlado:  document.getElementById("Controlado").value.trim(),
+    localizacao: document.getElementById("localizacao").value.trim(),
+    frequencia:  document.getElementById("frequencia").value.trim(),
+    ultiCalibr:  document.getElementById("ultiCalibr").value,
+    numeCertif:  document.getElementById("numeCertif").value.trim(),
+    Obs:         document.getElementById("Obs").value.trim()
+};
+
+if (!novo.Codi || !novo.Descricao) {
+    alert("Informe ao menos Código e Descrição.");
+    return;
+}
+
+try {
+    const resp = await fetch(`${BASE_URL}/gdm_cal`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(novo)
+    });
+
+    if (resp.status === 409) {
+    alert("Já existe calibrador com este código!");
+    return;
+    }
+
+    if (!resp.ok) throw new Error("Erro ao cadastrar calibrador");
+
+    alert("Calibrador cadastrado com sucesso!");
+    closeForm();
+} catch (err) {
+    console.error("Erro:", err);
+    alert("Erro ao cadastrar calibrador.");
+}
+});
+
+/* ======================================================================
+    Alterar dados do calibrador existente
+====================================================================== */ 
+async function salvarCalibrador() {
+    const id = document.getElementById("id").value.trim();
+    if (!id) {
+        alert("Informe o código do calibrador.");
+        return;
+    }
+
+    const dadosAtualizados = {
+        Descricao:   document.getElementById("descricao").value.trim(),
+        frequencia:  document.getElementById("frequencia_main").value.trim(),
+        status:      document.querySelector("input[name='status']:checked")?.value || "",
+        Obs:         document.getElementById("obs").value.trim(),
+        localizacao: document.getElementById("localizacao_main").value.trim(),
+        ultiCalibr:  document.getElementById("ultiCalibr_main").value,
+        numeCertif:  document.getElementById("numeCertif_main").value.trim(),
+        versaoCertif: document.getElementById("versaoCertif").value.trim()
+    };
+
+    try {
+        const resp = await fetch(`${BASE_URL}/gdm_cal/update/${encodeURIComponent(id)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dadosAtualizados)
+        });
+
+        if (!resp.ok) throw new Error("Erro ao salvar");
+        alert("Calibrador atualizado com sucesso!");
+    } catch (err) {
+        console.error("Erro ao salvar:", err);
+        alert("Erro ao atualizar calibrador.");
+    }
+}
+
+/* ======================================================================
+    Excluir calibrador existente
+====================================================================== */ 
+async function deletarCalibrador() {
+    const id = document.getElementById("id").value.trim();
+    if (!id) {
+        alert("Informe o código do calibrador que deseja excluir.");
+        return;
+    }
+
+    if (!confirm(`Tem certeza que deseja excluir o calibrador "${id}"? Esta ação não pode ser desfeita.`)) {
+        return;
+    }
+
+    try {
+        const resp = await fetch(`${BASE_URL}/gdm_cal/${encodeURIComponent(id)}`, {
+            method: "DELETE"
+        });
+
+        if (!resp.ok) {
+            if (resp.status === 404) {
+                alert("Calibrador não encontrado no banco de dados.");
+                return;
+            }
+            throw new Error("Erro ao excluir calibrador");
+        }
+
+        alert("Calibrador excluído com sucesso!");
+
+        // Limpar os campos após exclusão
+        document.getElementById("codigo").value = "";
+        document.getElementById("descricao").value = "";
+        document.getElementById("frequencia_main").value = "";
+        document.getElementById("localizacao_main").value = "";
+        document.getElementById("ultiCalibr_main").value = "";
+        document.getElementById("numeCertif_main").value = "";
+        document.getElementById("obs").value = "";
+        document.querySelectorAll('input[name="status"]').forEach(r => r.checked = false);
+
+        // Reseta a imagem
+        const img = document.getElementById("previewImagem");
+        if (img) img.src = "/gdm/img/icons8-caliper-48.png";
+
+    } catch (err) {
+        console.error("Erro ao excluir:", err);
+        alert("Erro ao excluir calibrador.");
+    }
+}
+
+/* ======================================================================
+    Carregar listas (Tipos, Status, Frequência, Localização) do JSON
+====================================================================== */ 
+fetch('/gdm/json/data.json')
+    .then(response => response.json())
+    .then(data => {
+        // Cadastro
+        preencherSelect('tipo', data.TiposInstrumento);
+        preencherSelect('centro', data.centro);
+        preencherSelect('localizacao', data.Localizacoes);
+
+        // Alterar
+        preencherSelect('tipo_instrumento', data.TiposInstrumento);
+        preencherSelect('centro_main', data.centro);
+        preencherSelect('localizacao_main', data.Localizacoes);
+
+        // Filtros
+        preencherSelect('filtroTipo', data.TiposInstrumento);
+        preencherSelect('filtroLocalizacao', data.Localizacoes);
+        preencherSelect('filtroStatus', data.Status); // ✅ CORRETO ID AQUI
+
+        // Se quiser também popular "status" do formulário (cadastro manual)
+        const statusSelect = document.getElementById('status');
+        if (statusSelect && Array.isArray(data.Status)) {
+            statusSelect.innerHTML = '';
+            data.Status.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                statusSelect.appendChild(opt);
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao carregar JSON:", error);
+    });
+
+/* Função genérica para preencher selects */
+function preencherSelect(id, valores) {
+    const select = document.getElementById(id);
+    if (select && Array.isArray(valores)) {
+        const valorSelecionado = select.value;
+        select.innerHTML = ''; 
+
+        const primeira = document.createElement('option');
+        primeira.value = '';
+        primeira.textContent = id.includes('filtro') ? 'Todos' : 'Selecione...';
+        select.appendChild(primeira);
+
+        valores.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            select.appendChild(option);
+        });
+
+        if (valorSelecionado && [...select.options].some(o => o.value === valorSelecionado)) {
+            select.value = valorSelecionado;
+        }
+    }
+}
+
+/* ======================================================================
+    Carregar fotos dos calibradores
+====================================================================== */ 
+// depois de preencher os campos com "data", carregue a foto pelo código:
+const img = document.getElementById('previewImagem');
+const codi = document.getElementById('codigo').value.trim();
+
+// opção 1: usando a rota dedicada que tenta .jpg/.png…
+img.onerror = () => { img.src = '/gdm/img/icons8-caliper-48.png'; }; // fallback
+img.src = `${BASE_URL}/gdm_cal/foto/${encodeURIComponent(codi)}`;
+
+// (opção 2: se você souber a extensão e o nome é exatamente o código):
+// img.src = `${BASE_URL}/fotos_calibrador/${encodeURIComponent(codi)}.jpg`;
+
+/* ===========================================================
+    ABRIR CERTIFICADO DE CALIBRAÇÃO (PDF)
+=========================================================== */
+function abrirCertificado() {
+const codigo = document.getElementById('codigo').value.trim();
+const versao = document.getElementById('versaoCertif').value.trim() || '01';
+
+if (!codigo) {
+    alert('Informe o código do calibrador.');
+    return;
+}
+
+// Monta o nome do arquivo (ex: 0041-01.pdf)
+const arquivo = `${codigo}-${versao}`;
+
+// Abre o certificado PDF numa nova aba
+const url = `${BASE_URL}/certificadoabrir/${encodeURIComponent(arquivo)}`;
+window.open(url, '_blank');
+}
+/* ======================================================================
+    POpUP da imagem (lightbox)
+====================================================================== */ 
+(function () {
+    const preview = document.getElementById('previewImagem');
+    const modal   = document.getElementById('imageModal');
+    const modalImg= document.getElementById('modalImg');
+
+    // Se o modal não existir → sai fora
+    if (!modal || !modalImg) {
+        console.warn("Modal de imagem não encontrado. Lightbox ignorado.");
+        return;
+    }
+
+    const closeBtn = modal.querySelector('.img-modal-close');
+
+    preview?.addEventListener('click', () => {
+        const full = preview.getAttribute('data-fullsrc') || preview.src;
+        modalImg.src = full;
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    });
+
+    closeBtn?.addEventListener('click', fecharModal);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) fecharModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+            fecharModal();
+        }
+    });
+
+    function fecharModal() {
+        modal.setAttribute('aria-hidden', 'true');
+        modalImg.src = '';
+        document.body.style.overflow = '';
+    }
+})();
+/* ======================================================================
+    Pega o nome do usuário do localStorage (prioridade: nome > nomeUsuario > username > Usuário)
+====================================================================== */
+const nomeUsuario =
+    localStorage.getItem('nome') ||
+    localStorage.getItem('nomeUsuario') ||
+    localStorage.getItem('username') ||
+    'Usuário';
+
+// Atualiza apenas o mini menu
+document.getElementById('userMenuName').textContent = nomeUsuario;
+
+// Alterna o menu ao clicar no botão
+document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', function() {
+    document.getElementById('userMenu').style.display = 'none';
+});
+
+/* ===========================================================
+    FUNÇÕES AUXILIARES (Abrir/Fechar Modal)
+============================================================ */
+function openForm() {
+    document.getElementById("overlay").style.display = "block";
+}
+
+function closeForm() {
+    document.getElementById("overlay").style.display = "none";
+}
+
+/* ===========================================================
+    INICIALIZAÇÃO (Ao carregar a página)
+============================================================ */
+window.addEventListener('load', () => {
+    if (typeof atualizarDados === "function") atualizarDados();
+    if (typeof showSuccessMessage === "function") showSuccessMessage('1');
+});
+</script>
+
+<!-- ============================
+    ARQUIVOS CSS E JS EXTERNOS
+============================= -->
+<link rel="stylesheet" href="/gdm/css/public.css">
+<link rel="stylesheet" href="/gdm/css/CAL.css">
+<!-- Import JS no final (melhora desempenho) -->
+<script src="/gdm/js/public.js"></script>
+
+</body>
+</html>

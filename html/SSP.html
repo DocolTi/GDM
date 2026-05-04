@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>SSP</title>
+</head>
+<body>
+    
+    <div class="header">
+        <h1>Setup Polimento</h1>
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button> 
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <div class="sidebar-buttons-container">
+            <button class="sidebar-button" type="button" onclick="openForm()">Solicitar Setup</button>
+            <button class="sidebar-button" id="viewCardsBtn">Visualizar como Cartões</button>
+            <button class="sidebar-button" id="viewListBtn">Visualizar como Lista</button>
+        </div>
+    </div>
+
+    <div class="linha-separadora1"></div>
+
+    <!-- Formulário sobreposto -->
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <h2>Solicitação de Setup</h2>
+            <form id="formNovoSetupUsi">
+                <label for="1">Centro de Custo:</label>
+                <select id="centro-custo" name="centro-custo"></select><br>
+                
+                <label for="maquina">Máquina:</label>
+                <select id="maquina" name="maquina"></select><br>                
+                
+                <label for="item">Item:</label>
+                <input type="text" id="item" name="item"><br>
+                
+                <label for="hora">Hora:</label>
+                <input type="time" id="hora" name="hora"><br>
+                
+                <label for="operacao">Operação:</label>
+                <select id="operacao" name="operacao"></select><br>
+                
+                <label for="lote">Lote:</label>
+                <input type="text" id="lote" name="lote"><br>
+                
+                <label for="observacao">Observação:</label>
+                <textarea id="observacao" name="observacao"></textarea><br>
+                
+                <button type="submit">Solicitar</button>
+                <button type="button" onclick="closeForm()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Menu de contexto -->
+    <div id="menuContexto" class="menu-contexto">
+    <ul>
+        <li><a href="#acao1">Ação 1</a></li>
+        <li><a href="#acao2">Ação 2</a></li>
+        <li><a href="#acao3">Ação 3</a></li>
+        <!-- Adicione mais ações conforme necessário -->
+    </ul>
+    </div>
+
+    <div id="pedidosContainer"></div>
+    <!-- Restante do seu HTML -->
+    <div class="container1">   
+        <div class="scroll-wrapper">
+            <div id="pedidosContainer" class="card-container">
+                <!-- Cartões serão adicionados aqui dinamicamente -->
+            </div>    
+        </div>
+    </div>
+
+    <div id="agendamentosContainer1"></div>
+
+    <script>
+        //__________________________________________________________________________________________________________
+        //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥 ACESSOS 🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+
+		const userAcess = localStorage.getItem('acess') || '';   // garante string
+		const thirdNumber = userAcess.charAt(6);   
+                      
+		console.log('Log - 6' + thirdNumber);
+
+		if (thirdNumber === '0' || thirdNumber === '') {
+			alert('Acesso negado.');
+			window.location.href = '/gdm/login.html'; // Redireciona caso não tenha acesso
+		} else {
+			console.log('Acesso liberado: ' + thirdNumber);
+		}
+        //__________________________________________________________________________________________________________
+        //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuContexto = document.getElementById('menuContexto');
+        
+            // Função auxiliar para verificar se o elemento ou um de seus pais corresponde ao seletor
+            function matchesSelectorOrParent(element, selector) {
+                if (element.matches(selector)) {
+                    return true;
+                } else if (element.parentElement) {
+                    return matchesSelectorOrParent(element.parentElement, selector);
+                }
+                return false;
+            }
+        
+            document.getElementById('pedidosContainer').addEventListener('contextmenu', function (e) {
+                if (matchesSelectorOrParent(e.target, 'tbody tr')) {
+                    e.preventDefault(); // Impede o menu de contexto padrão
+                    menuContexto.style.display = 'block';
+                    menuContexto.style.left = e.pageX + 'px'; // Posiciona o menu no local do clique
+                    menuContexto.style.top = e.pageY + 'px';
+                }
+            });
+        
+            // Esconde o menu ao clicar em qualquer lugar na página
+            document.addEventListener('click', function (e) {
+                menuContexto.style.display = 'none';
+            });
+        });
+        
+        function renderizarComoLista(data) {
+            const pedidosContainer = document.getElementById('pedidosContainer');
+            pedidosContainer.innerHTML = ''; // Limpa o contêiner
+        
+            let ordenacaoAtual = { coluna: 'HRpedido', ascendente: true };
+        
+            // Função para criar ícones de ordenação
+            function criarIconeOrdenacao(ascendente) {
+                return ascendente ? '↑' : '↓';
+            }
+        
+            // Função para atualizar a tabela com os dados ordenados
+            function atualizarTabela(propriedade) {
+                const coluna = {
+                    'id': 'Id',
+                    'Hora pedido': 'HRpedido',
+                    'cc': 'cc',
+                    'Máquina': 'maquina',
+                    'Item': 'item',
+                    'Horario': 'horario',
+                    'Status': 'status',
+                    'Operacao': 'operacao',
+                    'Lote': 'lote',
+                    // Adicione mapeamentos adicionais conforme necessário
+                }[propriedade] || propriedade;
+        
+                if (ordenacaoAtual.coluna === coluna) {
+                    ordenacaoAtual.ascendente = !ordenacaoAtual.ascendente; // Inverte a direção
+                } else {
+                    ordenacaoAtual = { coluna: coluna, ascendente: true }; // Reinicia a direção quando uma nova coluna é selecionada
+                }
+        
+                data.sort((a, b) => {
+                    let valorA = a[coluna];
+                    let valorB = b[coluna];
+        
+                    if (coluna === 'HRpedido') { // Tratamento especial para datas
+                        valorA = new Date(valorA);
+                        valorB = new Date(valorB);
+                    } else if (coluna === 'Id') { // Tratamento especial para números
+                        valorA = +valorA;
+                        valorB = +valorB;
+                    }
+        
+                    if (valorA < valorB) return ordenacaoAtual.ascendente ? -1 : 1;
+                    if (valorA > valorB) return ordenacaoAtual.ascendente ? 1 : -1;
+                    return 0;
+                });
+        
+                // Atualiza o corpo da tabela
+                tbody.innerHTML = '';
+                data.forEach(solicitacao => {
+                    const row = document.createElement('tr');
+                    row.className = `status${solicitacao.status.toLowerCase()}`;
+                    row.innerHTML = `<td>${solicitacao.Id}</td>
+                                    <td>${solicitacao.HRpedido}</td>
+                                    <td>${solicitacao.cc}</td>
+                                    <td>${solicitacao.maquina}</td>
+                                    <td>${solicitacao.item}</td>
+                                    <td>${solicitacao.horario}</td>
+                                    <td>${solicitacao.status}</td>
+                                    <td>${solicitacao.operacao}</td>
+                                    <td>${solicitacao.lote}</td>`;
+                    tbody.appendChild(row);
+                });
+        
+                // Atualiza os ícones de ordenação nos cabeçalhos
+                document.querySelectorAll('th').forEach(header => {
+                    const propriedadeHeader = header.getAttribute('data-propriedade');
+                    if (propriedadeHeader) {
+                        header.innerHTML = propriedadeHeader + (coluna === propriedadeHeader ? criarIconeOrdenacao(ordenacaoAtual.ascendente) : '');
+                    }
+                });
+            }
+        
+            // Cria a tabela e o cabeçalho, incluindo atributos de data-propriedade
+            const tabela = document.createElement('table');
+            tabela.innerHTML = `<thead>
+                                    <tr>
+                                        <th data-propriedade="Id">Id</th>
+                                        <th data-propriedade="HRpedido">Hora pedido</th>
+                                        <th data-propriedade="cc">cc</th>
+                                        <th data-propriedade="maquina">maquina</th>
+                                        <th data-propriedade="item">item</th>
+                                        <th data-propriedade="horario">horario</th>
+                                        <th data-propriedade="status">status</th>
+                                        <th data-propriedade="operacao">operacao</th>
+                                        <th data-propriedade="lote">lote</th>
+                                    </tr>
+                                </thead>`;
+            const tbody = document.createElement('tbody');
+            tabela.appendChild(tbody);
+            pedidosContainer.appendChild(tabela);
+        
+            // Adiciona listeners nos cabeçalhos para ordenação
+            tabela.querySelectorAll('th').forEach(header => {
+                header.addEventListener('click', () => {
+                    const propriedade = header.getAttribute('data-propriedade');
+                    if (propriedade) atualizarTabela(propriedade.toLowerCase());
+                });
+            });
+        
+            atualizarTabela('HRpedido'); // Ordena inicialmente por 'Id'
+        }
+        
+function renderizarComoCartoes() {
+    fetch(`${BASE_URL}/gdm_setup_polimento`)
+        .then(response => response.json())
+        .then(data => {
+            data.sort((a, b) => {
+                // Converta as horas para objetos Date para que possam ser comparados
+                const horaA = new Date(`1970-01-01T${a.horario}`);
+                const horaB = new Date(`1970-01-01T${b.horario}`);
+
+                // Compare as horas e retorne o resultado da comparação
+                return horaA - horaB;
+            });
+
+            // Limpe o conteúdo do contêiner antes de adicionar novos elementos
+            const pedidosContainer = document.getElementById('pedidosContainer');
+            pedidosContainer.innerHTML = '';
+
+            // Itere sobre os dados recebidos e crie um cartão para cada solicitação
+            data.forEach(solicitacao => {
+                const card = document.createElement('div');
+                card.classList.add('card1');
+
+                const cardContent = document.createElement('div');
+                cardContent.classList.add('card-content');
+
+                let buttonsHtml = '';
+                console.log(thirdNumber)
+                if (thirdNumber === '2') {
+                    buttonsHtml = `
+                        <button class="button-aguardando">Aguardando</button>
+                        <button class="button-esperando">Esperando</button>
+                        <button class="button-finalizado">Finalizado</button>
+                        <button class="button-parado">Parado</button>
+                        <button class="button-try_out">Try_out</button>
+                        <button class="button-excluir">Excluir</button>
+                    `;
+                } else if (thirdNumber === '1') {
+                    buttonsHtml = `
+                        <button class="button-cancelado">Cancelado</button>
+                        <button class="button-folha">Folha Processo</button>
+                        <button class="button-fip">FIP</button>
+                    `;
+                }
+
+                cardContent.innerHTML = `
+                <button class="menu-button">Menu</button>
+                <div class="status-buttons">${buttonsHtml}</div>
+                <form id="formAlterarSetup">
+                    <div class="infoId"><div><label class="info-line">${solicitacao.Id}</label></div></div>
+                    <div class="info0">
+
+                    <div class="info0">
+
+                        <div class="linha-separadora"></div> 
+                        <div><label class="texto1">CentroCusto:</label></div>  
+                        <div><label class="info-line">${solicitacao.cc}</p></label ></div>
+                        
+                        <div class="linha-separadora"></div> 
+                        <div><label class="texto1">Máquina:</label></div>  
+                        <div><label class="info-line">${solicitacao.maquina}</p></label ></div>
+
+                        <div class="linha-separadora"></div>    
+                        <div><label class="texto1">Item:</label></div>  
+                        <div><label class="info-line item">${solicitacao.item}</p></label ></div>
+
+                        <div class="linha-separadora"></div>    
+                        <div><label class="texto1">Hora:</label></div>  
+                        <div><label class="info-line">${solicitacao.horario}</p></label ></div>
+                        
+                        <!-- Adicione a linha abaixo para o elemento de status -->
+                        <div class="linha-separadora"></div>    
+                        <div class="objeto-card status"><label class="texto1">Status:</label></div>  
+                        <div class="objeto-card status"><label class="info-line">${solicitacao.status}</p></label></div>
+
+                        <div class="linha-separadora"></div>    
+                        <div><label class="texto1">Operacao:</label></div>  
+                        <div><label class="info-line">${solicitacao.operacao}</p></label></div>
+
+                        <div class="linha-separadora"></div>    
+                        <div><label class="texto1">Lote:</label></div>  
+                        <div><label class="info-line">${solicitacao.lote}</p></label></div>
+
+                        <div class="linha-separadora"></div>    
+                        <div><label class="texto1">Observacao:</label></div>  
+                        <div><label class="info-line1">${solicitacao.obs}</label></div>
+                    </div>
+            </form>
+            `;
+                card.appendChild(cardContent);
+                pedidosContainer.appendChild(card);
+                card.classList.add(solicitacao.status.toLowerCase());
+            });
+        });
+}
+
+function atualizarDados() {
+    renderizarComoCartoes();
+}
+
+        
+        document.getElementById('viewCardsBtn').addEventListener('click', () => {
+            fetch(`${BASE_URL}/gdm_setup_polimento`)
+                .then(response => response.json())
+                .then(data => renderizarComoCartoes(data));
+        });
+        
+        document.getElementById('viewListBtn').addEventListener('click', () => {
+            fetch(`${BASE_URL}/gdm_setup_polimento`)
+                .then(response => response.json())
+                .then(data => renderizarComoLista(data));
+        });
+//-------------------------------------------------------------------------
+        const BASE_URL = 'http://gdi.docol.com.br:5500';
+//-------------------------------------------------------------------------
+
+// Defina a função para atualizar os dados
+
+//___________________________________________________________________________________
+// Rota para adicionar um novo cliente
+//___________________________________________________________________________________
+        document.getElementById('formNovoSetupUsi').addEventListener('submit', async function(event) {
+            // Evite que o formulário seja enviado automaticamente
+            event.preventDefault();
+
+            // Verifique se todos os campos obrigatórios foram preenchidos antes de enviar o formulário
+            const centroCusto = document.getElementById('centro-custo').value;
+            const maquina = document.getElementById('maquina').value;
+            const item = document.getElementById('item').value;
+            const hora = document.getElementById('hora').value;
+            const operacao = document.getElementById('operacao').value;
+            const lote = document.getElementById('lote').value;
+
+            // Verifique se algum dos campos obrigatórios está vazio
+            if (!centroCusto || !maquina || !item || !hora || !operacao || !lote) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return; // Pare a execução se algum campo estiver vazio
+            }
+
+            // Se todos os campos obrigatórios estiverem preenchidos, continue com o envio do formulário
+            const agora = new Date();
+            const dia = agora.getDate().toString().padStart(2, '0');
+            const mes = (agora.getMonth() + 1).toString().padStart(2, '0');
+            const ano = agora.getFullYear();
+            const horaAtual = agora.getHours().toString().padStart(2, '0');
+            const minutos = agora.getMinutes().toString().padStart(2, '0');
+            const segundos = agora.getSeconds().toString().padStart(2, '0');
+            const HRpedido = `${dia}/${mes}/${ano} ${horaAtual}:${minutos}:${segundos}`;
+
+            const login = "Fernando Habeck";
+            const status = "Aguardando";
+            const calibrador = "0";
+            const HRfinalizado = "";
+            const obs = document.getElementById('observacao').value;
+
+            const novoSetup = {
+                HRpedido: HRpedido,
+                login: login,
+                cc: centroCusto,
+                maquina: maquina,
+                item: item,
+                operacao: operacao,
+                lote: lote,
+                horario: hora,
+                status: status,
+                calibrador: calibrador,
+                HRfinalizado: HRfinalizado,
+                obs: obs
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/gdm_setup_polimento`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(novoSetup)
+                });
+
+                const data = await response.json();
+                console.log('Resposta do servidor:', data);
+
+                showSuccessMessage('4');
+
+                closeForm();
+                atualizarDados();
+                
+            } catch (error) {
+                console.error('Erro ao enviar solicitação:', error);
+            }
+        });
+
+//___________________________________________________________________________________
+
+// Dentro do seu script no HTML
+            document.getElementById('pedidosContainer').addEventListener('click', function(event) {
+                const target = event.target;
+
+                if (target.classList.contains('button-aguardando') ||
+                    target.classList.contains('button-esperando') ||  
+                    target.classList.contains('button-finalizado') ||  
+                    target.classList.contains('button-parado') ||   
+                    target.classList.contains('button-try_out') ||   
+                    target.classList.contains('button-cancelado')) {
+                    
+                    const status = target.textContent.trim(); // Obtém o texto do botão, que será o status
+                    const card = target.closest('.card1');
+
+                    if (card) {
+                        const infoLineElement = card.querySelector('.info-line');
+                        if (infoLineElement) {
+                            const id = infoLineElement.textContent.trim(); // Define a variável id aqui
+                            // Faça o que for necessário com o ID aqui
+
+                            // Faça uma solicitação fetch para atualizar o status do setup
+                            fetch(`${BASE_URL}/gdm_setup_polimento/${id}`, {
+                                
+                                method: 'PUT',
+                                
+                                headers: {
+                                    
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ status: status })
+                            })
+                            
+                            .then(response => {
+                                if (response.ok) {
+                                    console.log(`Status atualizado para ${status} com sucesso.`);
+                                    // Recarregue os dados após a atualização do status
+                                    atualizarDados();
+                                    showSuccessMessage('2');
+                                } else {
+                                    console.error('Erro ao atualizar o status.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erro ao atualizar o status:', error);
+                            });
+                        } else {
+                            console.error('Elemento com a classe .info-line não encontrado.');
+                        }
+                    } else {
+                        console.error('Elemento com a classe .card não encontrado.');
+                    }
+                } 
+            });
+//___________________________________________________________________________________
+// Excluir setup com sucesso
+//___________________________________________________________________________________
+            document.getElementById('pedidosContainer').addEventListener('click', async function(event) {
+                const target = event.target;
+                if (target.classList.contains('button-excluir')) {
+                    const card = target.closest('.card1');
+
+                    if (card) {
+                        const infoLineElement = card.querySelector('.info-line');
+                        if (infoLineElement) {
+                            const id = infoLineElement.textContent.trim(); // Obtém o ID do setup
+
+                            try {
+                                const response = await fetch(`${BASE_URL}/gdm_setup_polimento/${id}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ id: id })
+                                });
+
+                                if (response.ok) {
+                                    atualizarDados();
+                                    showSuccessMessage('10');
+                                } else {
+                                    console.error('Erro ao excluir o setup.');
+                                }
+                            } catch (error) {
+                                console.error('Erro ao excluir o setup:', error);
+                            }
+                        } else {
+                            console.error('Elemento com a classe .info-line não encontrado.');
+                        }
+                    } else {
+                        console.error('Elemento com a classe .card não encontrado.');
+                    }
+                }
+            });
+//___________________________________________________________________________________
+// Abrir folha de processo
+//___________________________________________________________________________________
+//___________________________________________________________________________________
+// Adicione um evento de escuta ao elemento <select> de folha de processo
+//___________________________________________________________________________________
+
+        document.getElementById('pedidosContainer').addEventListener('click', async function(event) {
+            const target = event.target;
+            if (target.classList.contains('button-folha')) {
+                const card = target.closest('.card1');
+                if (card) {
+                    const infoLineElement = card.querySelector('.item');
+                    if (infoLineElement) {
+                        const id = infoLineElement.textContent.trim(); // Obtém o ID do item
+                        fetch(`${BASE_URL}/setupusiFolha?item=${id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(item => {
+                                const docu = item.Docu;
+                                if (docu === "999999") {
+                                    showSuccessMessage('11');
+                                } else if (docu.length > 0) {
+                                    window.open(`http://172.18.1.10:54451/Reports/Pages/JobReports.aspx?JobId=${docu}`, '_blank');
+                                } else {
+                                    showSuccessMessage('10');
+                                }
+                            });             
+                        })
+                    }
+                }
+            }
+        });
+//___________________________________________________________________________________
+// Abrir folha de processo
+//___________________________________________________________________________________
+            document.getElementById('pedidosContainer').addEventListener('click', async function(event) {
+                const target = event.target;
+                if (target.classList.contains('button-fip')) {
+                    const card = target.closest('.card1');
+                    if (card) {
+                        const infoLineElement = card.querySelector('.item');
+                        if (infoLineElement) {
+                            const id = infoLineElement.textContent.trim(); // Obtém o ID do item
+                            
+                            fetch(`${BASE_URL}/pdf/${id}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Cria o modal e o conteúdo da tabela
+                                const modalContainer = document.createElement('div');
+                                modalContainer.classList.add('modal1');
+                                modalContainer.setAttribute('id', 'modalContainer');
+                                document.body.appendChild(modalContainer);
+
+                                let modalContent = `<form id="formNovoSetupUsi">
+                                                    <table class="excel-like-table modal">
+                                                        <thead><td>
+                                                            <button class="close-button">Fechar</button></td>
+                                                            <tr>
+                                                                <th>Id</th>
+                                                                <th>Item</th>
+                                                                <th>Operacao</th>
+                                                                <th>Dta_Implantacao</th>
+                                                                <th>FIP_N</th>
+                                                                <th>Ult_REV</th>
+                                                                <th>Ação</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        </form>`;
+                                
+                                data.forEach(item => {
+                                    modalContent += `<tr>
+                                                        <td>${item.Id}</td>
+                                                        <td>${item.Item}</td>
+                                                        <td>${item.Operacao}</td>
+                                                        <td>${new Date(item.Dta_Implantacao).toLocaleDateString()}</td>
+                                                        <td>${item.FIP_N}</td>
+                                                        <td>${new Date(item.Ult_REV).toLocaleDateString()}</td>
+                                                        <td><button class="button-open" onclick="openFip('${item.FIP_N}')" data-fip-n="${item.FIP_N}">Abrir</button></td>
+                                                    </tr>`;
+                                });
+
+                                modalContent += `</tbody></table></div>`;
+                                modalContainer.innerHTML = modalContent;
+
+                                modalContainer.style.display = "block";
+
+                                modalContainer.querySelector('.close-button').onclick = function() {
+                                    modalContainer.style.display = "none";
+                                    document.body.removeChild(modalContainer);
+                                };                 
+
+                            })
+                            .catch(error => {
+                                console.error('Erro ao buscar dados do servidor:', error);
+                            });
+                        }
+                    }
+                }
+                
+            });
+
+            window.openFip = function(id) {
+                fetch(`${BASE_URL}/pdfabrir/${id}`)
+                .then(response => {
+                    // Verifica se a resposta é bem-sucedida
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Cria um URL para o blob
+                    const pdfUrl = URL.createObjectURL(blob);
+                    // Abre o PDF em uma nova aba
+                    window.open(pdfUrl, '_blank');
+                })
+                .catch(error => {
+                    console.error('Erro ao abrir o PDF:', error);
+                });
+            };
+
+//___________________________________________________________________________________
+// Adicione um evento de escuta ao elemento <select> de centro de custo
+//___________________________________________________________________________________
+document.getElementById('centro-custo').addEventListener('change', function() {
+    // Recupere o valor do centro de custo selecionado
+    const centroCustoSelecionado = this.value;
+
+    // Faça uma solicitação fetch para obter as máquinas correspondentes ao centro de custo selecionado
+    fetch(`${BASE_URL}/maquinas?centroCusto=${centroCustoSelecionado}`)
+        .then(response => response.json())
+        .then(data => {
+            // Limpe as opções atuais do <select> de máquinas
+            const selectMaquina = document.getElementById('maquina');
+            selectMaquina.innerHTML = '';
+
+            // Preencha o <select> de máquinas com as opções obtidas
+            data.forEach(maquina => {
+                const option = document.createElement('option');
+                option.value = maquina.Maquina; // Defina o valor da opção como o nome da máquina
+                option.textContent = maquina.Maquina; // Defina o texto visível da opção como o nome da máquina
+                selectMaquina.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar máquinas:', error);
+        });
+});
+
+//___________________________________________________________________________________
+// Adicione um evento de clique para cada botão de status
+//___________________________________________________________________________________                        
+            function openForm() {
+                document.getElementById("overlay").style.display = "block";
+            }
+
+            function closeForm() {
+                document.getElementById("overlay").style.display = "none";
+            }
+
+        function preencherSelectMaquinas(data) {
+            const maquinasSelect = document.getElementById('maquina');
+            // Limpa as opções anteriores do <select> de máquinas
+            maquinasSelect.innerHTML = '';
+        
+            // Preenche as novas opções do <select> de máquinas com os dados recebidos
+            data.forEach(maquina => {
+                const option = document.createElement('option');
+                option.value = maquina.id; // Supondo que cada máquina tenha um ID único
+                option.textContent = maquina.nome; // Supondo que o nome da máquina seja fornecido pelo servidor
+                maquinasSelect.appendChild(option);
+            });
+        }
+
+        fetch('/GDM/json/data.json')
+        .then(response => response.json())
+        .then(data => {
+            // Chama uma função para preencher os campos do formulário com os dados do JSON
+            preencherCamposFormulario(data);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar arquivo JSON:', error);
+        });
+    
+        function preencherCamposFormulario(data) {
+        // Preenche o campo de centro de custo com os dados do JSON
+
+            const centroCustoSelect = document.getElementById('centro-custo');
+            data.CentroCusto1.forEach(cc => {
+                const option = document.createElement('option');
+                option.value = cc;
+                option.textContent = cc;
+                centroCustoSelect.appendChild(option);
+            });
+    
+            // Preenche o campo de operação com os dados do JSON
+            const operacaoSelect = document.getElementById('operacao');
+            data.Operacao.forEach(op => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.textContent = op;
+                operacaoSelect.appendChild(option);
+            });
+    }
+    
+    function preencherSelectMaquinas(data) {
+        const maquinasSelect = document.getElementById('maquina');
+        // Limpa as opções anteriores do <select> de máquinas
+        maquinasSelect.innerHTML = '';
+    
+        // Preenche as novas opções do <select> de máquinas com os dados recebidos
+        data.forEach(maquina => {
+            const option = document.createElement('option');
+            option.value = maquina.id; // Supondo que cada máquina tenha um ID único
+            option.textContent = maquina.nome; // Supondo que o nome da máquina seja fornecido pelo servidor
+            maquinasSelect.appendChild(option);
+        });
+    }
+//___________________________________________________________________________________
+// Chame a função de atualização quando a página carregar
+//___________________________________________________________________________________
+        window.addEventListener('load', function() {
+            atualizarDados();
+            console.log("Página carregada e dados atualizados");
+            // Atualize os dados a cada 5 minutos
+            setInterval(atualizarDados, 1 * 60 * 1000); // 5 minutos * 60 segundos * 1000 milissegundos
+        });
+    </script>
+
+    <link rel="stylesheet" href="/GDM/css/public.css">
+    <link rel="stylesheet" href="/GDM/css/SSP.css">
+    <script src="/GDM/js/public.js"></script>
+
+</body>
+</html>

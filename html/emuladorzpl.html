@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="PT">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #imageContainer {
+            border: 2px dashed red;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        #imageResult img {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .divider {
+            position: absolute;
+            border: 2px dashed red;
+            background-color: beige;
+        }
+        #zplInput {
+            border: 2px dashed rgb(0, 195, 255);
+            display: flex;
+            justify-content: left;  /* Alinha o conteúdo (texto) à esquerda */
+            align-items: center;    /* Centraliza verticalmente o conteúdo */
+            margin: 20px auto;      /* Centraliza o elemento horizontalmente na página */
+            position: relative;
+            overflow: hidden;
+            padding: 10px;          /* Adiciona espaçamento interno */
+            max-width: 80%;         /* Define uma largura máxima para o elemento */
+            text-align: left;       /* Alinha o texto à esquerda */
+            width: fit-content;     /* Ajusta a largura ao conteúdo */
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="header">
+        <h1>CENTRAL ETIQUETAS</h1>
+
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button>
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <div class="sidebar-buttons-container">
+            <!--<button onclick="convertImageToGRF()">Convert to GRF</button> -->
+        </div>
+    </div>
+<body>
+    <form id="zplForm">
+        <label for="zplInput">Insira o código ZPL:</label><br>
+        <textarea id="zplInput" rows="10" cols="50" placeholder="^xa^cfa,50^fo100,100^fdHello World^fs^xz"></textarea><br>
+        
+        <label for="labelDefinitions">Escolha uma definição de etiqueta:</label>
+        <select id="labelDefinitions">
+            <option value="">Selecione uma definição</option>
+        </select><br>
+        
+        <label for="labelWidth">Largura da Etiqueta (em milímetros):</label>
+        <input type="number" id="labelWidth" step="0.1"><br>
+        
+        <label for="labelHeight">Altura da Etiqueta (em milímetros):</label>
+        <input type="number" id="labelHeight" step="0.1"><br>
+
+        <label for="dpi">Resolução (DPI):</label>
+        <input type="number" id="dpi" step="1"><br>
+
+        <label for="numLabels">Número de Etiquetas:</label>
+        <input type="number" id="numLabels" min="1" step="1"><br>
+
+        <label for="lineThickness">Espessura da Linha (em pixels):</label>
+        <input type="number" id="lineThickness" step="1"><br>
+        
+        <button type="submit">Gerar Imagem</button>
+    </form>
+    <br>
+    <h3>Resultado:</h3>
+    <div id="imageContainer">
+        <div id="imageResult"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://gdi.docol.com.br:5500'; // URL base para as definições de etiqueta
+
+        // Função para carregar definições de etiquetas
+        function loadLabelDefinitions() {
+            fetch(`/GDM/json/labels.json`) // Substitua pelo caminho correto do arquivo JSON
+                .then(response => response.json())
+                .then(data => {
+                    updateDefinitions(data);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar definições:', error);
+                });
+        }
+
+        // Atualizar o formulário com as definições carregadas
+        function updateDefinitions(definitions) {
+            const select = document.getElementById('labelDefinitions');
+            select.innerHTML = '<option value="">Selecione uma definição</option>'; // Reset options
+            definitions.forEach(def => {
+                const option = document.createElement('option');
+                option.value = def.id;
+                option.textContent = def.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Preencher o formulário com a definição selecionada
+        function fillFormWithDefinition(definition) {
+            document.getElementById('labelWidth').value = definition.widthMM || 100;
+            document.getElementById('labelHeight').value = definition.heightMM || 15;
+            document.getElementById('dpi').value = definition.dpi || 203;
+            document.getElementById('numLabels').value = definition.numLabels || 1;
+            document.getElementById('lineThickness').value = definition.lineThickness || 2;
+        }
+
+        document.getElementById('labelDefinitions').addEventListener('change', function(event) {
+            const selectedId = event.target.value;
+            if (selectedId) {
+                // Encontrar a definição selecionada
+                fetch(`/GDM/json/labels.json`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const definition = data.find(def => def.id === selectedId);
+                        fillFormWithDefinition(definition);
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar definições:', error);
+                    });
+            }
+        });
+
+        document.getElementById('zplForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+            const zplCode = document.getElementById('zplInput').value;
+
+            // Pegando os valores dos inputs
+            const labelWidthMM = parseFloat(document.getElementById('labelWidth').value);
+            const labelHeightMM = parseFloat(document.getElementById('labelHeight').value);
+            const dpi = parseInt(document.getElementById('dpi').value);
+            const numLabels = parseInt(document.getElementById('numLabels').value);
+            const lineThickness = parseInt(document.getElementById('lineThickness').value);
+
+            // Convertendo os valores de milímetros para pixels
+            const containerWidth = (labelWidthMM / 18.3) * dpi;
+            const containerHeight = (labelHeightMM / 37.4) * dpi;
+            const labelWidth = containerWidth / numLabels;
+
+            // Definindo as dimensões da borda da etiqueta
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.style.width = containerWidth + 'px';
+            imageContainer.style.height = containerHeight + 'px';
+
+            // Gerando a imagem da etiqueta a partir do ZPL
+            fetch('http://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'image/png'
+                },
+                body: zplCode
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = "Generated Label";
+                img.style.maxWidth = 'none';
+                img.style.maxHeight = 'none';
+                document.getElementById('imageResult').innerHTML = '';
+                document.getElementById('imageResult').appendChild(img);
+
+                // Remover linhas anteriores
+                document.querySelectorAll('.divider').forEach(div => div.remove());
+
+                // Adicionar novas linhas de divisão
+                for (let i = 1; i < numLabels; i++) {
+                    const divider = document.createElement('div');
+                    divider.className = 'divider';
+                    divider.style.width = lineThickness + 'px';
+                    divider.style.height = containerHeight + 'px';
+
+                    // Corrigindo a posição da linha de divisão
+                    const leftPosition = (i * labelWidth) - (lineThickness / 2.2);
+                    divider.style.left = leftPosition + 'px';
+
+                    imageContainer.appendChild(divider);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao gerar a imagem:', error);
+            });
+    });
+
+        // Carregar definições quando a página carregar
+        window.onload = loadLabelDefinitions;
+    </script>
+    
+<link rel="stylesheet" href="/GDM/css/public.css">
+</body>
+</html>

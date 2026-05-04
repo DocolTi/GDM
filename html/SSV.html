@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chart.js -->
+
+
+    <title>SSP</title>
+</head>
+<body>
+    
+    <div class="header">
+        <h1>MONITOR RESERVAS</h1>
+
+        <!-- Menu do usuário -->
+        <button class="user-menu-btn" id="userMenuBtn" type="button">
+            <span id="userName">Usuário</span>
+            <span class="user-menu-icon">&#x25BC;</span>
+        </button>
+        <div class="user-menu" id="userMenu" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Usuário</strong>
+            </div>
+            <button type="button" class="user-menu-logout"
+                onclick="location.href='https://docol.soft4.com.br/login?_redirect=%2Fchamado'">
+                Abrir ticket de suporte
+            </button>
+            <button onclick="carregarValores()" class="user-menu-logout">Menu</button>
+            <button onclick="carregarValores0()" class="user-menu-logout">Logout</button>
+            <img src="/GDM/img/docol_logo.png" alt="Docol Logo" style="width: 120px; height: 50px;">
+        </div>
+        
+        <!-- dentro da .header -->
+        <div class="filter-bar" id="topFilters">
+        <form id="filterForm" class="filter-form">
+            <div class="group">
+            <span class="prefix">MAT.</span>
+            <input type="text" id="filterMaterial" name="filterMaterial" placeholder="Código do material">
+            </div>
+
+            <div class="group">
+            <span class="prefix">CT.</span>
+            <input type="text" id="filterCentroTrabalho" name="filterCentroTrabalho" placeholder="Centro de trabalho">
+            </div>
+
+            <div class="group">
+            <span class="prefix">OP.</span>
+            <input type="text" id="filterOp" name="filterOp" placeholder="Ordem de produção">
+            </div>
+
+            <button class="btn primary" type="submit">Aplicar</button>
+        </form>
+        </div>
+		
+		<div class="main-container" id="mainContainer">
+			<div class="sidebar" id="sidebar">
+
+				<div id="menuButtons"></div> <!-- Aqui vamos injetar os botões -->
+
+				<label id="MenuLote" class="MenuLote">||</label>
+			</div>
+		</div>
+    </div>
+
+    <div class="linha-separadora1"></div>
+
+    <!-- Formulário sobreposto -->
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <h2>Solicitação de Setup</h2>
+
+            <form id="formVagao">
+
+                <label for="Ctrab">Linha Parada
+                    <div class="switch">
+                        <input type="checkbox" id="switchLinhaParada" />
+                        <label for="switchLinhaParada"></label>
+                    </div>
+                </label>
+
+                <label for="Ctrab">Centro de Trabalho</label>
+                <select id="Ctrab" name="Ctrab"></select>    
+                
+                <hr class="linha-divisoria">
+                
+                <label for="op">Ordem de Produção</label>
+                <input
+                type="text"
+                id="op"
+                name="op"
+                inputmode="numeric"
+                pattern="\d{10}"
+                minlength="10"
+                maxlength="10"
+                required
+                oninput="this.value=this.value.replace(/\D/g,'').slice(0,10); validateOpField();"
+                />
+
+                <label for="qtd_op">Qtd. Ordem de Produção</label>
+                <input type="text" id="qtd_op" name="qtd_op"><br>
+                
+                <hr class="linha-divisoria">
+                
+                <label for="material">Código do Material</label>
+                <input
+                type="text"
+                id="material"
+                name="material"
+                inputmode="numeric"
+                pattern="\d{11}"
+                minlength="11"
+                maxlength="11"
+                required
+                oninput="this.value=this.value.replace(/\D/g,'').slice(0,11); validateMaterialField();"
+                />
+
+                <label for="qtd_mat">Qtd. Material</label>
+                <input type="text" id="qtd_mat" name="qtd_mat"><br>
+                
+                <hr class="linha-divisoria">
+
+                <label for="motivosSSV">Motivos Reposição:</label>
+                <select id="motivosSSV" name="motivosSSV"></select><br>
+                
+                <hr class="linha-divisoria">
+                
+                <label for="date">Data Solicitação</label>
+                <input type="date" id="date" name="date" readonly class="campo-bloqueado"><br>
+
+                <label for="hora">Hora Solicitação</label>
+                <input type="time" id="hora" name="hora" readonly class="campo-bloqueado"><br><br>
+                
+                <hr class="linha-divisoria">
+
+                <label for="observacao">Observação:</label>
+                <textarea id="observacao" name="observacao"></textarea><br>
+                
+                <button type="submit">Solicitar</button>
+                <button type="button" onclick="closeForm()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    
+<div class="overlay" id="statusFilterOverlay">
+  <div class="modal">
+    <h2>Selecionar Status</h2>
+    <div class="switch">
+        <input type="checkbox" id="switch" />
+        <label for="switch">.</label>
+    </div>
+    <form id="statusFilterForm" class="status-form">
+      <div class="status-options">
+            <label><input type="checkbox" class="status-checkbox" value="montagem"> MONTAGEM</label>
+            <label><input type="checkbox" class="status-checkbox" value="cancelado"> Cancelado</label>
+            <label><input type="checkbox" class="status-checkbox" value="esc"> ESC</label>
+            <label><input type="checkbox" class="status-checkbox" value="coletado"> Coletado</label>
+            <label><input type="checkbox" class="status-checkbox" value="ger"> GER</label>
+            <label><input type="checkbox" class="status-checkbox" value="finalizado"> Finalizado</label>
+            <label><input type="checkbox" class="status-checkbox" value="rota"> ROTA</label>
+        <br/>
+        <button type="submit">Aplicar</button>
+        <button type="button" onclick="closeStatusFilter()">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+    <!-- Menu de contexto -->
+    <div id="menuContexto" class="menu-contexto">
+    <ul>
+        <li><a href="#acao1">Ação 1</a></li>
+        <li><a href="#acao2">Ação 2</a></li>
+        <li><a href="#acao3">Ação 3</a></li>
+        <!-- Adicione mais ações conforme necessário -->
+    </ul>
+    </div>
+
+    <!-- Restante do seu HTML -->
+    <div class="container1">   
+        <div class="scroll-wrapper">
+            <div id="pedidosContainer" class="card-container">
+                <!-- Cartões serão adicionados aqui dinamicamente -->
+            </div>    
+        </div>
+    </div>
+
+    <div id="agendamentosContainer1"></div>
+
+	<!-- Overlay Histórico -->
+	<div class="overlay" id="historyOverlay" style="display:none;">
+	  <div class="modal" style="max-width: 820px;">
+		<h2>Histórico</h2>
+		<div id="historyContent" class="history-list" style="max-height:60vh; overflow:auto;"></div>
+		<br/>
+		<button type="button" onclick="closeHistory()">Fechar</button>
+	  </div>
+	</div>
+
+	<!-- Modal Exportar -->
+	<div class="overlay" id="exportOverlay" style="display:none;">
+	  <div class="modal export-modal">
+		<h2>Exportar SSV</h2>
+		<form id="exportForm">
+		  <div class="field">
+			<label for="expStart">Data inicial</label>
+			<input type="date" id="expStart" required>
+		  </div>
+
+		  <div class="field">
+			<label for="expEnd">Data final</label>
+			<input type="date" id="expEnd" required>
+		  </div>
+
+		  <div class="actions">
+			<button type="submit" class="btn primary">Exportar</button>
+			<button type="button" class="btn" id="cancelExport">Cancelar</button>
+		  </div>
+		</form>
+	  </div>
+	</div>
+
+<!-- Gráfico SSV -->
+    <div class="overlay" id="graficoOverlay" style="display:none;">
+        <div class="modalGRA modal-large">
+            <h2>Solicitações por Dia</h2>
+
+            <form id="graficoForm" class="filter-form">
+
+            <div class="groupGRA">
+                <label>Tipo de Análise</label>
+                <select id="grafTipo">
+                    <option value="dia">Solicitações por Dia</option>
+                    <option value="op">Solicitações por OP</option>
+                    <option value="material">Solicitações por Material</option>
+                    <option value="motivo">Solicitações por Motivo</option>
+                </select>
+            </div>
+            
+            <div class="groupGRA">
+                <label>Data inicial</label>
+                <input type="date" id="grafStart" required>
+            </div>
+
+            <div class="groupGRA">
+                <label>Data final</label>
+                <input type="date" id="grafEnd" required>
+            </div>
+
+            <button class="btn primary" type="submit">Gerar gráfico</button>
+            <button class="btn" type="button" onclick="closeGrafico()">Cancelar</button>
+            </form>
+
+            <hr>
+
+            <canvas id="graficoSSV" height="120"></canvas>
+        </div>
+    </div>
+
+
+
+    <!-- ============================
+        MODAL DE CADASTRO DE CALIBRADORES
+    ============================= -->
+<div class="overlay" id="overlayMonitorParada">
+    <div class="modalMonitorParada modal">
+        <h2>STATUS DE LINHA</h2>
+
+        <form id="formAlterParada">
+
+            <div class="form-grid">
+
+                <!-- ============================
+                    COLUNA DIREITA — FORM INPUTS
+                ============================ -->
+                <div class="form-fields">
+
+                    <div class="linha">
+                        <label for="centro_trabalho">Máquina:</label>
+                        <select id="centro_trabalho" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+
+                    <div class="linha">
+                        <label for="selMotivo">Motivo da Parada:</label>
+                        <select id="selMotivo">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+
+                    <div class="linha">
+                        <label for="txtInicio">Início:</label>
+                        <input id="txtInicio" type="datetime-local" required>
+                    </div>
+
+                    <div class="linha">
+                        <label for="txtResponsavel">Responsável:</label>
+                        <input id="txtResponsavel" type="text">
+                    </div>
+
+                    <div class="linha">
+                        <label for="txtObs">Observação:</label>
+                        <textarea id="txtObs"></textarea>
+                    </div>
+
+                    <div class="linha">
+                        <button id="btnSalvar" type="submit">Salvar</button>
+                    </div>
+                    <div class="linha">
+                        <button type="button" class="btn-cancelar"  onclick="closeFormMonitor()">Cancelar</button>
+                    </div>
+
+                </div>
+                
+                <!-- ============================
+                    COLUNA ESQUERDA — BOTÕES RÁPIDOS
+                ============================ -->
+                <div class="quick-buttons">
+                    <h2>Parada Rápida</h2>
+                    <button class="quick-btn quick-btn1" data-motivo="Em Produção">Em Produção</button>
+                    <button class="quick-btn" data-motivo="Setup">Setup</button>
+                    <button class="quick-btn" data-motivo="Qualidade">Qualidade</button>
+                    <button class="quick-btn" data-motivo="Manutenção">Manutenção</button>
+                    <button class="quick-btn" data-motivo="Logística">Logística</button>
+                    <button class="quick-btn" data-motivo="TI">TI</button>
+                    <button class="quick-btn" data-motivo="Falta Operador">Falta Operador</button>
+                    <button class="quick-btn" data-motivo="Café">Café</button>
+                    <button class="quick-btn" data-motivo="Banheiro">Banheiro</button>
+                    <button class="quick-btn" data-motivo="Turno Inativo">Turno Inativo</button>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+                
+
+/* ======================================================================
+    Conex
+====================================================================== */   
+    const BASE_URL = 'http://gdi.docol.com.br:5500';
+/* ======================================================================
+    ACESSOS
+====================================================================== */      
+
+const userAcess = localStorage.getItem('acess') || '';  
+const thirdNumber = userAcess.charAt(5);                
+
+console.log('Log - 5' + thirdNumber);
+
+if (thirdNumber === '0' || thirdNumber === '') {
+	alert('Acesso negado.');
+			window.location.href = '/GDM/login.html'; // Redireciona caso não tenha acesso
+} else {
+	console.log('Acesso liberado: ' + thirdNumber);
+}
+        
+/* ======================================================================
+   FORM — Preenche campos do formulário (yyyy-mm-dd + HH:mm)
+====================================================================== */
+function preencherDataHoraAtual() {
+  const agora = new Date();
+  const ano = agora.getFullYear();
+  const mes = String(agora.getMonth() + 1).padStart(2, '0');
+  const dia = String(agora.getDate()).padStart(2, '0');
+  const horas = String(agora.getHours()).padStart(2, '0');
+  const minutos = String(agora.getMinutes()).padStart(2, '0');
+
+  document.getElementById('date').value = `${ano}-${mes}-${dia}`;
+  document.getElementById('hora').value = `${horas}:${minutos}`;
+}
+
+/* ======================================================================
+   UTIL — Retorna timestamp BR (dd/MM/yyyy HH:mm:ss)
+====================================================================== */
+function getTimestampBR() {
+  const agora = new Date();
+  const dd = String(agora.getDate()).padStart(2, '0');
+  const mm = String(agora.getMonth() + 1).padStart(2, '0');
+  const yyyy = agora.getFullYear();
+  const hh = String(agora.getHours()).padStart(2, '0');
+  const min = String(agora.getMinutes()).padStart(2, '0');
+  const ss = String(agora.getSeconds()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}:${ss}`;
+}
+/* ======================================================================
+   HELPERS COMUNS - HISTÓRICO
+====================================================================== */
+function parseBRDateTime(str) {
+  // str: "dd/MM/yyyy HH:mm:ss" -> Date
+  const [dd, mm, rest] = str.split('/');
+  const [yyyy, time] = rest.split(' ');
+  const [HH, MIN, SS] = time.split(':');
+  return new Date(+yyyy, +mm - 1, +dd, +HH, +MIN, +SS);
+}
+
+function formatBR(dt) {
+  if (!dt) return '-';
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const yyyy = dt.getFullYear();
+  const HH = String(dt.getHours()).padStart(2, '0');
+  const MIN = String(dt.getMinutes()).padStart(2, '0');
+  const SS = String(dt.getSeconds()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${HH}:${MIN}:${SS}`;
+}
+
+function formatSecondsToHMS(totalSec) {
+  totalSec = Math.max(0, Math.floor(totalSec || 0));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* ======================================================================
+   FILTROS — HELPERS COMUNS
+====================================================================== */
+
+// Normaliza strings para comparação
+const norm = s => (s || '').toString().trim().toLowerCase();
+
+/* ======================================================================
+   FILTROS — CONSTANTES / MAPAS
+====================================================================== */
+
+// Mapa de ordenação para status_EWM e status (ajuste a prioridade como quiser)
+const SORT_EWM = { 'aguardando': 1, 'preparando': 2, 'coletado': 3, 'rota': 4, 'divergente': 5, 'cancelado': 6, 'finalizado': 7 };
+const SORT_MOT = { 'montagem': 1, 'esc': 2, 'ger': 3, 'rota': 4, 'coletado': 5, 'finalizado': 6, 'cancelado': 7 };
+
+// Mapeia ação do botão -> novo status_EWM
+const ACTION_TO_EWM = {
+  'imprimir': 'Preparando',
+  'concluido': 'Coletado',
+  'divergente': 'Divergente',
+  'finalizado': 'Finalizado',
+  'cancelado': 'Cancelado',
+  'rota': 'Rota'
+};
+
+/* ======================================================================
+   FILTROS — PERSISTÊNCIA (localStorage)
+====================================================================== */
+
+// Salva/restaura filtros simples
+const saveSimpleFilters = (obj) => localStorage.setItem('simpleFilters', JSON.stringify(obj));
+const getSimpleFilters  = () => JSON.parse(localStorage.getItem('simpleFilters') || '{}');
+
+/* ======================================================================
+   FILTROS — RESTAURAÇÃO DOS INPUTS NA CARGA
+====================================================================== */
+
+window.addEventListener("DOMContentLoaded", () => {
+  const { filterCentroTrabalho = "", filterMaterial = "", filterOp = "" } = getSimpleFilters();
+  document.getElementById("filterCentroTrabalho").value = filterCentroTrabalho;
+  document.getElementById("filterMaterial").value = filterMaterial;
+  document.getElementById("filterOp").value = filterOp;
+});
+
+/* ======================================================================
+   FILTROS — MODAL DE STATUS (ESC/GER/MONTAGEM/… e EWM)
+====================================================================== */
+
+// Envia seleção de status e salva no localStorage
+document.getElementById("statusFilterForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+  const statusSelecionados = Array.from(document.querySelectorAll('.status-checkbox:checked'))
+    .map(checkbox => checkbox.value.toLowerCase());
+
+  // Salvar no localStorage
+  localStorage.setItem('statusSelecionados', JSON.stringify(statusSelecionados));
+
+  // Aplicar filtros
+  closeStatusFilter();
+  atualizarDados();
+});
+
+// Carrega status selecionados no modal ao abrir a página
+function carregarFiltroDeStatusSalvo() {
+  const statusSalvos = JSON.parse(localStorage.getItem('statusSelecionados')) || [];
+  document.querySelectorAll('.status-checkbox').forEach(checkbox => {
+    checkbox.checked = statusSalvos.includes(norm(checkbox.value));
+  });
+  // marca o seletor geral se todos estiverem marcados
+  const all = document.getElementById('switch');
+  const boxes = [...document.querySelectorAll('.status-checkbox')];
+  all.checked = boxes.every(cb => cb.checked);
+}
+
+/* ======================================================================
+   FILTROS — FORM PRINCIPAL (MAT / CT / OP)
+====================================================================== */
+
+// Submit único: salva TUDO no mesmo objeto e re-renderiza
+document.getElementById("filterForm").addEventListener("submit", function (event) {
+  event.preventDefault();
+  const filterMaterial       = norm(document.getElementById("filterMaterial").value);
+  const filterCentroTrabalho = norm(document.getElementById("filterCentroTrabalho").value);
+  const filterOp             = norm(document.getElementById("filterOp").value);
+
+  saveSimpleFilters({ filterMaterial, filterCentroTrabalho, filterOp });
+  atualizarDados(); // re-render já aplicando filtros
+});
+/* ======================================================================
+   LISTA — RENDERIZAÇÃO EM TABELA (cria tabela e cabeçalho)
+====================================================================== */
+function renderizarComoLista(data) {
+    const pedidosContainer = document.getElementById('pedidosContainer');
+    pedidosContainer.innerHTML = ''; // Limpa o contêiner
+
+    /* ------------------------------------------------------------------
+        ESTADO DE ORDENAÇÃO ATUAL
+    ------------------------------------------------------------------ */
+    let ordenacaoAtual = { coluna: 'HRpedido', ascendente: true };
+
+    /* ------------------------------------------------------------------
+        UI: FUNÇÃO PARA CRIAR ÍCONE DE ORDENAÇÃO (↑ / ↓)
+    ------------------------------------------------------------------ */
+    function criarIconeOrdenacao(ascendente) {
+        return ascendente ? '↑' : '↓';
+    }
+
+    /* ------------------------------------------------------------------
+        ORDENAÇÃO: FUNÇÃO QUE REORDENA E RECONSTROI O TBODY
+        - Define coluna alvo
+        - Inverte direção quando clica na mesma coluna
+        - Converte tipos especiais (data/número)
+        - Atualiza ícones dos <th>
+    ------------------------------------------------------------------ */
+    function atualizarTabela(propriedade) {
+        // Mapeia o atributo 'data-propriedade' → campo do objeto 'data'
+        const coluna = {
+        'id': 'Id',
+        'HRpedido': 'HRpedido',
+        'vagao': 'vagao',
+        'Ctrab': 'Ctrab',
+        'material': 'material',
+        'op': 'op',
+        'date': 'date',
+        'horario': 'horario',
+        'status': 'status',
+        // Adicione mapeamentos adicionais conforme necessário
+        }[propriedade] || propriedade;
+
+        // Alterna direção se clicar na mesma coluna; senão reinicia ascendente
+        if (ordenacaoAtual.coluna === coluna) {
+        ordenacaoAtual.ascendente = !ordenacaoAtual.ascendente;
+        } else {
+        ordenacaoAtual = { coluna: coluna, ascendente: true };
+        }
+
+        // Ordena array 'data' in-place
+        data.sort((a, b) => {
+        let valorA = a[coluna];
+        let valorB = b[coluna];
+
+        // Tratamento especial: datas e números
+        if (coluna === 'HRpedido') {
+            valorA = new Date(valorA);
+            valorB = new Date(valorB);
+        } else if (coluna === 'Id') {
+            valorA = +valorA;
+            valorB = +valorB;
+        }
+
+        if (valorA < valorB) return ordenacaoAtual.ascendente ? -1 : 1;
+        if (valorA > valorB) return ordenacaoAtual.ascendente ? 1 : -1;
+        return 0;
+        });
+
+        // Reconstrói o corpo da tabela (tbody)
+        tbody.innerHTML = '';
+        data.forEach(solicitacao => {
+        const row = document.createElement('tr');
+        row.className = `status${solicitacao.status.toLowerCase()}`;
+        row.innerHTML = `
+            <td>${solicitacao.Id}</td>
+            <td>${solicitacao.HRpedido}</td>
+            <td>${solicitacao.vagao}</td>
+            <td>${solicitacao.Ctrab}</td>
+            <td>${solicitacao.material}</td>
+            <td>${solicitacao.op}</td>
+            <td>${solicitacao.date}</td>
+            <td>${solicitacao.horario}</td>
+            <td>${solicitacao.status}</td>
+        `;
+        tbody.appendChild(row);
+        });
+
+        // Atualiza ícones de ordenação nos cabeçalhos
+        document.querySelectorAll('th').forEach(header => {
+        const propriedadeHeader = header.getAttribute('data-propriedade');
+        if (propriedadeHeader) {
+            header.innerHTML = propriedadeHeader + (
+            coluna === propriedadeHeader ? criarIconeOrdenacao(ordenacaoAtual.ascendente) : ''
+            );
+        }
+        });
+    }
+
+    /* ------------------------------------------------------------------
+        CONSTRUÇÃO DO <table> + <thead> + <tbody>
+    ------------------------------------------------------------------ */
+    const tabela = document.createElement('table');
+    tabela.innerHTML = `
+        <thead>
+        <tr>
+            <th data-propriedade="Id">Id</th>
+            <th data-propriedade="HRpedido">Hora pedido</th>
+            <th data-propriedade="vagao">vagao</th>
+            <th data-propriedade="Ctrab">Ctrab</th>
+            <th data-propriedade="material">material</th>
+            <th data-propriedade="op">op</th>
+            <th data-propriedade="date">date</th>
+            <th data-propriedade="horario">horario</th>
+            <th data-propriedade="status">status</th>
+        </tr>
+        </thead>`;
+    const tbody = document.createElement('tbody');
+    tabela.appendChild(tbody);
+    pedidosContainer.appendChild(tabela);
+
+    /* ------------------------------------------------------------------
+        HEADERS CLICÁVEIS: ADICIONA LISTENERS PARA ORDENAR
+    ------------------------------------------------------------------ */
+    tabela.querySelectorAll('th').forEach(header => {
+        header.addEventListener('click', () => {
+        const propriedade = header.getAttribute('data-propriedade');
+        if (propriedade) atualizarTabela(propriedade.toLowerCase());
+        });
+    });
+
+    /* ------------------------------------------------------------------
+        ORDENAÇÃO INICIAL
+    ------------------------------------------------------------------ */
+    atualizarTabela('HRpedido'); // Ordena inicialmente por 'HRpedido'
+}
+
+/* ======================================================================
+   SIDEBAR / MENUS — Construção conforme perfil de acesso
+====================================================================== */
+const sidebarMenu = document.getElementById('menuButtons');
+let sidebarHtml = '';
+
+/* Perfis:
+   - '1' => Montagem (pode solicitar reserva)
+   - '4' => Exportador (botão de exportar)
+   - demais => botões comuns (cards/lista/filtro status)
+*/
+if (thirdNumber === '1') {
+    sidebarHtml += `<a><button class="toggle-button" type="button" onclick="openForm()">Solicitar Reserva</button></a>`;
+}
+
+if (thirdNumber === '4') {
+    sidebarHtml += `<a><button class="toggle-button" id="viewExtrairSSV">Exportar</button></a>`;
+}
+
+sidebarHtml += `
+    <a><button class="toggle-button" id="viewCardsBtn">Visualizar como Cartões</button></a>
+    <a><button class="toggle-button" id="viewListBtn">Visualizar como Lista</button></a>
+    <a><button class="toggle-button" type="button" onclick="openStatusFilter()">Filtrar por Status</button></a>
+    <a><class="linha-separadora1" >--------------</a>
+    <a><button class="toggle-button" id="viewGraficoSSV">Gráfico Solicitações</button></a>
+    <a><button class="toggle-button" type="button" onclick="openFormMonitor()">Monitor de Parada</button></a> 
+`;
+
+sidebarMenu.innerHTML = sidebarHtml;
+
+
+/* ======================================================================
+   DADOS — Carregamento e Renderização (Cards)
+====================================================================== */
+function renderizarComoCartoes() {
+	fetch(`${BASE_URL}/gdm_ssv`)
+		.then(response => response.json())
+		.then(data => {
+
+		/* ---------------------------------------------------------------
+			FILTRAGEM — Grupos de Status e Filtros Simples
+			- MOT_KEYS: status (ESC/GER/MONTAGEM/ROTA)
+			- EWM_KEYS: status_EWM (Aguardando/Preparando/…)
+		---------------------------------------------------------------- */
+		const EWM_KEYS = ['aguardando','preparando','coletado','rota','divergente','cancelado','finalizado'];
+		const MOT_KEYS = ['esc','ger','montagem','rota'];
+
+		const selecionados = JSON.parse(localStorage.getItem('statusSelecionados')) || [];
+		const selEWM = selecionados.filter(v => EWM_KEYS.includes(v));
+		const selMOT = selecionados.filter(v => MOT_KEYS.includes(v));
+
+		// listas efetivas (quando nada é selecionado em um grupo, esse grupo não restringe)
+		const allowMOT = selMOT.length ? selMOT : MOT_KEYS;
+		const allowEWM = selEWM.length ? selEWM : EWM_KEYS;
+
+		// 🔒 Bloqueio padrão para EWM (não mostrar Cancelado/Finalizado a menos que selecionados)
+		const BLOCK_BY_DEFAULT = ['cancelado', 'finalizado'];
+		const blockedEwm = BLOCK_BY_DEFAULT.filter(v => !selEWM.includes(v));
+
+		const { filterCentroTrabalho = "", filterMaterial = "", filterOp = "" } = getSimpleFilters();
+
+		/* ---------------------------------------------------------------
+		DEBUG opcional (ligar/desligar)
+		---------------------------------------------------------------- */
+		const DEBUG_FILTER = false;
+		if (DEBUG_FILTER) {
+		console.log('[FILTRO] selecionados:', selecionados);
+		console.log('[FILTRO] selMOT:', selMOT, 'selEWM:', selEWM);
+		console.log('[FILTRO] allowMOT:', allowMOT, 'allowEWM:', allowEWM);
+		console.log('[FILTRO] blockedEwm:', blockedEwm);
+		}
+
+		let cTotal = 0, cPass = 0, cBloqEwm = 0, cFailMot = 0, cFailEwm = 0, cFailSimple = 0;
+
+		/* ---------------------------------------------------------------
+		APLICAÇÃO DOS FILTROS
+		---------------------------------------------------------------- */
+		const dadosFiltrados = data.filter(solicitacao => {
+		cTotal++;
+
+		const sMotivo = norm(solicitacao.status);       // ESC/GER/MONTAGEM/ROTA (MOT)
+		const sSetor  = norm(solicitacao.status_EWM);   // AGUARDANDO/.../FINALIZADO (EWM)
+
+		// 1) Filtros simples
+		const matchCentro   = !filterCentroTrabalho || norm(solicitacao.Ctrab).includes(filterCentroTrabalho);
+		const matchMaterial = !filterMaterial       || norm(solicitacao.material).includes(filterMaterial);
+		const matchOp       = !filterOp             || norm(solicitacao.op).includes(filterOp);
+
+		if (!(matchCentro && matchMaterial && matchOp)) {
+			if (DEBUG_FILTER) cFailSimple++;
+			return false;
+		}
+
+		// 2) Bloqueio padrão de EWM (só passa se o usuário marcou explicitamente)
+		if (blockedEwm.includes(sSetor)) {
+			if (DEBUG_FILTER) cBloqEwm++;
+			return false;
+		}
+
+		// 3) Match por grupos
+		const matchMot = allowMOT.includes(sMotivo);
+		const matchEwm = allowEWM.includes(sSetor);
+
+		// 4) Regra final:
+		//    - Se o usuário selecionou algo em MOT e/ou EWM, usamos OR entre os grupos ativos
+		//    - Se não selecionou nada em NENHUM grupo, mostramos tudo (exceto bloqueados no passo 2)
+		const motPass = selMOT.length ? matchMot : false;
+		const ewmPass = selEWM.length ? matchEwm : false;
+
+		const noGroupSelected = (!selMOT.length && !selEWM.length);
+		const pass = noGroupSelected ? true : (motPass || ewmPass);
+
+		if (DEBUG_FILTER) {
+			if (!pass) {
+			if (selMOT.length && !matchMot) cFailMot++;
+			if (selEWM.length && !matchEwm) cFailEwm++;
+			} else {
+			cPass++;
+			}
+		}
+
+		return pass;
+		});
+
+		if (DEBUG_FILTER) {
+		console.log('[FILTRO] total:', cTotal, 'passaram:', cPass);
+		console.log('[FILTRO] bloqueados por EWM padrão:', cBloqEwm);
+		console.log('[FILTRO] falha MOT:', cFailMot, 'falha EWM:', cFailEwm, 'falha simples:', cFailSimple);
+		}
+
+        /* ---------------------------------------------------------------
+            UI — Limpa container e ordena por data/hora (dd/MM/yyyy + HH:mm)
+        ---------------------------------------------------------------- */
+        const pedidosContainer = document.getElementById('pedidosContainer');
+        pedidosContainer.innerHTML = '';
+
+        dadosFiltrados.sort((a, b) => {
+            const formatarData = (dataDDMMYYYY) => {
+            const [dia, mes, ano] = dataDDMMYYYY.split('/');
+            return `${ano}-${mes}-${dia}`;
+            };
+            const dataHoraA = new Date(`${formatarData(a.date)}T${a.horario}`);
+            const dataHoraB = new Date(`${formatarData(b.date)}T${b.horario}`);
+            return dataHoraA - dataHoraB;
+        });
+
+        /* ---------------------------------------------------------------
+            CARDS — Montagem de cada cartão com classes de status e botões
+        ---------------------------------------------------------------- */
+        dadosFiltrados.forEach(solicitacao => {
+            const card = document.createElement('div');
+            card.classList.add('card2');
+
+            // Classes visuais por status_EWM
+            if (solicitacao.status_EWM === 'Preparando') {
+            card.classList.add('status-preparando');
+            } else if (solicitacao.status_EWM === 'Coletado') {
+            card.classList.add('status-completo');
+            } else if (solicitacao.status_EWM === 'Cancelado') {
+            card.classList.add('status-cancelado');
+            } else if (solicitacao.status_EWM === 'Divergente') {
+            card.classList.add('status-divergente');
+            } else if (solicitacao.status_EWM === 'Rota') {
+            card.classList.add('status-rota');
+            } else if (solicitacao.status_EWM === 'Aguardando') {
+            card.classList.add('status-aguardando');
+            }
+
+            const cardContent = document.createElement('div');
+            cardContent.classList.add('card-content');
+
+            // Status em maiúsculas para comparação de botões
+            const statusAtual  = (solicitacao.status || '').trim().toUpperCase();
+            const statusAtual1 = (solicitacao.status_EWM || '').trim().toUpperCase();
+
+            /* -------------------------------------------------------------
+            BOTÕES — Definição conforme perfil (thirdNumber)
+            -------------------------------------------------------------- */
+            const btns = [];
+
+            // -------------------- ADMINISTRADOR (5) ---------------------
+            if (thirdNumber === '5') {
+            if (statusAtual === 'MONTAGEM' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-esc">Esc</button>');
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+            if (statusAtual === 'MONTAGEM' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-finalizado">Finalizado</button>');
+            }
+
+            if (statusAtual === 'ESC' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-imprimir1">Imprimir</button>');
+                btns.push('<button class="button-ger">Ger</button>');
+            }
+            if (statusAtual === 'ESC' && statusAtual1 === 'PREPARANDO') {
+                btns.push('<button class="button-concluido">Coletado</button>');
+                btns.push('<button class="button-divergente">Saldo divergente</button>');
+            }
+            if (statusAtual === 'ESC' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-finalizado">Finalizado</button>');
+            }
+
+            if (statusAtual === 'GER' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-imprimir1">Imprimir</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'PREPARANDO') {
+                btns.push('<button class="button-concluido">Coletado</button>');
+                btns.push('<button class="button-divergente">Saldo divergente</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-rota">Rota</button>');
+            }
+
+            if (statusAtual === 'ROTA') {
+                btns.push('<button class="button-rota">Rota</button>');
+                btns.push('<button class="button-esc">Esc</button>');
+            }
+
+            btns.push('<button class="button-obs">Observação</button>');
+            btns.push('<button class="button-historico">Histórico</button>');
+            }
+
+            // -------------------- MONTAGEM (1) ---------------------------
+            else if (thirdNumber === '1') {
+            if (statusAtual === 'MONTAGEM' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-esc">Esc</button>');
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+            if (statusAtual === 'MONTAGEM' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-finalizado">Finalizado</button>');
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+            if (statusAtual === 'MONTAGEM' && statusAtual1 === 'DIVERGENTE') {
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'DIVERGENTE') {
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+            if (statusAtual === 'ESC' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-cancelado">Cancelado</button>');
+            }
+
+            btns.push('<button class="button-obs">Observação</button>');
+            btns.push('<button class="button-historico">Histórico</button>');
+            }
+
+            // -------------------- LOGÍSTICA ESC (2) ----------------------
+            else if (thirdNumber === '2') {
+            if (statusAtual === 'ESC' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-imprimir1">Imprimir</button>');
+                btns.push('<button class="button-ger">Ger</button>');
+            }
+            if (statusAtual === 'ESC' && statusAtual1 === 'PREPARANDO') {
+                btns.push('<button class="button-concluido">Coletado</button>');
+                btns.push('<button class="button-divergente">Saldo divergente</button>');
+            }
+            if (statusAtual === 'ESC' && statusAtual1 === 'DIVERGENTE') {
+                btns.push('<button class="button-imprimir1">Imprimir</button>');
+                btns.push('<button class="button-montagem">Montagem</button>');
+            }
+            if (statusAtual === 'ESC' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-montagem">Montagem</button>');
+            }
+            if (statusAtual === 'ROTA' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-esc">Esc</button>');
+            }
+            btns.push('<button class="button-obs">Observação</button>');
+            btns.push('<button class="button-historico">Histórico</button>');
+            }
+
+            // -------------------- LOGÍSTICA GER (3) ----------------------
+            else if (thirdNumber === '3') {
+            if (statusAtual === 'GER' && statusAtual1 === 'AGUARDANDO') {
+                btns.push('<button class="button-imprimir1">Imprimir</button>');
+                btns.push('<button class="button-esc">Esc</button>');
+                btns.push('<button class="button-obs">Observação</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'PREPARANDO') {
+                btns.push('<button class="button-concluido">Coletado</button>');
+                btns.push('<button class="button-divergente">Saldo divergente</button>');
+                btns.push('<button class="button-obs">Observação</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'COLETADO') {
+                btns.push('<button class="button-rota">Rota</button>');
+                btns.push('<button class="button-obs">Observação</button>');
+            }
+            if (statusAtual === 'GER' && statusAtual1 === 'DIVERGENTE') {
+                btns.push('<button class="button-imprimir1">Imprimir</button>');
+                btns.push('<button class="button-esc">Esc</button>');
+            }
+//            if (statusAtual === 'ROTA' && statusAtual1 === 'COLETADO') {
+//                btns.push('<button class="button-obs">Observação</button>');
+//            }
+            btns.push('<button class="button-obs">Observação</button>');
+            btns.push('<button class="button-historico">Histórico</button>');
+            }
+
+            // -------------------- LOGÍSTICA GER (4) ----------------------
+            else if (thirdNumber === '4') {
+                btns.push('<button class="button-obs">Observação</button>');
+                btns.push('<button class="button-historico">Histórico</button>');
+            }
+			
+            // HTML final do card
+            const buttonsHtml = btns.join('');
+            cardContent.innerHTML = `
+            <button class="menu-button">${solicitacao.prior == 1 ? '🚫' : ''}</button>
+            <div class="status-buttons">${buttonsHtml}</div>
+            <form id="formAlterarSetup">
+                <div class="infoId"><div><label class="info-line">${solicitacao.Id}</label></div></div>
+
+                <div class="info0">
+                <div><label class="texto1">Centro de Trabalho</label></div>
+                <div><label class="info-line Ctrab texto">${solicitacao.Ctrab}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Ordem de Produção</label></div>
+                <div><label class="info-line op texto">${solicitacao.op}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Qtd. OP</label></div>
+                <div><label class="info-line qtd_op texto">${solicitacao.qtd_op}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Código do Material</label></div>
+                <div><label class="info-line material texto">${solicitacao.material}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Qtd. Material</label></div>
+                <div><label class="info-line qtd_mat texto">${solicitacao.qtd_mat}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Data</label></div>
+                <div><label class="info-line date" style="font-size: 14px;">${solicitacao.HRpedido}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div class="objeto-card status"><label class="texto1">Status Setor</label></div>
+                <div class="objeto-card status"><label class="info-line2 status-ewm">${solicitacao.status_EWM?.toUpperCase()}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div class="objeto-card status"><label class="texto1">Status</label></div>
+                <div class="objeto-card status"><label class="info-line status-motivo">${solicitacao.status?.toUpperCase()}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Motivo da Reposição</label></div>
+                <div><label class="info-line motivo">${solicitacao.motivosSSV}</label></p></div>
+
+                <div class="linha-separadora"></div>
+                <div><label class="texto1">Observação</label></div>
+                <div><label class="info-line1">${solicitacao.obs}</label></div>
+                </div>
+            </form>
+            `;
+
+            card.appendChild(cardContent);
+            pedidosContainer.appendChild(card);
+            card.classList.add(solicitacao.status.toLowerCase());
+        });
+        });
+}
+
+
+/* ======================================================================
+   ATUALIZAÇÃO — Função única para atualizar cards
+====================================================================== */
+function atualizarDados() {
+  renderizarComoCartoes();
+}
+
+
+/* ======================================================================
+   AÇÕES DE VIEW — Troca Cartões/Lista
+====================================================================== */
+document.getElementById('viewCardsBtn').addEventListener('click', () => {
+  fetch(`${BASE_URL}/gdm_ssv`)
+    .then(response => response.json())
+    .then(data => renderizarComoCartoes(data));
+});
+
+document.getElementById('viewListBtn').addEventListener('click', () => {
+  fetch(`${BASE_URL}/gdm_ssv`)
+    .then(response => response.json())
+    .then(data => renderizarComoLista(data));
+});
+
+
+/* ======================================================================
+   UI — Toggle 'Selecionar Todos' (modal de status)
+====================================================================== */
+document.getElementById('switch').addEventListener('change', function () {
+    const checkboxes = document.querySelectorAll('.status-checkbox');
+    checkboxes.forEach(cb => { cb.checked = this.checked; });
+});
+
+
+/* ======================================================================
+   VALIDAÇÕES — Campos OP e Material (pinta de vermelho se inválido)
+====================================================================== */
+function validateOpField() {
+  const opEl = document.getElementById('op');
+  const ok = /^\d{10}$/.test(opEl.value);
+  // pinta de vermelho somente se o usuário digitou algo e está inválido
+  opEl.classList.toggle('input-error', !ok && opEl.value.length > 0);
+  return ok;
+}
+
+// genérica: pinta de vermelho se não bater com o tamanho exigido
+function validateDigitsField(el, len) {
+  const re = new RegExp('^\\d{' + len + '}$');
+  const ok = re.test(el.value);
+  el.classList.toggle('input-error', !ok && el.value.length > 0);
+  return ok;
+}
+
+function validateOpField() {
+  return validateDigitsField(document.getElementById('op'), 10);
+}
+
+function validateMaterialField() {
+  return validateDigitsField(document.getElementById('material'), 11);
+}
+
+/* ======================================================================
+   FORM — Criação de nova solicitação (submit)
+====================================================================== */
+document.getElementById('formVagao').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Impede envio padrão
+    // Validações OP e Material
+    const okOp  = validateOpField();
+    const okMat = validateMaterialField();
+
+    if (!(okOp && okMat)) {
+        e.preventDefault();
+        (okOp ? document.getElementById('material') : document.getElementById('op')).focus();
+        return;
+    }
+
+    // Captura valores
+    const Ctrab    = document.getElementById('Ctrab').value;
+    const op       = document.getElementById('op').value;
+    const qtd_op   = document.getElementById('qtd_op').value;
+    const material = document.getElementById('material').value;
+    const qtd_mat  = document.getElementById('qtd_mat').value;
+    const date     = document.getElementById('date').value;
+    const hora     = document.getElementById('hora').value;
+    const motivo   = document.getElementById('motivosSSV').value;
+    const obs      = document.getElementById('observacao').value;
+    const prior    = document.getElementById('switchLinhaParada').checked ? 1 : 0;
+
+    // Validação simples
+    if (!Ctrab || !op || !qtd_op || !material || !qtd_mat || !date || !hora || !motivo) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Gera HRpedido (dd/MM/yyyy HH:mm:ss)
+    const agora = new Date();
+    const dia   = agora.getDate().toString().padStart(2, '0');
+    const mes   = (agora.getMonth() + 1).toString().padStart(2, '0');
+    const ano   = agora.getFullYear();
+    const hh    = agora.getHours().toString().padStart(2, '0');
+    const mm    = agora.getMinutes().toString().padStart(2, '0');
+    const ss    = agora.getSeconds().toString().padStart(2, '0');
+    const HRpedido = `${dia}/${mes}/${ano} ${hh}:${mm}:${ss}`;
+
+    // Dados fixos
+    const login = localStorage.getItem('username') ;
+    const status = "Esc";
+    const HRfinalizado = "";
+
+    // Objeto a enviar
+    const novoSetup = {
+        HRpedido, login, Ctrab, op, qtd_op, material, qtd_mat, date,
+        motivosSSV: motivo, status, status_EWM: "Aguardando", prior,
+        HRfinalizado, motivo, obs
+    };
+
+    // Envio
+    try {
+    const response = await fetch(`${BASE_URL}/gdm_ssv`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(novoSetup)
+    });
+
+    if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        if (response.status === 409) {
+            
+        showSuccessMessage('17');
+//        alert(payload.message || 'Reserva já solicitada para esta OP e Material.');
+        return; // não fecha o form nem recarrega
+        }
+        throw new Error(payload.detalhe || payload.error || 'Erro ao criar solicitação.');
+    }
+    const data = await response.json();
+    console.log('Resposta do servidor:', data);
+
+    showSuccessMessage('1');
+    closeForm();
+    atualizarDados();
+    } catch (error) {
+    console.error('Erro ao enviar solicitação:', error);
+    alert('Não foi possível criar a solicitação agora.');
+    }
+});
+
+/* ======================================================================
+   A) AÇÕES DE STATUS (MOTIVO) —  FINALIZADO
+====================================================================== */
+document.getElementById('pedidosContainer').addEventListener('click', function (event) {
+  const target = event.target;
+
+  if (target.classList.contains('button-finalizado')) {
+    const status = target.textContent.trim();
+    const card   = target.closest('.card2');
+    if (!card) return console.error('Elemento .card não encontrado.');
+    const id = card.querySelector('.info-line')?.textContent.trim();
+    if (!id) return console.error('Elemento .info-line não encontrado.');
+
+    // 🔹 gere o timestamp e use na requisição
+    const HRfinalizado = getTimestampBR();
+
+    fetch(`${BASE_URL}/gdm_ssv/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, HRfinalizado })
+    })
+    .then(r => {
+      if (r.ok) {
+        console.log(`Status atualizado para ${status} com sucesso.`);
+        atualizarDados();
+        showSuccessMessage('2');
+      } else {
+        console.error('Erro ao atualizar o status.');
+      }
+    })
+    .catch(err => console.error('Erro ao atualizar o status:', err));
+  }
+});
+/* ======================================================================
+   LISTENER DE CLIQUE NOS CARDS — captura todos os cliques nos botões
+   (não altera nada do DOM por si só; apenas delega ações conforme a classe)
+====================================================================== */
+document.getElementById('pedidosContainer').addEventListener('click', function (event) {
+  const target = event.target;
+
+  // ... seus ifs existentes (outros botões como imprimir, concluído etc.)
+
+  // Se clicou no botão "Histórico", abre o modal com o histórico do ID do card
+  if (target.classList.contains('button-historico')) {
+    // Sobe na árvore até o card pai
+    const card = target.closest('.card2');
+    if (!card) return; // segurança: se não achar o card, não faz nada
+
+    // Busca o ID exibido no card (usa seletor alternativo por segurança)
+    const id = card.querySelector('.infoId .info-line, .info-line')?.textContent?.trim();
+    if (!id) return alert('ID não encontrado para o card.'); // feedback se não achou o ID
+
+    // Abre o modal e carrega o histórico do backend
+    openHistory(id);
+  }
+});
+
+/* ======================================================================
+   MODAL DE HISTÓRICO — busca no backend e renderiza no overlay
+   Observação: exige que existam as funções auxiliares:
+     - parseBRDateTime(str) => Date a partir de "dd/MM/yyyy HH:mm:ss"
+     - formatBR(date)       => "dd/MM/yyyy HH:mm:ss"
+     - formatSecondsToHMS(s) => "HH:MM:SS"
+====================================================================== */
+async function openHistory(id) {
+  const box = document.getElementById('historyContent');
+
+  // Estado "carregando" e exibe o overlay
+  box.innerHTML = '<p>Carregando...</p>';
+  document.getElementById('historyOverlay').style.display = 'block';
+
+  try {
+    // Chama a rota do histórico por ID
+    const resp = await fetch(`${BASE_URL}/gdm_ssv/${id}/hist`);
+    if (!resp.ok) throw new Error('Falha ao buscar histórico');
+
+    // Resposta JSON: array de eventos (horario, login, status, status_EWM, mensagem)
+    const hist = await resp.json();
+
+    // Se não houver eventos, mostra mensagem e sai
+    if (!hist || !hist.length) {
+      box.innerHTML = '<p>Sem eventos para este registro.</p>';
+      return;
+    }
+
+    // Monta a lista de eventos (ordem já vem do backend; apenas renderiza)
+    const html = hist.map(row => `
+      <div class="history-item" style="padding:8px 6px; border-bottom:1px solid #eee;">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <strong>${row.horario}</strong>
+          <span style="opacity:.7;">&bull;</span>
+          <span><b>Login:</b> ${row.login || '-'}</span>
+          <span style="opacity:.7;">&bull;</span>
+          <span><b>Status:</b> ${row.status || '-'} / ${row.status_EWM || '-'}</span>
+        </div>
+        <div style="margin-top:4px;">
+          <span>${row.mensagem || ''}</span>
+        </div>
+      </div>
+    `).join('');
+    box.innerHTML = html;
+
+    // === RESUMO: menor horário (primeiro evento), maior horário (último evento) e duração total ===
+    let minDt = null, maxDt = null;
+
+    // Converte cada "horario" (string BR) para Date e calcula menor/maior
+    for (const r of hist) {
+      const dt = parseBRDateTime(r.horario); // usa o campo string "dd/MM/yyyy HH:mm:ss"
+      if (!minDt || dt < minDt) minDt = dt;
+      if (!maxDt || dt > maxDt) maxDt = dt;
+    }
+
+    // Diferenca em segundos entre maior e menor
+    const totalSec = (maxDt - minDt) / 1000;
+
+    // Bloco de resumo no rodapé do modal
+    const resumoHtml = `
+      <div class="history-summary" style="margin-top:10px; padding:10px; border-top:2px solid #ddd;">
+        <div><b>Primeiro evento:</b> ${formatBR(minDt)}</div>
+        <div><b>Último evento:</b> ${formatBR(maxDt)}</div>
+        <div><b>Duração total:</b> ${formatSecondsToHMS(totalSec)}</div>
+      </div>
+    `;
+    // Insere o resumo após a lista
+    box.insertAdjacentHTML('beforeend', resumoHtml);
+
+  } catch (e) {
+    // Em caso de erro na chamada ou parse do JSON
+    console.error(e);
+    box.innerHTML = '<p>Não foi possível carregar o histórico.</p>';
+  }
+}
+
+// Fecha o overlay do histórico
+function closeHistory() {
+  document.getElementById('historyOverlay').style.display = 'none';
+}
+
+/* ======================================================================
+   A) AÇÕES DE STATUS (MOTIVO) — ESC / MONTAGEM / FINALIZADO / ROTA / GER
+   - Atualiza o campo "status" do setup (endpoint: /gdm_ssv/:id)
+====================================================================== */
+document.getElementById('pedidosContainer').addEventListener('click', function (event) {
+    const target = event.target;
+
+    if (
+        target.classList.contains('button-esc') ||
+        target.classList.contains('button-montagem') ||
+        target.classList.contains('button-rota') ||
+        target.classList.contains('button-ger')
+    ) {
+        const status = target.textContent.trim();        // texto do botão vira "status"
+        const card   = target.closest('.card2');
+
+        if (!card) return console.error('Elemento com a classe .card não encontrado.');
+
+        const infoLineElement = card.querySelector('.info-line');
+        if (!infoLineElement) return console.error('Elemento com a classe .info-line não encontrado.');
+
+        const id = infoLineElement.textContent.trim();
+
+        fetch(`${BASE_URL}/gdm_ssv/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+        })
+        .then(response => {
+        if (response.ok) {
+            console.log(`Status atualizado para ${status} com sucesso.`);
+            atualizarDados();
+            showSuccessMessage('2');
+        } else {
+            console.error('Erro ao atualizar o status.');
+        }
+        })
+        .catch(error => console.error('Erro ao atualizar o status:', error));
+    }
+});
+/* ======================================================================
+   B) AÇÕES EWM + IMPRESSÃO — Preparando / Coletado / Divergente / Finalizado / Cancelado
+   - Impressão (POST /zplImprimirCard)
+   - Atualiza "status_EWM" (PUT /gdm_ssv_ewm/:id)
+====================================================================== */
+document.getElementById('pedidosContainer').addEventListener('click', function (event) {
+    const target = event.target;
+
+    if (
+        target.classList.contains('button-imprimir1') ||
+        target.classList.contains('button-concluido') ||
+        target.classList.contains('button-divergente') ||
+        target.classList.contains('button-finalizado') ||
+        target.classList.contains('button-cancelado')
+    ) {
+        const status = target.textContent.trim();     // texto do botão (apenas log)
+        const card   = target.closest('.card2');
+
+        if (!card) return console.error('Elemento com a classe .card não encontrado.');
+
+        /* --------------------------------------------------------------
+        B1) IMPRESSÃO DE ETIQUETA (apenas se clicar "Imprimir")
+        -------------------------------------------------------------- */
+        if (target.classList.contains('button-imprimir1')) {
+        const infoLineElement = card.querySelector('.info-line');
+        const id        = (card.dataset.id || card.querySelector('.infoId .info-line, .info-line')?.textContent || '').replace(/[^\d]/g,'').trim();
+        const op        = card.querySelector('.info-line.op')?.textContent.trim();
+        const material  = card.querySelector('.info-line.material')?.textContent.trim();
+        const qtd_mat   = card.querySelector('.info-line.qtd_mat')?.textContent.trim();
+        const data      = card.querySelector('.info-line.date')?.textContent.trim();
+        const linha     = card.querySelector('.info-line.Ctrab')?.textContent.trim();
+        const motivo    = card.querySelector('.info-line.motivo')?.textContent.trim() || '';
+
+        // Seleção de impressora por status do cartão (ESC/GER)
+        const statusCard = card.querySelector('.info-line.status-motivo')?.textContent.trim().toUpperCase() || '';
+        let   printerDirectory = '29'; // padrão
+        if (statusCard === 'ESC')      printerDirectory = '29';
+        else if (statusCard === 'GER') printerDirectory = '27';
+        else console.warn('Status não reconhecido para impressora. Usando padrão 135.');
+
+        console.log('Imprimir ->', { id, op, material, qtd_mat, data, linha, motivo, printerDirectory });
+
+        fetch(`${BASE_URL}/zplImprimirCard`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, op, material, qtd_mat, data, linha, motivo, printerDirectory })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+            console.log(result.message);
+            showSuccessMessage('12');
+            } else {
+            console.error(result.message);
+            showSuccessMessage('13');
+            }
+        })
+        .catch(error => console.error('Erro ao chamar zplImprimirCard:', error));
+        }
+
+
+/* --------------------------------------------------------------
+B2) ATUALIZAÇÃO DO STATUS_EWM (sempre que clicar em qualquer um)
+	- Preparando/Coletado/Rota/Divergente/Finalizado/Cancelado
+-------------------------------------------------------------- */
+        const infoLineElement = card.querySelector('.info-line');
+        if (!infoLineElement) return console.error('Elemento com a classe .info-line não encontrado.');
+
+        const id = infoLineElement.textContent.trim();
+
+        // Define status_EWM conforme o botão clicado
+        let status_EWM = '';
+        if      (target.classList.contains('button-imprimir1'))  status_EWM = 'Preparando';
+        else if (target.classList.contains('button-concluido'))  status_EWM = 'Coletado';
+        else if (target.classList.contains('button-rota'))       status_EWM = 'Rota';
+        else if (target.classList.contains('button-divergente')) status_EWM = 'Divergente';
+        else if (target.classList.contains('button-finalizado')) status_EWM = 'Finalizado';
+        else if (target.classList.contains('button-cancelado'))  status_EWM = 'Cancelado';
+
+        fetch(`${BASE_URL}/gdm_ssv_ewm/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status_EWM })
+        })
+        .then(async response => {
+            if (response.ok) {
+                console.log(`Status atualizado para ${status_EWM} com sucesso.`);
+
+                // ========================================================
+                // 🔥 NOVA REGRA: Se status = MONTAGEM e status_EWM = COLETADO
+                // ========================================================
+                const linha        = card.querySelector('.info-line.Ctrab')?.textContent.trim();
+                if (status_EWM === "Coletado") {
+                    console.log("Gerando retorno automático para produção:", linha);
+                    await registrarParadaAutomatica(linha, "Em Produção");
+                }
+                // ========================================================
+                    
+                    atualizarDados();
+                    showSuccessMessage('2');
+                } else {
+                    console.error('Erro ao atualizar o status.');
+                }
+                })
+                .catch(error => console.error('Erro ao atualizar o status:', error));
+            }
+});
+
+// ===============================================================
+// 🔥 Função separada — registra PARADA automática
+// ===============================================================
+async function registrarParadaAutomatica(linha, motivo) {
+
+    const agora = new Date();
+
+    const dadosParada = {
+        inicio: agora,
+        status_parada: motivo || "LINHA PARADA",
+        Obs: `Parada automática gerada pelo SSV • Motivo: ${motivo}`
+    };
+    try {
+        const resp = await fetch(`${BASE_URL}/gdm_paradas/${linha}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dadosParada)
+        });
+
+        if (!resp.ok) {
+            console.warn("Falha ao registrar parada automática.");
+            return false;
+        }
+
+        console.log("Parada automática registrada.");
+        return true;
+
+    } catch (e) {
+        console.error("Erro parada automática:", e);
+        return false;
+    }
+}
+
+/* ======================================================================
+   C) EDIÇÃO DE OBSERVAÇÃO — botão "Observação"
+   - Abre textarea inline
+   - PUT /gdm_ssv_obs/:id (obs + status atual)
+====================================================================== */
+document.getElementById('pedidosContainer').addEventListener('click', function (event) {
+    const target = event.target;
+
+    if (target.classList.contains('button-obs')) {
+        const card = target.closest('.card2');                // card associado
+        if (!card) return console.error('Elemento com a classe .card não encontrado.');
+
+        const infoLineElement = card.querySelector('.info-line1'); // elemento que exibe a observação
+        if (!infoLineElement) return console.error('Elemento com a classe .info-line1 não encontrado.');
+
+        const currentObs = infoLineElement.textContent.trim();
+
+        // Cria formulário inline
+        const form = document.createElement('form');
+        form.classList.add('obs-form');
+        form.innerHTML = `
+        <textarea class="obs-textarea">${currentObs}</textarea>
+        <button type="submit" class="save-obs-button">Salvar</button>
+        <button type="button" class="cancel-obs-button">Cancelar</button>
+        `;
+
+        // Anexa form e oculta texto original
+        card.appendChild(form);
+        infoLineElement.style.display = 'none';
+
+        // SUBMIT da observação
+        form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const newObs = form.querySelector('.obs-textarea').value.trim();
+
+        const id            = card.querySelector('.info-line').textContent.trim(); // id do card
+        const currentStatus = card.querySelector('.status').textContent.trim();    // status atual
+
+        if (!newObs) return; // nada a salvar
+
+        fetch(`${BASE_URL}/gdm_ssv_obs/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ obs: newObs, status: currentStatus })
+        })
+        .then(response => {
+            if (response.ok) {
+            console.log('Observação atualizada com sucesso.');
+            infoLineElement.textContent = newObs;  // atualiza visual
+            infoLineElement.style.display = '';    // reexibe
+            form.remove();                         // remove form
+            showSuccessMessage('Observação atualizada com sucesso.');
+            } else {
+            console.error('Erro ao atualizar a observação.');
+            }
+        })
+        .catch(error => console.error('Erro ao atualizar a observação:', error));
+        });
+
+        // CANCELAR edição
+        form.querySelector('.cancel-obs-button').addEventListener('click', function () {
+        infoLineElement.style.display = ''; // reexibe o texto
+        form.remove();                      // remove o form
+        });
+    }
+});
+//___________________________________________________________________________________
+// Excluir setup com sucesso
+//___________________________________________________________________________________
+            // document.getElementById('pedidosContainer').addEventListener('click', async function(event) {
+            //     const target = event.target;
+            //     if (target.classList.contains('button-excluir')) {
+            //         const card = target.closest('.card2');
+
+            //         if (card) {
+            //             const infoLineElement = card.querySelector('.info-line');
+            //             if (infoLineElement) {
+            //                 const id = infoLineElement.textContent.trim(); // Obtém o ID do setup
+
+            //                 try {
+            //                     const response = await fetch(`${BASE_URL}/gdm_ssv/${id}`, {
+            //                         method: 'DELETE',
+            //                         headers: {
+            //                             'Content-Type': 'application/json'
+            //                         },
+            //                         body: JSON.stringify({ id: id })
+            //                     });
+
+            //                     if (response.ok) {
+            //                         atualizarDados();
+            //                         showSuccessMessage('10');
+            //                     } else {
+            //                         console.error('Erro ao excluir o setup.');
+            //                     }
+            //                 } catch (error) {
+            //                     console.error('Erro ao excluir o setup:', error);
+            //                 }
+            //             } else {
+            //                 console.error('Elemento com a classe .info-line não encontrado.');
+            //             }
+            //         } else {
+            //             console.error('Elemento com a classe .card não encontrado.');
+            //         }
+            //     }
+            // });
+    //___________________________________________________________________________________
+    // Adicione um evento de clique para cada botão de status
+    //___________________________________________________________________________________                        
+        function openForm() {
+            document.getElementById("overlay").style.display = "block";
+            preencherDataHoraAtual(); // <- Aqui
+        }
+
+        function closeForm() {
+            document.getElementById("overlay").style.display = "none";
+        }
+        function openFilterForm() {
+        document.getElementById("filterOverlay").style.display = "block";
+        }
+
+        function closeFilterForm() {
+            document.getElementById("filterOverlay").style.display = "none";
+        }
+        
+        function openStatusFilter() {
+            document.getElementById("statusFilterOverlay").style.display = "block";
+        }
+
+        function closeStatusFilter() {
+            document.getElementById("statusFilterOverlay").style.display = "none";
+        }        
+        function openStatusFiltersap() {
+            document.getElementById("statusFilterOverlaysap").style.display = "block";
+        }
+
+        function closeStatusFiltersap() {
+            document.getElementById("statusFilterOverlaysap").style.display = "none";
+        }
+		        
+        function closeFormMonitor() {
+            document.getElementById("overlayMonitorParada").style.display = "none";
+        }
+    //___________________________________________________________________________________
+    //___________________________________________________________________________________
+//___________________________________________________________________________________
+// Carregar Motivos do SSV
+//___________________________________________________________________________________     
+    fetch('/GDM/json/data.json')
+        .then(response => response.json())
+        .then(data => {
+            preencherSelect('selMotivo', data.MotParada);
+            preencherSelect('centro_trabalho', data.maquinasdocol4);
+            preencherCamposFormulario(data);
+
+        // Se quiser também popular "status" do formulário (cadastro manual)
+        const statusSelect = document.getElementById('status');
+        if (statusSelect && Array.isArray(data.Status)) {
+            statusSelect.innerHTML = '';
+            data.Status.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                statusSelect.appendChild(opt);
+            });
+        }
+
+
+        })
+        .catch(error => {
+            console.error('Erro ao carregar arquivo JSON:', error);
+        });
+            
+        function preencherCamposFormulario(data) {
+            const operacaoSelect = document.getElementById('motivosSSV');
+
+            if (data.MotivosSSV && Array.isArray(data.MotivosSSV)) {
+                data.MotivosSSV.forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op;
+                    option.textContent = op;
+                    operacaoSelect.appendChild(option);
+                });
+            } else {
+                console.warn("Campo 'MotivosSSV' não encontrado no JSON.");
+            }
+
+            const operacaoSelect1 = document.getElementById('Ctrab');
+
+            if (data.maquinasdocol4 && Array.isArray(data.maquinasdocol4)) {
+                data.maquinasdocol4.forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op;
+                    option.textContent = op;
+                    operacaoSelect1.appendChild(option);
+                });
+            } else {
+                console.warn("Campo 'MotivosSSV' não encontrado no JSON.");
+            }
+        }
+/* ======================================================================
+    Pega o nome do usuário do localStorage (prioridade: nome > nomeUsuario > username > Usuário)
+====================================================================== */
+const nomeUsuario =
+    localStorage.getItem('nome') ||
+    localStorage.getItem('nomeUsuario') ||
+    localStorage.getItem('username') ||
+    'Usuário';
+
+// Atualiza apenas o mini menu
+document.getElementById('userMenuName').textContent = nomeUsuario;
+
+// Alterna o menu ao clicar no botão
+document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', function() {
+    document.getElementById('userMenu').style.display = 'none';
+});
+
+/* ======================================================================
+    EXTRAIR Dados para EXCEL
+====================================================================== */
+// ===== Modal Exportar (abre ao clicar no botão Exportar) =====
+const exportBtn   = document.getElementById('viewExtrairSSV');
+const overlayExp  = document.getElementById('exportOverlay');
+const formExport  = document.getElementById('exportForm');
+const cancelExp   = document.getElementById('cancelExport');
+const inputStart  = document.getElementById('expStart');
+const inputEnd    = document.getElementById('expEnd');
+
+if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+        // datas padrão: últimos 7 dias
+        const end   = new Date();
+        const start = new Date(); start.setDate(end.getDate() - 7);
+        inputEnd.value   = end.toISOString().slice(0,10);
+        inputStart.value = start.toISOString().slice(0,10);
+
+        overlayExp.style.display = 'flex';
+    });
+    }
+
+    cancelExp?.addEventListener('click', () => {
+    overlayExp.style.display = 'none';
+    });
+
+    formExport?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const start = inputStart.value;
+    const end   = inputEnd.value;
+
+    if (!start || !end) return alert('Informe as duas datas.');
+    if (start > end)    return alert('Data inicial não pode ser maior que a final.');
+
+    const submitBtn = formExport.querySelector('button[type="submit"]');
+    const original  = submitBtn.textContent;
+    submitBtn.disabled = true; submitBtn.textContent = 'Gerando...';
+
+    try {
+        const resp = await fetch(`${BASE_URL}/export-ssv-xlsx?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+        if (!resp.ok) throw new Error(await resp.text());
+
+        const blob = await resp.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url;
+        a.download = `ssv_${start}_a_${end}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+        a.remove();
+
+        overlayExp.style.display = 'none';
+    } catch (err) {
+        console.error('Erro export:', err);
+        alert('Não foi possível exportar agora. Tente novamente.');
+    } finally {
+        submitBtn.disabled = false; submitBtn.textContent = original;
+    }
+});
+/* ======================================================================
+    Função de logout
+====================================================================== */
+function logout() {
+    localStorage.clear();
+    window.location.href = '/GDM/login.html';
+}
+/* ======================================================================
+    Chame a função de atualização quando a página carregar
+====================================================================== */
+// Reaplica filtros quando outra aba mudar o localStorage
+        window.addEventListener('storage', (e) => {
+        if (['simpleFilters', 'statusSelecionados'].includes(e.key)) {
+            atualizarDados();
+            carregarFiltroDeStatusSalvo();
+        }
+        });
+
+        window.addEventListener('load', function() {
+            console.log("Página carregada e dados atualizados");
+
+            // Atualizar os dados e aplicar os filtros salvos após carregamento
+            atualizarDados();
+            setTimeout(carregarFiltroDeStatusSalvo, 500);
+
+            // Atualizar os dados automaticamente a cada 5 minutos
+            setInterval(() => {
+                atualizarDados();
+                setTimeout(carregarFiltroDeStatusSalvo, 500);
+            }, 1 * 60 * 1000); // 1 minuto
+        });
+
+        /* ======================================================================
+            GRÁFICO — Abre o modal e preenche datas padrão
+        ====================================================================== */
+        const btnGrafico = document.getElementById('viewGraficoSSV');
+        const overlayGraf = document.getElementById('graficoOverlay');
+
+        btnGrafico?.addEventListener('click', () => {
+            const end = new Date();
+            const start = new Date(); start.setDate(end.getDate() - 7);
+
+            document.getElementById('grafEnd').value   = end.toISOString().slice(0,10);
+            document.getElementById('grafStart').value = start.toISOString().slice(0,10);
+
+            overlayGraf.style.display = 'flex';
+        });
+
+        function closeGrafico() {
+            overlayGraf.style.display = 'none';
+        }
+        
+
+        let graficoSSV;
+        document.getElementById('graficoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const start = document.getElementById('grafStart').value;
+            const end   = document.getElementById('grafEnd').value;
+            const tipo = document.getElementById('grafTipo').value;
+
+            const resp = await fetch(`${BASE_URL}/grafico-ssv/${tipo}?start=${start}&end=${end}`);
+            const dados = await resp.json();
+
+            const labels = dados.map(d => {
+                // Se for data (case 'dia'), vem como Date ou string ISO
+                if (d.label instanceof Date || /^\d{4}-\d{2}-\d{2}/.test(d.label)) {
+                    const dt = new Date(d.label);
+                    const dia = String(dt.getDate()).padStart(2, '0');
+                    const mes = String(dt.getMonth() + 1).padStart(2, '0');
+                    const ano = String(dt.getFullYear()).slice(-2);
+                    return `${dia}/${mes}/${ano}`;
+                }
+
+                // Caso OP / Material / Motivo
+                return d.label || '(Sem valor)';
+            });
+
+
+            const valores = dados.map(d => d.total);
+
+            const ctx = document.getElementById('graficoSSV').getContext('2d');
+
+            if (graficoSSV) graficoSSV.destroy();
+
+            Chart.register(ChartDataLabels);
+
+            graficoSSV = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Solicitações',
+                        data: valores,
+                        backgroundColor: '#00A9E0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'var(--paleta603)',
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            backgroundColor: '#1e1e1e',
+                            borderColor: '#00A9E0',
+                            borderWidth: 1
+                        },
+
+                        // 🔥 ESSENCIAL
+                        datalabels: {
+                            display: true,
+                            color: 'var(--paleta603)',
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 4,
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            formatter: (value) => value.toLocaleString('pt-BR')
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: 'var(--paleta603)',
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'var(--paleta603)'
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+
+/* ===========================================================
+/* ===========================================================
+/* ===========================================================
+    FUNÇÃO PARA MONITOR DE PARADAS
+============================================================ 
+============================================================
+============================================================ */
+        
+function preencherSelect(id, lista) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+
+    sel.innerHTML = '<option value="">Selecione...</option>';
+
+    lista.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        opt.textContent = item;
+        sel.appendChild(opt);
+    });
+};
+
+/* ===========================================================
+    VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+============================================================ */
+function validarCamposObrigatorios() {
+    let ok = true;
+
+    const campos = [
+        { id: "centro_trabalho", nome: "Máquina" },
+        { id: "selMotivo", nome: "Motivo da Parada" },
+        { id: "txtInicio", nome: "Início" }
+    ];
+
+    campos.forEach(c => {
+        const el = document.getElementById(c.id);
+        el.classList.remove("campo-erro");
+
+        if (!el.value || el.value.trim() === "") {
+            ok = false;
+            el.classList.add("campo-erro");
+        }
+    });
+
+    return ok;
+}
+
+/* ===========================================================
+    FUNÇÃO DE ABRIR FORMULÁRIO E INICIAR CONTAGEM
+============================================================ */
+let inicioParada = null;
+let timerInterval = null;
+
+function openFormMonitor() {
+    const overlay = document.getElementById("overlayMonitorParada");
+    overlay.style.display = "block";
+
+    // grava início
+    inicioParada = new Date();
+    document.getElementById("txtInicio").value = formatarDataLocal(inicioParada);
+}
+
+/* ===========================================================
+    FORMATA DATA PARA INPUT DATETIME-LOCAL
+============================================================ */
+function formatarDataLocal(date) {
+    const ano = date.getFullYear();
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
+    const hora = String(date.getHours()).padStart(2, '0');
+    const minuto = String(date.getMinutes()).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+}
+/* ===========================================================
+    FUNÇÃO DE SALVAR PARADA RÁPIDA
+============================================================ */
+document.querySelectorAll(".quick-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+
+    const inicio = document.getElementById("txtInicio").value.trim();
+    const obs = document.getElementById("txtObs").value.trim();
+
+        const maquina = document.getElementById("centro_trabalho").value;
+        if (!maquina) {
+            alert("Selecione uma máquina antes de registrar a parada.");
+            return;
+        }
+
+        const motivo = btn.dataset.motivo;
+
+        await salvarParada({
+            modo: "rapido",
+            maquina,
+            motivo,
+            inicio: normalizarInicioParaBanco(inicio),
+            obs: ""
+        });
+    });
+});
+
+document.getElementById("selMotivo").addEventListener("change", () => {
+    document.getElementById("selMotivo").setAttribute("required", "required");
+});
+
+/* ===========================================================
+    SUBMISSÃO DO FORMULÁRIO (Alterar de paradas)
+============================================================ */
+document.getElementById("formAlterParada").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const maquina = document.getElementById("centro_trabalho").value.trim();
+    const motivo = document.getElementById("selMotivo").value.trim();
+    const inicio = document.getElementById("txtInicio").value.trim();
+    const obs = document.getElementById("txtObs").value.trim();
+
+    if (!maquina) {
+        showSuccessMessage("19");
+        return;
+    }
+
+    await salvarParada({
+        modo: "rapido",
+        maquina,
+        motivo,
+        inicio: normalizarInicioParaBanco(inicio),
+        obs: ""
+    });
+});
+
+/* ===========================================================
+    NORMALIZA INÍCIO PARA FORMATO DO BANCO
+============================================================ */
+function normalizarInicioParaBanco(valor) {
+    if (!valor) return "";
+
+    // Se já vier no formato BR correto
+    if (valor.includes("/") && valor.includes(" ")) {
+        return valor.substring(0, 16); // yyyy-MM-dd HH:mm
+    }
+
+    // Se vier ISO
+    if (valor.includes("T")) {
+        const [dataISO, horaISO] = valor.split("T");
+        const [ano, mes, dia] = dataISO.split("-");
+        const [hora, min] = horaISO.split(":");
+
+        return `${dia}/${mes}/${ano} ${hora}:${min}`;
+    }
+
+
+    return valor;
+}
+
+/* ===========================================================
+    LIMPAR CAMPOS ESPECÍFICOS DO FORMULÁRIO DE PARADA
+============================================================ */
+function limparCamposParada() {
+    document.getElementById("selMotivo").value = "";
+    document.getElementById("txtInicio").value = "";
+    document.getElementById("txtObs").value = "";
+}
+/* ===========================================================
+    FECHAR POPUP DE PARADA
+============================================================ */
+function fecharPopupParada() {
+    const overlay = document.getElementById("overlayMonitorParada");
+    if (overlay) overlay.style.display = "none";
+}
+
+/* ===========================================================
+    FUNÇÃO DE SALVAR PARADA (Rápida e Manual)
+============================================================ */
+async function salvarParada({ modo, maquina, motivo, inicio, obs }) {
+    try {
+        let url = `${BASE_URL}/gdm_paradas/${maquina}`;
+
+        // Se não veio início → parada rápida → gera agora
+        if (!inicio) {
+            const d = new Date();
+            inicio = normalizarInicioParaBanco(inicio)
+        }
+
+        const payload = {
+            inicio: normalizarInicioParaBanco(inicio),
+            status_parada: motivo,
+            Obs: obs || ""
+        };
+
+        const resp = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+
+        if (!resp.ok) throw new Error("Erro ao registrar parada.");
+
+        showSuccessMessage("18");
+        fecharPopupParada();
+
+    } catch (erro) {
+        console.error("Erro no salvamento:", erro);
+    }
+}
+/* ===========================================================
+    BOTÃO PARA ABRIR PAINEL DO MÊS
+============================================================ */
+document.getElementById("btnPainelMes").addEventListener("click", async () => {
+    esconderTudo();
+    document.getElementById("painelMesContainer").style.display = "block";
+
+    await carregarProducaoCT();  // <<< adicionamos isso
+
+    setTimeout(() => ajustarGridAutoFit(), 50);
+    carregarPainelMes();
+
+    if (painelMesInterval) clearInterval(painelMesInterval);
+    painelMesInterval = setInterval(async () => {
+        await carregarProducaoCT();  // <<< também atualiza
+        carregarPainelMes();
+    }, 30000);
+});
+
+window.addEventListener("resize", () => ajustarGridAutoFit());
+
+
+/* ======================================================================
+    FIM DO SCRIPT
+====================================================================== */
+    </script>
+
+    <link rel="stylesheet" href="/GDM/css/public.css">
+    <link rel="stylesheet" href="/GDM/css/SSV.css">
+    <script src="/GDM/js/public.js"></script>
+
+</body>
+</html>

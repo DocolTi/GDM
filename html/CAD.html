@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>SSU</title>
+
+</head>
+<body>
+    
+<!-- ============================
+    CABEÇALHO SECUNDÁRIO (Calibração)
+============================= -->
+    <!-- Cabeçalho -->
+    <div class="header">
+        <h1>Cadastro</h1>
+
+        <!-- Menu do usuário -->
+        <button class="user-menu-btn" id="userMenuBtn" type="button">
+            <span id="userName">Usuário</span>
+            <span class="user-menu-icon">&#x25BC;</span>
+        </button>
+
+        <div class="user-menu" id="userMenu" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Usuário</strong>
+            </div>
+            <button type="button" class="user-menu-logout"
+                onclick="location.href='https://docol.soft4.com.br/login?_redirect=%2Fchamado'">
+                Abrir ticket de suporte
+            </button>
+            <button onclick="carregarValores()" class="user-menu-logout">Menu</button>
+            <button onclick="carregarValores0()" class="user-menu-logout">Logout</button>
+            <img src="/gdm/img/docol_logo.png" alt="Docol Logo" style="width: 120px; height: 50px;">
+        </div>
+
+        <button class="user-menu-btn1" id="userMenuBtn1" type="button">
+            <span id="userName1">Menu</span>
+            <span class="user-menu-icon1">&#x25BC;</span>
+        </button>
+
+        <div class="user-menu1" id="userMenu1" style="display: none;">
+            <div class="user-menu-header">
+                <strong id="userMenuName">Menu</strong>
+            </div>
+
+
+            <a><button class="user-menu-logout" type="button" onclick="openForm()">Cadastrar Usuário</button></a>
+            <a><button class="user-menu-logout" id="toggleTheme">🌙 / ☀️</button></a>
+
+            <img  class="LogoMenu" src="/gdm/img/docol_logo.png" alt="Docol Logo">
+        </div>
+    </div>
+
+<div class="linha-separadora1"></div>
+
+<!-- Container para a tabela de usuários -->
+    <div id="clientesContainer"></div> 
+
+        <!-- Formulário sobreposto -->
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <h2>Cadastro de Usuário</h2>
+            <form id="formNovoUsuario">
+                <label for="username">Nome de Usuário:</label>
+                <input type="text" id="username" name="username" required><br>
+
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required><br>
+
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" name="nome" required><br>
+
+                <label for="auth">Autorização:</label>
+                <input type="text" id="auth" name="auth"><br>
+
+                <label for="cad">Cadastro:</label>
+                <input type="text" id="cad" name="cad" required><br>
+
+                <label for="prof">Profissão:</label>
+                <input type="text" id="prof" name="prof"><br>
+
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email"><br>
+
+                <label for="acess">Acesso:</label>
+                <div id="acess-controls"></div>
+
+                <label for="obs">Observação:</label>
+                <textarea id="obs" name="obs"></textarea><br>
+
+                <button type="submit">Cadastrar</button>
+                <button type="button" onclick="closeForm()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <div class="overlay" id="overlay-edit">
+    <div class="modal">
+        <h2>Editar Usuário</h2>
+        <form id="formEditarUsuario">
+        <input type="hidden" id="edit_id">
+
+        <label for="edit_username">Nome de Usuário:</label>
+        <input type="text" id="edit_username" required><br>
+
+        <label for="edit_password">Senha (opcional):</label>
+        <input type="password" id="edit_password" placeholder="(deixe em branco para manter)"><br>
+
+        <label for="edit_nome">Nome Completo:</label>
+        <input type="text" id="edit_nome" required><br>
+
+        <label for="edit_auth">Autorização:</label>
+        <input type="text" id="edit_auth"><br>
+
+        <label for="edit_cad">Cadastro:</label>
+        <input type="text" id="edit_cad" required><br>
+
+        <label for="edit_prof">Profissão:</label>
+        <input type="text" id="edit_prof"><br>
+
+        <label for="edit_email">E-mail:</label>
+        <input type="email" id="edit_email"><br>
+
+        <label>Acesso:</label>
+        <div id="edit-acess-controls"></div>
+
+        <label for="edit_obs">Observação:</label>
+        <textarea id="edit_obs"></textarea><br>
+
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="closeEditForm()">Cancelar</button>
+        </form>
+    </div>
+</div>
+
+    <script>
+/* ======================================================================
+    Conex
+====================================================================== */     
+
+// URL base para chamadas da API (ajuste conforme o backend que está rodando)
+const BASE_URL = 'http://gdi.docol.com.br:5500';
+
+/* ======================================================================
+    ACESSOS
+====================================================================== */      
+
+// Recupera do localStorage a string de acessos do usuário (ex.: "010203...").
+// Caso não exista, assume string vazia.
+const userAcess = localStorage.getItem('acess') || '';  
+
+// Pega o quinto caractere da string de acessos (posição 4, índice zero-based).
+// Esse caractere define o "nível de acesso" do usuário.
+const thirdNumber = userAcess.charAt(4);                
+
+// Log para depuração: mostra no console o valor do caractere capturado.
+console.log('Log - 4' + thirdNumber);
+
+// Caso não tenha acesso válido (0 ou vazio), bloqueia e redireciona para login.
+// Se for diferente de 0, considera liberado.
+if (thirdNumber === '0' || thirdNumber === '') {
+    alert('Acesso negado.');
+    window.location.href = '/gdm/login.html'; // Redireciona caso não tenha acesso
+} else {
+    console.log('Acesso liberado: ' + thirdNumber);
+}
+
+/* ======================================================================
+    EVENTO AO INICIAR A APLICAÇÃO
+====================================================================== */      
+
+// Quando a página carrega, busca a lista de usuários do servidor
+// e renderiza na tela como tabela.
+window.addEventListener('load', function() {
+    fetch(`${BASE_URL}/select_CAD`)
+        .then(response => response.json())
+        .then(data => renderizarComoLista(data))
+        .catch(error => console.error('Erro ao carregar dados:', error));
+});
+
+/* ======================================================================
+    CADASTRAR NOVO USUÁRIO
+====================================================================== */      
+
+// Captura evento de envio do formulário de novo usuário
+document.getElementById('formNovoUsuario').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Evita recarregar a página
+
+    // Captura os valores dos campos do formulário
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const nome     = document.getElementById('nome').value;
+    const auth     = document.getElementById('auth').value;
+    const cad      = document.getElementById('cad').value;
+    const prof     = document.getElementById('prof').value;
+    const email    = document.getElementById('email').value;
+
+    // Monta a string de acessos (18 posições, 1 para cada app)
+    let acess = '';
+    const numberOfApps = 18; 
+    for (let i = 1; i <= numberOfApps; i++) {
+        const select = document.getElementById(`app${i}`);
+        acess += select ? select.value : '0'; // se não tiver select, coloca 0
+    }
+
+    const obs = document.getElementById('obs').value;
+
+    // 1) Verifica no servidor se já existe usuário com mesmo username
+    try {
+        const existsRes = await fetch(`${BASE_URL}/users/exists/${encodeURIComponent(username)}`);
+        const existsData = await existsRes.json();
+        if (existsData.exists) {
+            alert('Já existe um usuário com esse username.');
+            return;
+        }
+    } catch (e) {
+        console.warn('Falha ao checar existência; prosseguindo mesmo assim...', e);
+    }
+
+    // 2) Tenta cadastrar usuário no servidor
+    try {
+        const response = await fetch(`${BASE_URL}/insert_CAD`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, nome, auth, cad, prof, email, acess, obs })
+        });
+
+        const data = await response.json();
+
+        // Trata erros de resposta
+        if (!response.ok) {
+            if (response.status === 409) {
+                alert('Usuário já existe.');
+            } else {
+                alert(data?.error || 'Erro ao cadastrar o usuário.');
+            }
+            return;
+        }
+
+        // Sucesso: mostra alerta, fecha form, recarrega lista
+        alert('Usuário cadastrado com sucesso!');
+        closeForm();
+
+        const listRes = await fetch(`${BASE_URL}/select_CAD`);
+        const listData = await listRes.json();
+        renderizarComoLista(listData);
+
+        // Limpa formulário
+        document.getElementById('formNovoUsuario').reset();
+
+    } catch (error) {
+        console.error('Erro ao enviar solicitação:', error);
+        alert('Erro ao cadastrar o usuário.');
+    }
+});
+
+/* ======================================================================
+    RENDERIZAR USUÁRIOS NA TABELA
+====================================================================== */      
+
+function renderizarComoLista(data) {
+    // 1) Ordena os usuários por Nome (ignora acentos e maiúsculas)
+    const ordenado = (data || []).slice().sort((a, b) =>
+        (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', {
+            sensitivity: 'base',
+            numeric: true,
+            ignorePunctuation: true
+        })
+    );
+
+    // 2) Cria tabela dinamicamente
+    const clientesContainer = document.getElementById('clientesContainer');
+    clientesContainer.innerHTML = '';
+
+    const tabela = document.createElement('table');
+    tabela.innerHTML = `
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nome de Usuário</th>
+            <th>Nome Completo ▲</th>
+            <th>Autorização</th>
+            <th>Cadastro</th>
+            <th>Profissão</th>
+            <th>E-mail</th>
+            <th>Acesso</th>
+            <th>Observação</th>
+            <th>Ações</th>
+        </tr>
+        </thead>`;
+    const tbody = document.createElement('tbody');
+    tabela.appendChild(tbody);
+    clientesContainer.appendChild(tabela);
+
+    // 3) Insere as linhas com os usuários
+    ordenado.forEach(u => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${u.Id}</td>
+            <td>${u.username ?? ''}</td>
+            <td>${u.Nome ?? ''}</td>
+            <td>${u.auth ?? ''}</td>
+            <td>${u.cad ?? ''}</td>
+            <td>${u.prof ?? ''}</td>
+            <td>${u.email ?? ''}</td>
+            <td>${u.acess ?? ''}</td>
+            <td>${u.obs ?? ''}</td>
+            <td>
+                <button type="button" class="btn-editar" data-id="${u.Id}">Editar</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+
+    // 4) Ativa botões "Editar"
+    tabela.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.getAttribute('data-id');
+            await abrirEditarUsuario(id);
+        });
+    });
+}
+
+/* ======================================================================
+    POPULAR CONTROLES DE ACESSO
+====================================================================== */      
+
+// Gera os selects de acessos para cadastro
+function populateAcessControls() {
+    const acessControls = document.getElementById('acess-controls');
+    acessControls.innerHTML = ""; // limpa antes de popular
+
+    const numberOfApps = 18;
+    const appNames = [
+        'MEN', 'SSU', 'ETQ', 'APF', 'CAD',
+        'SSV', 'SSP', 'CAL', 'APP9', 'APP10',
+        'APP11', 'APP12', 'APP13', 'APP14',
+        'APP15', 'APP16', 'APP17', 'APP18'
+    ];
+
+    for (let i = 1; i <= numberOfApps; i++) {
+        const name = appNames[i-1] || `APP${i}`;
+
+        // Define opções específicas por aplicação
+        let optionsHtml = "";
+        if (name === "SSV") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">MON</option>
+                <option value="2">ESC</option>
+                <option value="3">GER</option>
+                <option value="4">SUP</option>
+                <option value="5">Admin</option>`;
+        } else if (name === "MEN") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Acesso</option>`;
+        } else if (name === "ETQ") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Imprimir</option>
+                <option value="2">Config</option>`;
+        } else if (name === "CAL") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Alterar</option>
+                <option value="2">Consulta</option>`;
+        } else {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Solicitação</option>
+                <option value="2">Atendente</option>`;
+        }
+
+        // Cria campo na tela
+        const div = document.createElement('div');
+        div.className = 'acess-group';
+        div.innerHTML = `
+            <label for="app${i}">${name}:</label>
+            <select id="app${i}" class="appm" name="app${i}">
+                ${optionsHtml}
+            </select>`;
+        acessControls.appendChild(div);
+    }
+}
+
+// Gera os selects de acessos para edição (já marcando os valores do usuário)
+function populateAcessControlsForEdit(acessString = "") {
+    const wrap = document.getElementById('edit-acess-controls');
+    wrap.innerHTML = "";
+
+    const numberOfApps = 18;
+    const appNames = [
+        'MEN', 'SSU', 'ETQ', 'APF', 'CAD',
+        'SSV', 'SSP', 'CAL', 'APP9', 'APP10',
+        'APP11', 'APP12', 'APP13', 'APP14',
+        'APP15', 'APP16', 'APP17', 'APP18'
+    ];
+
+    for (let i = 1; i <= numberOfApps; i++) {
+        const name = appNames[i-1] || `APP${i}`;
+
+        let optionsHtml = "";
+        if (name === "SSV") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">MON</option>
+                <option value="2">ESC</option>
+                <option value="3">GER</option>
+                <option value="4">SUP</option>
+                <option value="5">Admin</option>`;
+        } else if (name === "MEN") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Acesso</option>`;
+        } else if (name === "ETQ") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Imprimir</option>
+                <option value="2">Config</option>`;
+        } else if (name === "CAL") {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Alterar</option>
+                <option value="2">Consulta</option>`;
+        } else {
+            optionsHtml = `
+                <option value="0">Sem acesso</option>
+                <option value="1">Solicitação</option>
+                <option value="2">Atendente</option>`;
+        }
+
+        // Cria select
+        const div = document.createElement('div');
+        div.className = 'acess-group';
+        div.innerHTML = `
+            <label for="edit_app${i}">${name}:</label>
+            <select id="edit_app${i}" class="appm" name="edit_app${i}">
+                ${optionsHtml}
+            </select>`;
+        wrap.appendChild(div);
+
+        // Pré-seleciona valor vindo do banco
+        const pre = acessString[i-1] || '0';
+        wrap.querySelector(`#edit_app${i}`).value = pre;
+    }
+}
+
+/* ======================================================================
+    EDITAR USUÁRIO
+====================================================================== */      
+
+// Abre modal de edição de usuário preenchendo dados
+async function abrirEditarUsuario(id) {
+    try {
+        const res = await fetch(`${BASE_URL}/users/${id}`);
+        if (!res.ok) throw new Error('Falha ao buscar usuário');
+        const u = await res.json();
+
+        // Preenche os campos
+        document.getElementById('edit_id').value        = u.Id;
+        document.getElementById('edit_username').value  = u.username;
+        document.getElementById('edit_password').value  = "";
+        document.getElementById('edit_nome').value      = u.Nome || "";
+        document.getElementById('edit_auth').value      = u.auth || "";
+        document.getElementById('edit_cad').value       = u.cad || "";
+        document.getElementById('edit_prof').value      = u.prof || "";
+        document.getElementById('edit_email').value     = u.email || "";
+        document.getElementById('edit_obs').value       = u.obs || "";
+
+        // Preenche acessos já salvos
+        populateAcessControlsForEdit(u.acess || "");
+
+        // Mostra modal
+        document.getElementById('overlay-edit').style.display = 'block';
+    } catch (e) {
+        console.error(e);
+        alert('Erro ao abrir usuário para edição.');
+    }
+}
+
+// Evento de salvar edição
+document.getElementById('formEditarUsuario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Captura dados do formulário
+    const id        = document.getElementById('edit_id').value;
+    const username  = document.getElementById('edit_username').value.trim();
+    const password  = document.getElementById('edit_password').value; // opcional
+    const nome      = document.getElementById('edit_nome').value;
+    const auth      = document.getElementById('edit_auth').value;
+    const cad       = document.getElementById('edit_cad').value;
+    const prof      = document.getElementById('edit_prof').value;
+    const email     = document.getElementById('edit_email').value;
+    const obs       = document.getElementById('edit_obs').value;
+
+    // Recria string de acessos
+    let acess = '';
+    for (let i = 1; i <= 18; i++) {
+        const sel = document.getElementById(`edit_app${i}`);
+        acess += sel ? sel.value : '0';
+    }
+
+    try {
+        const res = await fetch(`${BASE_URL}/users/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username, password, nome, auth, cad, prof, email, acess, obs })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            if (res.status === 409) {
+                alert('Já existe outro usuário com esse username.');
+            } else {
+                alert(data?.error || 'Erro ao salvar alterações.');
+            }
+            return;
+        }
+
+        // Sucesso
+        alert('Usuário atualizado com sucesso!');
+        closeEditForm();
+
+        // Recarrega lista
+        const listRes = await fetch(`${BASE_URL}/select_CAD`);
+        const listData = await listRes.json();
+        renderizarComoLista(listData);
+
+    } catch (err) {
+        console.error(err);
+        alert('Erro ao atualizar usuário.');
+    }
+});
+
+/* ======================================================================
+    FUNÇÕES AUXILIARES
+====================================================================== */      
+
+// Fecha modal de edição
+function closeEditForm() {
+    document.getElementById('overlay-edit').style.display = 'none';
+}
+
+// Quando DOM estiver pronto, popula controles de acesso do cadastro
+document.addEventListener('DOMContentLoaded', populateAcessControls);
+
+// Abre formulário de cadastro
+function openForm() {
+    document.getElementById("overlay").style.display = "block";
+}
+
+// Fecha formulário de cadastro
+function closeForm() {
+    document.getElementById("overlay").style.display = "none";
+}
+/* ======================================================================
+    Pega o nome do usuário do localStorage (prioridade: nome > nomeUsuario > username > Usuário)
+====================================================================== */
+const nomeUsuario =
+    localStorage.getItem('nome') ||
+    localStorage.getItem('nomeUsuario') ||
+    localStorage.getItem('username') ||
+    'Usuário';
+
+// Atualiza apenas o mini menu
+document.getElementById('userMenuName').textContent = nomeUsuario;
+
+// Alterna o menu ao clicar no botão
+document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', function() {
+    document.getElementById('userMenu').style.display = 'none';
+});
+
+// Alterna o menu ao clicar no botão
+document.getElementById('userMenuBtn1').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('userMenu1');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', function() {
+    document.getElementById('userMenu1').style.display = 'none';
+});
+/* ===========================================================
+    Carrega tema salvo
+============================================================ */
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark-mode");
+}
+
+document.getElementById("toggleTheme").addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark-mode");
+
+    // Salva no navegador
+    const modo = document.documentElement.classList.contains("dark-mode") ? "dark" : "light";
+    localStorage.setItem("theme", modo);
+});
+    </script>
+    <link rel="stylesheet" href="/gdm/css/CAD.css"> <!-- Link para seu arquivo CSS -->
+    <link rel="stylesheet" href="/gdm/css/public.css"> <!-- Link para seu arquivo CSS -->
+    <script src="/gdm/js/public.js"></script> <!-- Link para seu arquivo JavaScript -->
+</body>
+</html>

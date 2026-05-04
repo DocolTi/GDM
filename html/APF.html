@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>APF</title>
+</head>
+<body>
+    
+    <div class="header">
+        <h1>FERRAMENTARIA</h1>
+        <button class="LOGO0" type="button" onclick="carregarValores()">
+			<img src="/gdm/img/docol_logo.png" alt="Imagem 3D" alt="Docol" style="width: 120px; height: 50px;">
+        </button> 
+
+        <button class="LOGOLogin" type="button" onclick="carregarValores0()">
+            <img id="INFO1" class="imagem" src="" alt="imagem">
+        </button> 
+
+        <div class="sidebar-buttons-container">
+            <button class="sidebar-button" type="button" onclick="openForm0()">Iniciar O.S</button>
+            <button class="sidebar-button" id="viewCardsBtn">Visualizar como Cartões</button>
+            <button class="sidebar-button" id="viewListBtn">Visualizar como Lista</button>
+            <button class="sidebar-button" id="viewExtrair">Extrair Dados</button>
+        </div>
+    </div>
+
+    <!-- Formulário sobreposto -->
+    <div class="overlay" id="overlay0">
+        <div class="modal">
+            <h2>Apontamento</h2>
+            <form id="formNovoApont0">
+                <label for="Ordem">Número da Ordem:</label>
+                <input type="number" id="Ordem" name="Ordem"><br>     
+                
+                <label for="operacao">Número da Operação:</label>
+                <input type="number" id="operacao" name="operacao"><br>                   
+                
+                <label for="operador">ID Operador:</label>
+                <input type="number" id="operador" name="operador"><br>       
+
+                <label for="dt-inicio">Data Inicio:</label>
+                <input type="date" id="dt-inicio" name="dt-inicio"><br>
+                
+                <label for="hr-inicio">Horário Inicio:</label>
+                <input type="time" id="hr-inicio" name="hr-inicio"><br>
+
+                <label for="turno">Turno:</label>
+                <select id="turno" name="turno"></select><br>
+
+                <label for="observacao">Observação:</label>
+                <textarea id="observacao" name="observacao"></textarea><br>
+                
+                <button type="submit">Salvar</button>
+                <button type="button" onclick="closeForm0()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay1">
+        <div class="modal">
+            <h2>Apontamento</h2>
+            <form id="formNovoApont1">
+                <input type="hidden" id="idSolicitacao" name="idSolicitacao">
+                <div class="hour">
+                    <label for="hr-fim">Horário Fim:</label>
+                    <input type="time" id="hr-fim" name="hr-fim"><br>
+                </div>
+                
+                <label for="hr-fim">Finalizado:</label>
+                <div class="switch">
+                    <input type="checkbox" id="switch" /><label for="switch"></label>
+                </div>
+                <label for="observacao">Observação:</label>
+                <textarea id="observacao" name="observacao"></textarea><br>
+                
+                <button type="submit">Salvar</button>
+                <button type="button" onclick="closeForm1()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="pedidosContainer"></div>
+
+    <script>
+        //__________________________________________________________________________________________________________
+        //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥 ACESSOS 🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+
+		const userAcess = localStorage.getItem('acess') || '';   // garante string
+		const thirdNumber = userAcess.charAt(3);   
+                      
+		console.log('Log - 3' + thirdNumber);
+
+		if (thirdNumber === '0' || thirdNumber === '') {
+			alert('Acesso negado.');
+			window.location.href = '/GDM/html/Menu.html';  // Redireciona
+		} else {
+			console.log('Acesso liberado: ' + thirdNumber);
+		}
+        //__________________________________________________________________________________________________________
+        //🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
+
+        document.getElementById('formNovoApont0').addEventListener('keydown', function(event) {
+            // Verifica se a tecla pressionada é 'Enter'
+            if (event.key === "Enter" || event.keyCode === 13) {
+                event.preventDefault(); // Previne a ação padrão do "Enter"
+        
+                // Calcula o próximo índice de campo baseado no campo atual
+                const formFields = Array.from(this.elements).filter(el => el.tagName !== 'BUTTON' && !['submit', 'button', 'hidden'].includes(el.type));
+                const currentIndex = formFields.indexOf(document.activeElement);
+                const nextIndex = currentIndex + 1;
+        
+                // Se existir um próximo campo, move o foco para ele
+                if (nextIndex < formFields.length) {
+                    formFields[nextIndex].focus();
+                } else {
+                    // Se não, talvez voltar ao começo do formulário ou finalizar a edição
+                    formFields[0].focus();
+                }
+            }
+        });
+        
+        
+        //-------------------------------------------------------------------------
+        const BASE_URL = 'http://gdi.docol.com.br:5500';
+        //-------------------------------------------------------------------------
+        // Rota para adicionar um nova O.S
+        //-------------------------------------------------------------------------
+        document.getElementById('formNovoApont0').addEventListener('submit', async function(event) {
+            // Evite que o formulário seja enviado automaticamente
+            event.preventDefault();
+
+            // Verifique se todos os campos obrigatórios foram preenchidos antes de enviar o formulário
+            const Ordem = document.getElementById('Ordem').value;
+            const operacao = document.getElementById('operacao').value;
+            const operador = document.getElementById('operador').value;
+            const turno = document.getElementById('turno').value;
+            const dtInicio = document.getElementById('dt-inicio').value;
+            const hrInicio = document.getElementById('hr-inicio').value;
+            const obs = document.getElementById('observacao').value;
+            
+            // Verifique se algum dos campos obrigatórios está vazio
+            if (!Ordem || !operacao || !operador || !turno || !dtInicio || !hrInicio ) {
+
+                showSuccessMessage('9');
+                return; // Pare a execução se algum campo estiver vazio
+            }
+
+            const novoSetup = {
+                login: "login",
+                n_op: Ordem,
+                n_ope: operacao,
+                n_user: operador,
+                n_tur: turno.charAt(0),
+                trab_real: "-----",
+                uni_trab: "H",
+                conf_final:"-----",
+                data_lanc: dtInicio,
+                data_ini: dtInicio,
+                hora_ini: hrInicio + ":00",
+                data_fim: "-----",
+                hora_fim: "-----",
+                status: "Aguardando",
+                obs: obs
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/ferr_apont`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(novoSetup)
+                });
+
+                showSuccessMessage('5');
+                closeForm0();
+                atualizarDados()
+                
+            } catch (error) {
+                console.error('Erro ao enviar solicitação:', error);
+            }
+        });        
+        
+        document.getElementById('formNovoApont1').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Previne o comportamento padrão do formulário
+        
+            // Extrai as informações diretamente dos inputs no formulário
+            const id = ApontId; // Usa a variável global 
+            const dtInicio = ApontDataIni; // Supondo que este campo existe no seu formulário de apontamento
+            const hrInicio = ApontHoraIni; // Supondo que este campo existe e foi preenchido pelo openForm1
+            const hrfim = document.getElementById('hr-fim').value;
+            const conf_final = document.getElementById('switch').checked ? "X" : ""; // Exemplo de coleta para o switch
+            const obs = document.getElementById('observacao').value;
+
+            if (!id || !dtInicio || !hrInicio || !hrfim) {
+                showSuccessMessage('9');
+                return;
+            }
+        
+            // Converte os horários para objetos Date
+            const inicio = new Date(dtInicio + 'T' + hrInicio);
+            const fim = new Date(dtInicio + 'T' + hrfim); // Usando dtInicio aqui também, ajuste conforme sua lógica
+        
+            // Calcula a diferença em milissegundos
+            const diferencaMs = fim.getTime() - inicio.getTime();
+        
+            // Converte a diferença para horas decimais
+            const horasDecimais = diferencaMs / 1000 / 60 / 60;
+        
+
+            if (id) {
+                const novoSetup = {
+                    trab_real: horasDecimais.toFixed(2),
+                    conf_final: conf_final,
+                    data_fim: dtInicio, // Usando dtInicio aqui
+                    hora_fim: hrfim + ":00",
+                    status: "Finalizado",
+                    obs: obs
+                };
+        
+                try {
+                    const response = await fetch(`${BASE_URL}/ferr_apont/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(novoSetup)
+                    });
+        
+                    if (response.ok) {
+                        showSuccessMessage('2'); // Assumindo que esta função exibe uma mensagem de sucesso
+                        closeForm1(); // Fechar o formulário/modal
+                        atualizarDados(); // Se houver necessidade de atualizar a visualização dos dados na página
+                    } else {
+                        throw new Error('Falha na atualização do apontamento');
+                    }
+                } catch (error) {
+                    console.error('Erro ao enviar solicitação:', error);
+                }
+            }
+            closeForm1();
+            atualizarDados();
+        });        
+
+        //-------------------------------------------------------------------------
+        // Rota para adicionar um novo apontamento
+        //-------------------------------------------------------------------------
+        //document.addEventListener('DOMContentLoaded', function() {
+        //    const dtInicioInput = document.getElementById('dt-inicio');
+        //    const hrInicioInput = document.getElementById('hr-inicio');
+        //    const hrFimInput = document.getElementById('hr-fim');
+
+            // Define a data mínima como a data atual
+        //    const hoje = new Date();
+        //    const dataMinima = hoje.toISOString().split('T')[0];
+            //dtInicioInput.setAttribute('min', dataMinima);
+        
+            // Define o horário mínimo como o horário atual para o dia atual
+            // Note que se o usuário selecionar uma data futura, este limite não se aplicará
+        //    const horaAtual = hoje.getHours().toString().padStart(2, '0') + ':' + hoje.getMinutes().toString().padStart(2, '0');
+            //hrInicioInput.setAttribute('min', horaAtual);
+            //hrFimInput.setAttribute('min', horaAtual);
+
+            // Atualiza o horário mínimo de início e fim baseado na data selecionada
+        //    dtInicioInput.addEventListener('change', function() {
+        //        const dataSelecionada = new Date(dtInicioInput.value);
+        //        const dataAtual = new Date();
+        
+                // Reseta o valor mínimo para horário de início e fim se a data selecionada é maior que a data atual
+        //        if (dataSelecionada.setHours(0,0,0,0) > dataAtual.setHours(0,0,0,0)) {
+        //            hrInicioInput.removeAttribute('min');
+        //            hrFimInput.removeAttribute('min');
+        //        } else {
+        //            hrInicioInput.setAttribute('min', horaAtual);
+        //            hrFimInput.setAttribute('min', horaAtual);
+        //        }
+        //    });
+        //});
+        //-------------------------------------------------------------------------
+        // Rota para carregar dados apontados
+        //-------------------------------------------------------------------------
+        function renderizarComoCartoes(data) {
+            fetch(`${BASE_URL}/ferr_apont`)
+                .then(response => response.json())
+                .then(data => {
+                    const ordenarPorStatus = (a, b) => {
+                        const statusOrder = {
+                            'Aguardando': 1,
+                            'Finalizado': 2,
+                            // Adicione mais status conforme necessário
+                        };
+                        return statusOrder[a.status] - statusOrder[b.status];
+                    };
+            
+                    data.sort(ordenarPorStatus);
+            
+                    const pedidosContainer = document.getElementById('pedidosContainer');
+                    pedidosContainer.innerHTML = '';
+        
+                    // Obtém a data atual formatada como AAAA-MM-DD
+                    const hoje = new Date().toISOString().slice(0, 10);
+        
+                    // Filtra os dados para incluir todos os "Aguardando" e "Finalizado" apenas se a data for igual a hoje
+                    const dadosFiltrados = data.filter(solicitacao => {
+                        if (solicitacao.status === 'Finalizado') {
+                            return solicitacao.data_lanc === hoje;
+                        }
+                        return true; // Inclui todos os "Aguardando"
+                    });
+        
+                    dadosFiltrados.forEach(solicitacao => {
+                        const card = document.createElement('div');
+                        card.classList.add('card1');
+        
+                        const cardContent = document.createElement('div');
+                        cardContent.classList.add('card-content');
+                        // Conteúdo do cartão aqui, como no seu código original...
+                        cardContent.innerHTML = `
+                                            <button class="menu-button">Menu</button>
+                                            <div class="status-buttons">       
+                                                <button class="button-apontamento" onclick="openForm1(${solicitacao.Id}, '${solicitacao.hora_ini}', '${solicitacao.data_ini}')">Apontamento</button>
+                                                <button class="button-finalizar">Finalizar</button>
+                                            </div>
+
+                                            <form id="formAlterarSetup">
+                                                <div class="infoId">
+                                                    <div><label class="info-line">${solicitacao.Id}</p></label ></div>
+                                                </div>
+
+                                                <div class="info0">
+                                                    <div class="linha-separadora"></div> 
+                                                    <div><label class="texto1">Ordem de Serviço</label></div>  
+                                                    <div><label class="info-line">${solicitacao.n_op}</p></label ></div>
+                                                    
+                                                    <div class="linha-separadora"></div> 
+                                                    <div><label class="texto1">Operação</label></div>  
+                                                    <div><label class="info-line">${solicitacao.n_ope}</p></label ></div>
+
+                                                    <div class="linha-separadora"></div>    
+                                                    <div><label class="texto1">Nº Usuário</label></div>  
+                                                    <div><label class="info-line item">${solicitacao.n_user}</p></label ></div>
+
+                                                    <div class="linha-separadora"></div>    
+                                                    <div><label class="texto1">Horas Trabalhadas</label></div>  
+                                                    <div><label class="info-line">${solicitacao.trab_real}</p></label ></div>
+
+                                                    <div class="linha-separadora"></div>    
+                                                    <div><label class="texto1">Data Inicio:</label></div>  
+                                                    <div><label class="info-line">${solicitacao.data_ini}</p></label></div>
+
+                                                    <div class="linha-separadora"></div>    
+                                                    <div><label class="texto1">Hora Inicio:</label></div>  
+                                                    <div><label class="info-line">${solicitacao.hora_ini}</p></label></div>
+                                                    
+                                                    <div class="linha-separadora"></div>    
+                                                    <div><label class="texto1">Confirmação final:</label></div>  
+                                                    <div><label class="info-line">${solicitacao.conf_final}</p></label></div>
+
+                                                    <div class="linha-separadora"></div>    
+                                                    <div><label class="texto1">Observacao:</label></div>  
+                                                    <div><label class="info-line1">${solicitacao.obs}</label></div>
+                                                </div>
+                                        </form>
+                                        `;
+        
+                        card.appendChild(cardContent);
+                        pedidosContainer.appendChild(card);
+                        card.classList.add(`status-${solicitacao.status.toLowerCase()}`);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar dados do servidor:', error);
+                });
+        }        
+
+        document.getElementById('viewCardsBtn').addEventListener('click', () => {
+            fetch(`${BASE_URL}/ferr_apont`)
+                .then(response => response.json())
+                .then(data => renderizarComoCartoes(data));
+        });
+        
+        document.getElementById('viewListBtn').addEventListener('click', () => {
+            fetch(`${BASE_URL}/ferr_apont`)
+                .then(response => response.json())
+                .then(data => renderizarComoLista(data));
+        });
+
+        document.getElementById('viewExtrair').addEventListener('click', () => {
+            fetch(`${BASE_URL}/export-ferr_apont-xlsx`)
+                .then(response => response.blob()) // Alterado de .json() para .blob()
+                .then(blob => {
+                    // Cria um URL para o blob
+                    const url = window.URL.createObjectURL(blob);
+                    // Cria um link temporário para simular o download
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    // Define o nome do arquivo para o download
+                    a.download = 'apontamentos.xlsx';
+                    // Adiciona o link ao documento e o clica
+                    document.body.appendChild(a);
+                    a.click();
+                    // Limpeza após o download
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                })
+                .catch(error => console.error('Erro ao baixar o arquivo:', error));
+        });
+
+        window.addEventListener('load', function() {
+            atualizarDados();
+            showSuccessMessage('1');
+            // Atualize os dados a cada 5 minutos
+            setInterval(atualizarDados, 0.5 * 60 * 1000); // 5 minutos * 60 segundos * 1000 milissegundos
+        });
+
+        //-------------------------------------------------------------------------        
+
+        function atualizarDados() {
+            fetch(`${BASE_URL}/ferr_apont`)//ferr_apont
+                .then(response => response.json())
+                .then(data => {
+                    const pedidosContainer = document.getElementById('pedidosContainer');
+                    pedidosContainer.innerHTML = ''; // Limpa o contêiner atual
+                    renderizarComoCartoes(data); // Esta função agora apenas cria os elementos, não busca dados   
+                });
+        }
+
+        //-------------------------------------------------------------------------
+        function renderizarComoLista(data) {
+            const pedidosContainer = document.getElementById('pedidosContainer');
+            pedidosContainer.innerHTML = ''; // Limpa o contêiner
+        
+            let ordenacaoAtual = { coluna: 'HRpedido', ascendente: true };
+        
+            // Função para criar ícones de ordenação
+            function criarIconeOrdenacao(ascendente) {
+                return ascendente ? '↑' : '↓';
+            }
+        
+            // Função para atualizar a tabela com os dados ordenados
+            function atualizarTabela(propriedade) {
+                const coluna = {
+                    'id': 'Id',
+                    'Nº O.S': 'n_op',
+                    'Nº Oper.': 'n_ope',
+                    'Usuário': 'n_user',
+                    'Turno': 'n_tur',
+                    'Tempo Trab.': 'trab_real',
+                    'Un.': 'uni_trab',
+                    'Coclu.': 'conf_final',
+                    'Data Lanç': 'data_lanc',
+                    'Data Inic.': 'data_ini',
+                    'Hora Inic.': 'hora_ini',
+                    'Data Fim': 'data_fim',
+                    'Hora Fim': 'hora_fim',
+                    'Status': 'status',
+                    'Observação': 'obs',
+                    // Adicione mapeamentos adicionais conforme necessário
+                }[propriedade] || propriedade;
+        
+                if (ordenacaoAtual.coluna === coluna) {
+                    ordenacaoAtual.ascendente = !ordenacaoAtual.ascendente; // Inverte a direção
+                } else {
+                    ordenacaoAtual = { coluna: coluna, ascendente: true }; // Reinicia a direção quando uma nova coluna é selecionada
+                }
+        
+                data.sort((a, b) => {
+                    let valorA = a[coluna];
+                    let valorB = b[coluna];
+        
+                    if (coluna === 'HRpedido') { // Tratamento especial para datas
+                        valorA = new Date(valorA);
+                        valorB = new Date(valorB);
+                    } else if (coluna === 'Id') { // Tratamento especial para números
+                        valorA = +valorA;
+                        valorB = +valorB;
+                    }
+        
+                    if (valorA < valorB) return ordenacaoAtual.ascendente ? -1 : 1;
+                    if (valorA > valorB) return ordenacaoAtual.ascendente ? 1 : -1;
+                    return 0;
+                });
+        
+                // Atualiza o corpo da tabela
+                tbody.innerHTML = '';
+                data.forEach(solicitacao => {
+                    const row = document.createElement('tr');
+					row.className = `status${solicitacao.status.toLowerCase()}`;
+					row.innerHTML = `<td>${solicitacao.Id}</td>
+									<td>${solicitacao.n_op}</td>
+									<td>${solicitacao.n_ope}</td>
+									<td>${solicitacao.n_user}</td>
+									<td>${solicitacao.n_tur}</td>
+									<td>${solicitacao.trab_real}</td>
+									<td>${solicitacao.uni_trab}</td>
+									<td>${solicitacao.conf_final}</td>
+									<td>${solicitacao.data_lanc}</td>
+									<td>${solicitacao.data_ini}</td>
+									<td>${solicitacao.hora_ini}</td>
+									<td>${solicitacao.data_fim}</td>
+									<td>${solicitacao.hora_fim}</td>
+									<td>${solicitacao.status}</td>
+									<td>${solicitacao.obs}</td>`;
+					tbody.appendChild(row);
+                });
+        
+                // Atualiza os ícones de ordenação nos cabeçalhos
+                document.querySelectorAll('th').forEach(header => {
+                    const propriedadeHeader = header.getAttribute('data-propriedade');
+                    if (propriedadeHeader) {
+                        header.innerHTML = propriedadeHeader + (coluna === propriedadeHeader ? criarIconeOrdenacao(ordenacaoAtual.ascendente) : '');
+                    }
+                });
+            }
+        
+            // Cria a tabela e o cabeçalho, incluindo atributos de data-propriedade
+            const tabela = document.createElement('table');
+			            tabela.innerHTML = `<thead>
+                                    <tr>
+                                        <th data-propriedade="Id">Id</th>
+                                        <th data-propriedade="n_op">Nº O.S</th>
+                                        <th data-propriedade="n_ope">Nº Oper.</th>
+                                        <th data-propriedade="n_user">Usuário</th>
+                                        <th data-propriedade="n_tur">Turno</th>
+                                        <th data-propriedade="trab_real">Tempo Trab.</th>
+                                        <th data-propriedade="uni_trab">Un.</th>
+                                        <th data-propriedade="conf_final">Coclu.</th>
+                                        <th data-propriedade="data_lanc">Data Lanç.</th>
+                                        <th data-propriedade="data_ini">Data Inic.</th>
+                                        <th data-propriedade="hora_ini">Hora Inic.</th>
+                                        <th data-propriedade="data_fim">Data Fim</th>
+                                        <th data-propriedade="hora_fim">Hora Fim</th>
+                                        <th data-propriedade="status">Status</th>
+                                        <th data-propriedade="obs">Observação</th>
+                                    </tr>
+                                </thead>`;
+								
+            const tbody = document.createElement('tbody');
+            tabela.appendChild(tbody);
+            pedidosContainer.appendChild(tabela);
+        
+            // Adiciona listeners nos cabeçalhos para ordenação
+            tabela.querySelectorAll('th').forEach(header => {
+                header.addEventListener('click', () => {
+                    const propriedade = header.getAttribute('data-propriedade');
+                    if (propriedade) atualizarTabela(propriedade.toLowerCase());
+                });
+            });
+        
+            atualizarTabela('HRpedido'); // Ordena inicialmente por 'Id'
+        }
+        //-------------------------------------------------------------------------
+        // Adicione um evento de clique para cada botão de status
+        //-------------------------------------------------------------------------
+
+        function openForm0() {
+            document.getElementById("overlay0").style.display = "block";
+            // Selecione o formulário pelo ID ou outra referência, se necessário
+            const form = document.getElementById("overlay0"); // Substitua "meuFormulario" pelo ID do seu formulário
+            const firstInput = form.querySelector("input"); // Isso selecionará o primeiro elemento input do formulário
+            if (firstInput) {
+                firstInput.focus();
+            }
+            carregarHoraAtual()
+        }
+
+        let ApontId = null; // Variável global para armazenar o id atual
+        let ApontHoraIni = null; // Variável global para armazenar o id atual
+        let ApontDataIni = null; // Variável global para armazenar o id atual
+
+        function openForm1(id, horaIni, dataIni) {
+
+            ApontId = id; // Armazena o id na variável global
+            ApontHoraIni=horaIni
+            ApontDataIni=dataIni
+
+            document.getElementById('idSolicitacao').value = id; // Certifique-se de usar .value para inputs 
+            document.getElementById('hr-inicio').value = horaIni; // Supondo que você tenha um campo para isso no formNovoApont1
+            document.getElementById('dt-inicio').value = dataIni; // Supondo que você tenha um campo para isso no formNovoApont1
+            document.getElementById("overlay1").style.display = "block";
+
+            carregarHoraAtual(); // Esta chamada pode sobrescrever o valor de 'hr-fim', certifique-se de que é o comportamento desejado
+        }
+
+        function closeForm0() {
+            document.getElementById("overlay0").style.display = "none";
+        }
+
+        function closeForm1() {
+            document.getElementById("overlay1").style.display = "none";
+        }
+
+        function carregarHoraAtual() {
+            const agora = new Date();
+            // Formata a hora para garantir que tenha dois dígitos para horas e minutos
+            const horas = agora.getHours().toString().padStart(2, '0');
+            const minutos = agora.getMinutes().toString().padStart(2, '0');
+            const dataAtual = agora.toISOString().split('T')[0];
+            // Formatando a turno para HH:MM
+            const turnoAtual = agora.toTimeString().split(' ')[0].substring(0, 5);
+            // Combina horas e minutos no formato HH:mm
+            const horaFormatada = `${horas}:${minutos}`;
+            // Define o valor do input "hr-fim" para a hora atual formatada
+            document.getElementById('hr-fim').value = horaFormatada;
+            document.getElementById('hr-inicio').value = horaFormatada;
+            document.getElementById('dt-inicio').value = dataAtual;
+        }    
+        
+        fetch('http://gdi.docol.com.br/GDM/json/data.json')
+        .then(response => response.json())
+        .then(data => {
+            // Chama uma função para preencher os campos do formulário com os dados do JSON
+            preencherCamposFormulario(data);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar arquivo JSON:', error);
+        });
+    
+        function preencherCamposFormulario(data) {    
+            // Preenche o campo de operação com os dados do JSON
+            const operacaoSelect = document.getElementById('turno');
+            data.Turno.forEach(op => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.textContent = op;
+                operacaoSelect.appendChild(option);
+            });
+        }
+
+        window.addEventListener('load', function() {
+            showSuccessMessage('3');
+        });
+
+    </script>
+
+    <link rel="stylesheet" href="/GDM/css/public.css">
+    <link rel="stylesheet" href="/GDM/css/APF.css">
+    <script src="/GDM/js/PUBLIC.JS"></script>
+
+</body>
+</html>

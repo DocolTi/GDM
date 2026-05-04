@@ -1,0 +1,117 @@
+[
+    {
+        "IdMsg": "1",
+        "tipo": "sucesso",
+        "descricao": "Solicitação enviada com sucesso!",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "2",
+        "tipo": "sucesso",
+        "descricao": "Alterado com Sucesso.",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "3",
+        "tipo": "erro",
+        "descricao": "Página Atualizada com Sucesso!",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "4",
+        "tipo": "erro",
+        "descricao": "Erro ao Atualizar!",
+        "caminhoImagem": "/gdm/img/icons8-erro-96.png"
+    },
+    {
+        "IdMsg": "5",
+        "tipo": "sucesso",
+        "descricao": "Solicitado com Sucesso!",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "6",
+        "tipo": "sucesso",
+        "descricao": "Login feito com Sucesso",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "7",
+        "tipo": "sucesso",
+        "descricao": "Logout feito com Sucesso!",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "8",
+        "tipo": "sucesso",
+        "descricao": "Usuário não Cadastrado!",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+    {
+        "IdMsg": "9",
+        "tipo": "sucesso",
+        "descricao": "Por favor, preencha todos os campos obrigatórios.",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+    {
+        "IdMsg": "10",
+        "tipo": "sucesso",
+        "descricao": "Excluído com sucesso",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "11",
+        "tipo": "erro",
+        "descricao": "Não encontrado",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+    {
+        "IdMsg": "12",
+        "tipo": "sucesso",
+        "descricao": "Etiquetas impressas com sucesso!",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "13",
+        "tipo": "erro",
+        "descricao": "Erro ao imprimir etiquetas.",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+    {
+        "IdMsg": "14",
+        "tipo": "erro",
+        "descricao": "Erro ao se conectar ao servidor.",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+    {
+        "IdMsg": "15",
+        "tipo": "erro",
+        "descricao": "Reset com Sucesso.",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "16",
+        "tipo": "erro",
+        "descricao": "Falha ao resetar.",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+    {
+        "IdMsg": "17",
+        "tipo": "erro",
+        "descricao": "Reserva já solicitada para esta OP e Material (Aguardando/ESC).",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    },
+
+    {
+        "IdMsg": "18",
+        "tipo": "sucesso",
+        "descricao": "Status Gravado com Sucesso.",
+        "caminhoImagem": "/gdm/img/icons8-ok.svg"
+    },
+    {
+        "IdMsg": "19",
+        "tipo": "erro",
+        "descricao": "Código da parada não encontrado.",
+        "caminhoImagem": "/gdm/img/icons8-excluir.svg"
+    }
+]
