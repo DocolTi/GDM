@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/GDM/img/Troca Rapida.ico" type="image/x-icon">  
+    <title>Login</title>
+
+</head>
+
+<body>
+    <div id="app">   
+        <div id="auth" class="center">
+            <div class="cadastro">
+                <form id="authForm">
+                    <h3 id="authFormTitle">Acesse a sua conta para continuar</h3><br><br>
+
+                    <label for="username">Usuário: </label>
+                    <br>
+                    <input type="username" placeholder="Usuário" id="username"/>
+                    <div class="error" id="username-required-error" style="display: none;">
+                        Email é obrigatório
+                    </div>
+                    <div class="error" id="username-invalid-error" style="display: none;">
+                        Email é inválido
+                    </div>
+
+                    <label for="password">Senha: </label>
+                    <br>
+                    <input type="password" placeholder="Senha" id="password"/>
+
+                    <button class="sidebar-button" type="submit" id="loginButton">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <canvas id="wavesCanvas"></canvas>
+<script>
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+    
+        fetch('http://gdi.docol.com.br:5500/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: username, password: password })
+        })
+        .then(response => response.json()) // Converte a resposta em JSON
+        .then(data => {
+            if (data.success) {
+                localStorage.setItem('usuarioLogado', 'true');
+                localStorage.setItem('username', data.username || '');
+                localStorage.setItem('nome', data.Nome || '');
+                localStorage.setItem('auth', data.auth || '');
+                localStorage.setItem('cad', data.cad || '');
+                localStorage.setItem('prof', data.prof || '');
+                localStorage.setItem('email', data.email || '');
+                localStorage.setItem('acess', data.acess || '');
+                localStorage.setItem('obs', data.obs || '');
+    
+                showSuccessMessage('6');
+                setTimeout(() => {
+                    window.location.href = '/GDM/html/Menu.html';
+                }, 3000);
+            } else {
+                showSuccessMessage('8'); // Mensagem de erro
+            }
+        }).catch(error => {
+            console.error('Erro na autenticação:', error);
+        });
+    }
+    
+    
+    document.getElementById('loginButton').addEventListener('click', function(event) {
+        event.preventDefault();
+        login();
+    });    
+    
+    </script>
+
+
+<link rel="stylesheet" href="/GDM/css/login.css">
+<link rel="stylesheet" href="/GDM/css/public.css">
+<script src="/GDM/js/public.js"></script>
+<script src="/GDM/js/auth.js"></script>
+
+</body>
+</html>
